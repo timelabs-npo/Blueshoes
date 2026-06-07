@@ -49,6 +49,11 @@ pub enum NetworkCapability {
         interface: String,
         mtu: u32,
     },
+    EstablishMasqueTunnel {
+        endpoint: String,
+        sni: String,
+        psk: String,
+    },
     CommitConfig,
 }
 

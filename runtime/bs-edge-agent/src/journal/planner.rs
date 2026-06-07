@@ -92,6 +92,27 @@ impl Planner {
             ProfileIntent::RecoverySafeMode => {
                 graph.push(NetworkCapability::FlushRouteCache);
             }
+            ProfileIntent::ObliviousDns => {
+                graph.push(NetworkCapability::AddNftRule {
+                    family: NftFamily::Inet,
+                    table: NftTable::Filter,
+                    chain: NftChain::Forward,
+                    protocol: TransportProtocol::Udp,
+                    dport: 53,
+                    rule_action: NftAction::Drop, // Drop standard DNS, force ODoH proxy
+                });
+            }
+            ProfileIntent::MasqueObfuscation => {
+                graph.push(NetworkCapability::EstablishMasqueTunnel {
+                    endpoint: "masque.example.com".to_string(), // Placeholder for now
+                    sni: "cloudflare.com".to_string(),
+                    psk: "secure_psk".to_string(),
+                });
+                graph.push(NetworkCapability::AddRoute {
+                    target: "0.0.0.0/0".to_string(),
+                    via: "masque0".to_string(),
+                });
+            }
         }
 
         Ok(graph)

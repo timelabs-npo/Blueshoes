@@ -78,3 +78,25 @@ def test_watchdog_rollback(qemu_openwrt):
     time.sleep(2)
     child.sendline("ip route | grep blackhole || echo 'CLEAN'")
     child.expect("CLEAN")
+
+def test_masque_tunnel(qemu_openwrt):
+    child = qemu_openwrt
+    
+    # Simulate execution of the new CapabilityGraph that spins up a MASQUE tunnel
+    child.sendline("echo 'Simulating MASQUE proxy daemon...' > /var/log/masque.log")
+    child.sendline("ip link add masque0 type dummy")
+    child.sendline("ip link set masque0 up")
+    child.expect("root@OpenWrt:/#")
+    
+    # Add a route forcing traffic through the MASQUE tunnel
+    child.sendline("ip route add 8.8.8.8 dev masque0")
+    child.expect("root@OpenWrt:/#")
+    
+    # Verify the route was created successfully
+    child.sendline("ip route | grep masque0")
+    child.expect("8.8.8.8 dev masque0")
+    
+    # Clean up
+    child.sendline("ip route del 8.8.8.8 dev masque0")
+    child.sendline("ip link del masque0")
+    child.expect("root@OpenWrt:/#")

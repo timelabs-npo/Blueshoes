@@ -1,4 +1,5 @@
 pub mod capabilities;
+pub mod masque;
 
 use crate::executor::capabilities::CapabilityGraph;
 

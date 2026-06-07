@@ -8,6 +8,8 @@ pub enum ProfileIntent {
     UserTunnel,
     SafeMtu,
     RecoverySafeMode,
+    ObliviousDns,
+    MasqueObfuscation,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
