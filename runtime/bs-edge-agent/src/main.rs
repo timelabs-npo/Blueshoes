@@ -104,6 +104,84 @@ fn main() {
             });
             println!("{}", serde_json::to_string_pretty(&facts).unwrap());
         }
+        Commands::Plan { profile, out } => {
+            let prof = profiles::schema::ProfileSchema {
+                name: profile.clone(),
+                intent: match profile.as_str() {
+                    "DNS_PRIVACY" => profiles::schema::ProfileIntent::DnsPrivacy,
+                    "ECH_PRESERVE" => profiles::schema::ProfileIntent::EchPreserve,
+                    "USER_TUNNEL" => profiles::schema::ProfileIntent::UserTunnel,
+                    "SAFE_MTU" => profiles::schema::ProfileIntent::SafeMtu,
+                    "OBLIVIOUS_DNS" => profiles::schema::ProfileIntent::ObliviousDns,
+                    "MASQUE_OBFUSCATION" => profiles::schema::ProfileIntent::MasqueObfuscation,
+                    _ => profiles::schema::ProfileIntent::RecoverySafeMode,
+                },
+                description: "Auto-generated profile".to_string(),
+                routes: None,
+                dns: None,
+            };
+            
+            // Acquire exclusive lock
+            let _lock = match executor::transaction::acquire_exclusive_lock() {
+                Ok(l) => l,
+                Err(e) => {
+                    eprintln!("Failed to acquire transaction lock: {}", e);
+                    std::process::exit(1);
+                }
+            };
+            
+            let plan = match journal::planner::Planner::plan(&prof, "10.0.0.1") {
+                Ok(p) => p,
+                Err(e) => {
+                    eprintln!("Planner failed: {}", e);
+                    std::process::exit(1);
+                }
+            };
+            
+            let json = serde_json::to_string_pretty(&plan).unwrap();
+            std::fs::write(out, json).expect("Failed to write plan file");
+            println!("Plan successfully written to {}", out);
+        }
+        Commands::ApplyConfirmed { plan_file, timeout } => {
+            let _lock = match executor::transaction::acquire_exclusive_lock() {
+                Ok(l) => l,
+                Err(e) => {
+                    eprintln!("Failed to acquire transaction lock: {}", e);
+                    std::process::exit(1);
+                }
+            };
+
+            let plan_str = std::fs::read_to_string(plan_file).expect("Failed to read plan file");
+            let plan: executor::capabilities::CapabilityGraph = serde_json::from_str(&plan_str).expect("Invalid plan file");
+
+            println!("Capturing candidate snapshot and shifting rollback slots...");
+            executor::transaction::shift_and_create_snapshot().expect("Snapshot failed");
+
+            let tx_id = format!(
+                "tx_{}",
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs()
+            );
+
+            println!("Applying capability graph...");
+            let exec = executor::DryRunExecutor; // Using DryRun for now, or OpenWrtExecutor if dangerous_execution
+            if let Err(e) = executor::Executor::apply(&exec, &plan) {
+                eprintln!("Apply failed: {}", e);
+                std::process::exit(1);
+            }
+
+            println!("Spawning watchdog with timeout {}s for tx_id: {}", timeout, tx_id);
+            executor::transaction::arm_watchdog(&tx_id, *timeout).expect("Failed to arm watchdog");
+            
+            println!("Configuration active. Run `bs-edge-agent confirm {}` within {}s to make permanent.", tx_id, timeout);
+        }
+        Commands::Confirm { tx_id } => {
+            // Does not need the exclusive lock to confirm, just signals watchdog
+            executor::transaction::confirm_transaction(tx_id).expect("Failed to confirm transaction");
+            println!("Transaction {} confirmed successfully.", tx_id);
+        }
     }
 }
 

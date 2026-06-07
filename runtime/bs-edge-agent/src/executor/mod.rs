@@ -1,5 +1,6 @@
 pub mod capabilities;
 pub mod masque;
+pub mod transaction;
 
 use crate::executor::capabilities::CapabilityGraph;
 

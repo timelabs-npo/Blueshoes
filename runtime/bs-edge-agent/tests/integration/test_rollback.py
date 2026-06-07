@@ -100,3 +100,25 @@ def test_masque_tunnel(qemu_openwrt):
     child.sendline("ip route del 8.8.8.8 dev masque0")
     child.sendline("ip link del masque0")
     child.expect("root@OpenWrt:/#")
+
+def test_commit_confirmed_flow(qemu_openwrt):
+    child = qemu_openwrt
+    
+    # Generate a plan
+    child.sendline("bs-edge-agent plan SAFE_MTU --out /tmp/tx.json")
+    child.expect("Plan successfully written to /tmp/tx.json")
+    child.expect("root@OpenWrt:/#")
+    
+    # Apply confirmed
+    child.sendline("bs-edge-agent apply-confirmed /tmp/tx.json --timeout 10")
+    child.expect("Configuration active")
+    child.expect("root@OpenWrt:/#")
+    
+    # Extract the tx_id from the output (mocking for test)
+    child.sendline("TX_ID=$(ls /tmp/blueshoes_confirm_* | sed 's/.*_confirm_//')")
+    child.sendline("echo $TX_ID")
+    
+    # Confirm
+    child.sendline("bs-edge-agent confirm $TX_ID")
+    child.expect("confirmed successfully")
+    child.expect("root@OpenWrt:/#")

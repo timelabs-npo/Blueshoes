@@ -50,4 +50,23 @@ pub enum Commands {
     Canary,
     /// Collect router facts for the MECHA harness
     Facts,
+    /// Generate a candidate capability graph and save to file (dry-run)
+    Plan {
+        #[arg(required = true)]
+        profile: String,
+        #[arg(long, required = true)]
+        out: String,
+    },
+    /// Activate a candidate configuration and arm the rollback watchdog
+    ApplyConfirmed {
+        #[arg(required = true)]
+        plan_file: String,
+        #[arg(long, default_value_t = 60)]
+        timeout: u64,
+    },
+    /// Disarm the watchdog, making the configuration permanent
+    Confirm {
+        #[arg(required = true)]
+        tx_id: String,
+    },
 }
