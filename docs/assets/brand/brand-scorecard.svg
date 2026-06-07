@@ -1,0 +1,16 @@
+<svg width="1100" height="260" viewBox="0 0 1100 260" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blueshoes scorecard">
+  <rect width="1100" height="260" rx="18" fill="#0F172A"/>
+  <text x="36" y="50" fill="#E2E8F0" font-family="Inter, Segoe UI, system-ui" font-size="28" font-weight="700">Public-facing quality scorecard (post-audit)</text>
+  <g font-family="Inter, Segoe UI, system-ui" font-size="20" fill="#CBD5E1">
+    <text x="36" y="98">README clarity + navigation</text>
+    <text x="36" y="138">Legal/security commitments traceability</text>
+    <text x="36" y="178">Contribution onboarding quality</text>
+    <text x="36" y="218">Brand presentation (visual + narrative)</text>
+  </g>
+  <g font-family="Inter, Segoe UI, system-ui" font-size="22" font-weight="700" fill="#22D3EE">
+    <text x="860" y="98">8.8 / 10</text>
+    <text x="860" y="138">9.1 / 10</text>
+    <text x="860" y="178">8.4 / 10</text>
+    <text x="860" y="218">8.9 / 10</text>
+  </g>
+</svg>

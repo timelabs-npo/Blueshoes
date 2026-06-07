@@ -1,0 +1,57 @@
+{
+  "generated_at_utc": "2026-06-07T12:54:12Z",
+  "project": "Blueshoes",
+  "promises": [
+    {
+      "id": "P-001",
+      "promise": "No MITM / no TLS decryption / no synthetic root CA",
+      "status": "met",
+      "evidence": [
+        "SECURITY.md",
+        "docs/rfcs/0005-mitm-ban.md",
+        "runtime/bs-edge-agent/tests/hygiene_linter_test.rs"
+      ]
+    },
+    {
+      "id": "P-002",
+      "promise": "Unsafe mutation must be explicitly human-gated",
+      "status": "met",
+      "evidence": [
+        "runtime/bs-edge-agent/src/main.rs",
+        "runtime/bs-edge-agent/tests/hygiene_linter_test.rs",
+        "README.md"
+      ]
+    },
+    {
+      "id": "P-003",
+      "promise": "No covert monetization or bundled commercial VPN defaults",
+      "status": "met",
+      "evidence": [
+        "SECURITY.md",
+        "docs/rfcs/0001-runtime-doctrine.md",
+        "docs/rfcs/0018-rejected-ideas.md"
+      ]
+    },
+    {
+      "id": "P-004",
+      "promise": "Deterministic rollback continuity under failure",
+      "status": "partial",
+      "evidence": [
+        "docs/rfcs/0001-runtime-doctrine.md",
+        "docs/rfcs/0002-rollback-model.md",
+        "runtime/bs-edge-agent/src/main.rs"
+      ],
+      "gap": "Runtime is still intentionally beta-gated; full mutation lifecycle is staged and not default-on."
+    },
+    {
+      "id": "P-005",
+      "promise": "Non-destructive removability",
+      "status": "partial",
+      "evidence": [
+        "docs/rfcs/0001-runtime-doctrine.md",
+        "docs/rfcs/0006-openwrt-state-snapshot.md"
+      ],
+      "gap": "Design doctrine exists, but complete live-state mutation/removal validation remains phased."
+    }
+  ]
+}

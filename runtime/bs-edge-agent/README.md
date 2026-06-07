@@ -1,16 +1,26 @@
 # bs-edge-agent
 
-This is the primary runtime daemon for the Blueshoes architecture. It is designed to run natively on OpenWrt routers (specifically targeting the GL.iNet MT-3000 in Phase 1).
+`bs-edge-agent` is the deterministic runtime daemon for Blueshoes, designed for OpenWrt routers (Phase 1 target: GL.iNet MT-3000).
 
-## Constraints
-- **Language**: Rust (currently scaffolded).
-- **Architecture**: Aarch64 (Cortex-A53).
-- **Memory Budget**: < 15MB RSS.
-- **Flash Budget**: < 5MB (stripped binary).
+## Runtime Constraints
 
-## Responsibilities
-1. Monitor network health (netcheck).
-2. Execute the atomic transaction loop (Snapshot $\to$ Apply $\to$ Validate $\to$ Rollback).
-3. Log failures to local SQLite telemetry.
+- **Language**: Rust
+- **Architecture**: Aarch64 (Cortex-A53)
+- **Memory Budget**: `< 15MB` RSS target
+- **Flash Budget**: `< 5MB` stripped binary target
 
-This agent operates strictly under the [Runtime Doctrine](../docs/rfcs/0001-runtime-doctrine.md). It does not guess, it does not use AI internally, and it does not perform transparent MITM interception.
+## Core Responsibilities
+
+1. Collect read-only network telemetry probes.
+2. Run transaction planning and journal evidence output.
+3. Enforce explicit execution gates for any unsafe path.
+
+## Safety Model
+
+- Default mode is dry-run.
+- Unsafe execution requires explicit double confirmation.
+- `dangerous_execution` feature gate isolates mutation-capable build paths.
+
+## Doctrine Link
+
+This runtime follows the [Core Runtime Doctrine (RFC 0001)](../../docs/rfcs/0001-runtime-doctrine.md) and [Rollback Model (RFC 0002)](../../docs/rfcs/0002-rollback-model.md).
