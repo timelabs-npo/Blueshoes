@@ -1,0 +1,17 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blueshoes banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1020"/>
+      <stop offset="1" stop-color="#1648D8"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="220" y1="40" x2="980" y2="280" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#93C5FD" stop-opacity="0.12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="320" rx="24" fill="url(#bg)"/>
+  <rect x="70" y="56" width="1060" height="208" rx="20" fill="url(#accent)"/>
+  <text x="120" y="138" fill="#E2E8F0" font-family="Inter, Segoe UI, system-ui" font-size="56" font-weight="800">Blueshoes</text>
+  <text x="120" y="190" fill="#C7D2FE" font-family="Inter, Segoe UI, system-ui" font-size="26" font-weight="500">Deterministic edge networking. Rollback-first by design.</text>
+  <text x="120" y="232" fill="#A5B4FC" font-family="Inter, Segoe UI, system-ui" font-size="20">No MITM • Human-gated execution • Evidence-driven operations</text>
+</svg>
