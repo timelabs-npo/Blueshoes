@@ -4,9 +4,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug)]
 pub enum RollbackError {
-    SnapshotFailed(String),
-    RestoreFailed(String),
-    NetworkReloadFailed(String),
+    Snapshot(String),
+    Restore(String),
+    NetworkReload(String),
 }
 
 /// Creates a snapshot of `/etc/config/` to `/tmp/bs_config_backup_<timestamp>`
@@ -23,10 +23,10 @@ pub fn create_snapshot() -> Result<String, RollbackError> {
         .arg("/etc/config")
         .arg(&backup_path)
         .output()
-        .map_err(|e| RollbackError::SnapshotFailed(e.to_string()))?;
+        .map_err(|e| RollbackError::Snapshot(e.to_string()))?;
 
     if !output.status.success() {
-        return Err(RollbackError::SnapshotFailed(
+        return Err(RollbackError::Snapshot(
             String::from_utf8_lossy(&output.stderr).to_string(),
         ));
     }
@@ -37,7 +37,7 @@ pub fn create_snapshot() -> Result<String, RollbackError> {
 /// Restores the snapshot from the given path to `/etc/config`
 pub fn restore_snapshot(backup_path: &str) -> Result<(), RollbackError> {
     if !Path::new(backup_path).exists() {
-        return Err(RollbackError::RestoreFailed(format!("Backup path {} does not exist", backup_path)));
+        return Err(RollbackError::Restore(format!("Backup path {} does not exist", backup_path)));
     }
 
     // Safely copy back using `-a` with `/. ` suffix to avoid shell glob expansion
@@ -46,10 +46,10 @@ pub fn restore_snapshot(backup_path: &str) -> Result<(), RollbackError> {
         .arg(format!("{}/.", backup_path))
         .arg("/etc/config/")
         .output()
-        .map_err(|e| RollbackError::RestoreFailed(e.to_string()))?;
+        .map_err(|e| RollbackError::Restore(e.to_string()))?;
 
     if !output.status.success() {
-        return Err(RollbackError::RestoreFailed(
+        return Err(RollbackError::Restore(
             String::from_utf8_lossy(&output.stderr).to_string(),
         ));
     }
@@ -62,10 +62,10 @@ pub fn reload_network() -> Result<(), RollbackError> {
     let output = Command::new("/etc/init.d/network")
         .arg("reload")
         .output()
-        .map_err(|e| RollbackError::NetworkReloadFailed(e.to_string()))?;
+        .map_err(|e| RollbackError::NetworkReload(e.to_string()))?;
 
     if !output.status.success() {
-        return Err(RollbackError::NetworkReloadFailed(
+        return Err(RollbackError::NetworkReload(
             String::from_utf8_lossy(&output.stderr).to_string(),
         ));
     }

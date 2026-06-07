@@ -20,11 +20,21 @@ def check_expiration(grant):
     except Exception as e:
         return False, f"FAILED to parse expiration: {e}"
 
+import re
+
 def redact(text, ip):
     if not text:
         return text
-    # Simple redaction
-    return text.replace(ip, "[REDACTED_IP]")
+    # Redact all IPv4 addresses except 127.0.0.1 and 0.0.0.0
+    ip_pattern = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
+    
+    def replacer(match):
+        found = match.group(0)
+        if found in ("127.0.0.1", "0.0.0.0"):
+            return found
+        return "[REDACTED_IP]"
+        
+    return re.sub(ip_pattern, replacer, text)
 
 def main():
     parser = argparse.ArgumentParser(description="MECHA Safe Human-Run Execution Harness")

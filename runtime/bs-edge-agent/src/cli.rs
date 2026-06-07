@@ -16,71 +16,38 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// Check the status of the router (memory, load, OS)
-    Status {
-        #[arg(long, default_value_t = true)]
-        json: bool,
-    },
+    Status,
     /// Perform a read-only network validation check and append to journal
-    Netcheck {
-        #[arg(long, default_value_t = true)]
-        json: bool,
-    },
+    Netcheck,
     /// List available static routing profiles
-    Profiles {
-        #[arg(long, default_value_t = true)]
-        json: bool,
-    },
+    Profiles,
     /// Output the local event journal
     Journal {
         #[arg(long)]
         tail: Option<usize>,
     },
     /// Run a quick self-diagnostic
-    Doctor {
-        #[arg(long, default_value_t = true)]
-        json: bool,
-    },
+    Doctor,
     /// Dump safe environment variables
-    Env {
-        #[arg(long, default_value_t = true)]
-        json: bool,
-    },
+    Env,
     /// Perform an explicit DNS lookup
     Dns {
         target: String,
-        #[arg(long, default_value_t = true)]
-        json: bool,
     },
     /// Perform an explicit ICMP ping (latency)
     Latency {
         #[arg(required = true)]
         target: String,
-
-        #[arg(long, default_value_t = false)]
-        json: bool,
     },
     /// Perform a trace to a target
     Trace {
         #[arg(required = true)]
         target: String,
+    },
 
-        #[arg(long, default_value_t = false)]
-        json: bool,
-    },
-    /// Simulate a dummy transaction rollback
-    Simulate {
-        #[arg(long, default_value_t = false)]
-        json: bool,
-    },
-    /// Simulate a dummy transaction
-    Dummy {
-        #[arg(long)]
-        json: bool,
-    },
 
     /// Run M7 Canary Mutation validation
-    Canary {
-        #[arg(long)]
-        json: bool,
-    },
+    Canary,
+    /// Collect router facts for the MECHA harness
+    Facts,
 }

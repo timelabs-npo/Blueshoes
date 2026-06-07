@@ -95,8 +95,7 @@ impl Executor for OpenWrtExecutor {
             };
 
             if !status.success() {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Other,
+                return Err(std::io::Error::other(
                     format!("Command for step {:?} failed with exit code: {}", step, status),
                 ));
             }

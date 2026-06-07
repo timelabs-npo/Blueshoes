@@ -1,4 +1,6 @@
-use crate::journal::planner::PlanStep;
+pub mod capabilities;
+
+use crate::executor::capabilities::CapabilityGraph;
 
 #[derive(Debug, Clone)]
 pub struct Snapshot {
@@ -8,7 +10,7 @@ pub struct Snapshot {
 
 pub trait Executor {
     fn capture_snapshot(&self) -> std::io::Result<Snapshot>;
-    fn apply(&self, plan: &[PlanStep]) -> std::io::Result<()>;
+    fn apply(&self, plan: &CapabilityGraph) -> std::io::Result<()>;
     fn rollback(&self, snapshot: &Snapshot) -> std::io::Result<()>;
 }
 
@@ -23,9 +25,9 @@ impl Executor for DryRunExecutor {
         })
     }
 
-    fn apply(&self, plan: &[PlanStep]) -> std::io::Result<()> {
+    fn apply(&self, plan: &CapabilityGraph) -> std::io::Result<()> {
         println!("[DryRun] Applying plan safely (zero mutation):");
-        for step in plan {
+        for step in &plan.network_caps {
             println!("  -> {:?}", step);
         }
         Ok(())

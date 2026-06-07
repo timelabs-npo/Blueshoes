@@ -13,17 +13,21 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Status { json: _json_flag } => {
+        Commands::Status => {
             let event = probes::system::run();
             println!("{}", serde_json::to_string_pretty(&event).unwrap());
         }
-        Commands::Netcheck { json: _json_flag } => {
+        Commands::Netcheck => {
             // Run all probes sequentially
             let sys_event = probes::system::run();
             let route_event = probes::route::run();
-            let dns_event = probes::dns::run("example.com");
-            let icmp_event = probes::icmp::run("1.1.1.1");
-            let https_event = probes::https::run("https://example.com");
+            let dns_target = std::env::var("BS_DNS_TARGET").unwrap_or_else(|_| "google.com".to_string());
+            let icmp_target = std::env::var("BS_ICMP_TARGET").unwrap_or_else(|_| "1.1.1.1".to_string());
+            let https_target = std::env::var("BS_HTTPS_TARGET").unwrap_or_else(|_| "https://google.com".to_string());
+
+            let dns_event = probes::dns::run(&dns_target);
+            let icmp_event = probes::icmp::run(&icmp_target);
+            let https_event = probes::https::run(&https_target);
             
             let iface_list = ["lo", "eth0", "wan", "br-lan"];
             let interface_event = probes::TelemetryEvent::new(
@@ -46,7 +50,7 @@ fn main() {
 
             println!("{}", serde_json::to_string_pretty(&events).unwrap());
         }
-        Commands::Profiles { json: _json_flag } => {
+        Commands::Profiles => {
             let profiles = json!([
                 {"name": "DIRECT", "description": "Standard OpenWrt routing"},
                 {"name": "DNS_PRIVACY", "description": "Encrypted DNS upstreams"},
@@ -68,200 +72,174 @@ fn main() {
                 }
             }
         }
-        Commands::Doctor { json: _json_flag } => {
+        Commands::Doctor => {
             let event = probes::doctor::run();
             println!("{}", serde_json::to_string_pretty(&event).unwrap());
         }
-        Commands::Env { json: _json_flag } => {
+        Commands::Env => {
             let event = probes::env::run();
             println!("{}", serde_json::to_string_pretty(&event).unwrap());
         }
-        Commands::Canary { json: _json_flag } => {
-            use executor::{DryRunExecutor, Executor};
-            use journal::transaction::{TransactionEvent, TransactionState};
-
-            // Choose executor based on feature flag
-            #[cfg(feature = "dangerous_execution")]
-            let exec = executor::openwrt::OpenWrtExecutor;
-            #[cfg(not(feature = "dangerous_execution"))]
-            let exec = DryRunExecutor;
-
-            let tx_id = format!(
-                "tx_{}",
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs()
-            );
-
-            let profile = profiles::schema::ProfileSchema {
-                name: "Canary Test MTU".to_string(),
-                intent: profiles::schema::ProfileIntent::SafeMtu,
-                description: "Test safe MTU setting".to_string(),
-                routes: None,
-                dns: None,
-            };
-
-            let plan = match journal::planner::Planner::plan(&profile) {
-                Ok(p) => p,
-                Err(e) => {
-                    eprintln!("Planner failed: {}", e);
-                    return;
-                }
-            };
-
-            let force_dry_run =
-                std::env::var("BS_FORCE_DRY_RUN").unwrap_or_else(|_| "0".to_string()) == "1";
-
-            #[cfg(feature = "dangerous_execution")]
-            let has_dangerous_execution = true;
-            #[cfg(not(feature = "dangerous_execution"))]
-            let has_dangerous_execution = false;
-
-            let refusal_reason = if force_dry_run {
-                Some("BS_FORCE_DRY_RUN=1 environment variable set")
-            } else if !has_dangerous_execution {
-                Some("dangerous_execution feature disabled")
-            } else if !cli.unsafe_execute {
-                Some("missing --unsafe-execute flag")
-            } else if cli.confirm.as_deref().unwrap_or("").starts_with("unsafe:") == false {
-                Some("missing or invalid --confirm unsafe:<request_id>")
-            } else {
-                None
-            };
-
-            if let Some(reason) = refusal_reason {
-                let evidence = journal::planner::Planner::dry_run(&profile, reason).unwrap();
-                println!("{}", serde_json::to_string_pretty(&evidence).unwrap());
-
-                // Log dry run event
-                let dry_run_strings = vec![serde_json::to_string(&evidence).unwrap()];
-                let start_event = TransactionEvent::new(
-                    tx_id,
-                    TransactionState::Start,
-                    Some(format!("{:?}", profile.intent)),
-                    Some(dry_run_strings),
-                );
-                let _ = journal::jsonl::append_transaction(&start_event);
-                return;
-            }
-
-            // --- EXECUTION PATH ---
-
-            let start_event = TransactionEvent::new(
-                tx_id.clone(),
-                TransactionState::Start,
-                Some(format!("{:?}", profile.intent)),
-                None,
-            );
-            let _ = journal::jsonl::append_transaction(&start_event);
-            println!("{}", serde_json::to_string_pretty(&start_event).unwrap());
-
-            // 1. Snapshot
-            println!("Capturing snapshot...");
-            let snapshot = match exec.capture_snapshot() {
-                Ok(s) => s,
-                Err(e) => {
-                    eprintln!("Failed to capture snapshot: {}", e);
-                    return;
-                }
-            };
-
-            // 2. Setup dead man's switch timer
-            println!("Spawning bs-watchdog...");
-
-            #[cfg(feature = "dangerous_execution")]
-            let mut watchdog_child = std::process::Command::new(
-                std::env::current_exe()
-                    .unwrap()
-                    .parent()
-                    .unwrap()
-                    .join("bs-watchdog"),
-            )
-            .args([&snapshot.metadata, &snapshot.raw_state, "30"])
-            .stdin(std::process::Stdio::piped())
-            .spawn()
-            .expect("Failed to spawn bs-watchdog");
-
-            println!("Applying plan...");
-            if let Err(e) = exec.apply(&plan) {
-                eprintln!("Failed to apply plan: {}", e);
-                let _ = exec.rollback(&snapshot);
-                return;
-            }
-
-            // Simulate "netcheck" validation process
-            println!("Validating network...");
-            std::thread::sleep(std::time::Duration::from_secs(5));
-
-            println!("Validation complete. Committing to watchdog.");
-
-            #[cfg(feature = "dangerous_execution")]
-            {
-                use std::io::Write;
-                if let Some(mut stdin) = watchdog_child.stdin.take() {
-                    let _ = stdin.write_all(b"COMMIT\n");
-                }
-                let _ = watchdog_child.wait();
-            }
-
-            println!("Transaction successful.");
+        Commands::Canary => {
+            handle_canary(&cli);
         }
-        Commands::Dns {
-            target,
-            json: _json_flag,
-        } => {
+        Commands::Dns { target } => {
             let event = probes::dns::run(target);
             println!("{}", serde_json::to_string_pretty(&event).unwrap());
         }
-        Commands::Latency {
-            target,
-            json: _json_flag,
-        } => {
+        Commands::Latency { target } => {
             let event = probes::icmp::run(target);
             println!("{}", serde_json::to_string_pretty(&event).unwrap());
         }
-        Commands::Trace {
-            target,
-            json: _json_flag,
-        } => {
+        Commands::Trace { target } => {
             let event = probes::trace::run(target);
             println!("{}", serde_json::to_string_pretty(&event).unwrap());
         }
-        Commands::Simulate { json: _json_flag } => {
-            use journal::transaction::{TransactionEvent, TransactionState};
-            let tx_id = format!(
-                "tx_{}",
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_secs()
-            );
-
-            // Log intent
-            let start_event = TransactionEvent::new(
-                tx_id.clone(),
-                TransactionState::Start,
-                Some("DNS_PRIVACY".to_string()),
-                None,
-            );
-            if let Err(e) = journal::jsonl::append_transaction(&start_event) {
-                eprintln!("Failed to write start to journal: {}", e);
-            }
-            println!("{}", serde_json::to_string_pretty(&start_event).unwrap());
-
-            // Simulate mutation and success
-            std::thread::sleep(std::time::Duration::from_millis(50));
-
-            // Log commit
-            let commit_event = TransactionEvent::new(tx_id, TransactionState::Commit, None, None);
-            if let Err(e) = journal::jsonl::append_transaction(&commit_event) {
-                eprintln!("Failed to write commit to journal: {}", e);
-            }
-            println!("{}", serde_json::to_string_pretty(&commit_event).unwrap());
-        }
-        Commands::Dummy { json: _json_flag } => {
-            println!("Dummy command executed safely.");
+        Commands::Facts => {
+            let facts = json!({
+                "agent_version": env!("CARGO_PKG_VERSION"),
+                "os": std::env::consts::OS,
+                "arch": std::env::consts::ARCH,
+                "timestamp": std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs()
+            });
+            println!("{}", serde_json::to_string_pretty(&facts).unwrap());
         }
     }
+}
+
+fn handle_canary(cli: &Cli) {
+    use executor::{DryRunExecutor, Executor};
+    use journal::transaction::{TransactionEvent, TransactionState};
+
+    // Choose executor based on feature flag
+    #[cfg(feature = "dangerous_execution")]
+    let exec = executor::openwrt::OpenWrtExecutor;
+    #[cfg(not(feature = "dangerous_execution"))]
+    let exec = DryRunExecutor;
+
+    let tx_id = format!(
+        "tx_{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+    );
+
+    let profile = profiles::schema::ProfileSchema {
+        name: "Canary Test MTU".to_string(),
+        intent: profiles::schema::ProfileIntent::SafeMtu,
+        description: "Test safe MTU setting".to_string(),
+        routes: None,
+        dns: None,
+    };
+
+    let plan = match journal::planner::Planner::plan(&profile, "10.0.0.1") {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("Planner failed: {}", e);
+            return;
+        }
+    };
+
+    let force_dry_run =
+        std::env::var("BS_FORCE_DRY_RUN").unwrap_or_else(|_| "0".to_string()) == "1";
+
+    #[cfg(feature = "dangerous_execution")]
+    let has_dangerous_execution = true;
+    #[cfg(not(feature = "dangerous_execution"))]
+    let has_dangerous_execution = false;
+
+    let refusal_reason = if force_dry_run {
+        Some("BS_FORCE_DRY_RUN=1 environment variable set")
+    } else if !has_dangerous_execution {
+        Some("dangerous_execution feature disabled")
+    } else if !cli.unsafe_execute {
+        Some("missing --unsafe-execute flag")
+    } else if !cli.confirm.as_deref().unwrap_or("").starts_with("unsafe:") {
+        Some("missing or invalid --confirm unsafe:<request_id>")
+    } else {
+        None
+    };
+
+    if let Some(reason) = refusal_reason {
+        let evidence = journal::planner::Planner::dry_run(&profile, reason).unwrap();
+        println!("{}", serde_json::to_string_pretty(&evidence).unwrap());
+
+        // Log dry run event
+        let dry_run_strings = vec![serde_json::to_string(&evidence).unwrap()];
+        let start_event = TransactionEvent::new(
+            tx_id,
+            TransactionState::Start,
+            Some(format!("{:?}", profile.intent)),
+            Some(dry_run_strings),
+        );
+        let _ = journal::jsonl::append_transaction(&start_event);
+        return;
+    }
+
+    // --- EXECUTION PATH ---
+
+    let start_event = TransactionEvent::new(
+        tx_id.clone(),
+        TransactionState::Start,
+        Some(format!("{:?}", profile.intent)),
+        None,
+    );
+    let _ = journal::jsonl::append_transaction(&start_event);
+    println!("{}", serde_json::to_string_pretty(&start_event).unwrap());
+
+    // 1. Snapshot
+    println!("Capturing snapshot...");
+    let snapshot = match exec.capture_snapshot() {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Failed to capture snapshot: {}", e);
+            return;
+        }
+    };
+
+    // 2. Setup dead man's switch timer
+    println!("Spawning bs-watchdog...");
+
+    #[cfg(feature = "dangerous_execution")]
+    let mut watchdog_child = std::process::Command::new(
+        std::env::current_exe()
+            .unwrap()
+            .parent()
+            .unwrap()
+            .join("bs-watchdog"),
+    )
+    .args([&snapshot.metadata, &snapshot.raw_state, "30"])
+    .stdin(std::process::Stdio::piped())
+    .spawn()
+    .expect("Failed to spawn bs-watchdog");
+
+    println!("Applying plan...");
+    if let Err(e) = exec.apply(&plan) {
+        eprintln!("Failed to apply plan: {}", e);
+        #[cfg(feature = "dangerous_execution")]
+        {
+            let _ = watchdog_child.kill();
+            let _ = watchdog_child.wait();
+        }
+        let _ = exec.rollback(&snapshot);
+        return;
+    }
+
+    // Simulate "netcheck" validation process
+    println!("Validating network...");
+    std::thread::sleep(std::time::Duration::from_secs(5));
+
+    println!("Validation complete. Committing to watchdog.");
+
+    #[cfg(feature = "dangerous_execution")]
+    {
+        use std::io::Write;
+        if let Some(mut stdin) = watchdog_child.stdin.take() {
+            let _ = stdin.write_all(b"COMMIT\n");
+        }
+        let _ = watchdog_child.wait();
+    }
+
+    println!("Transaction successful.");
 }

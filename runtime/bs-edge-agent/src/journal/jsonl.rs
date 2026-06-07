@@ -41,13 +41,15 @@ pub fn tail_journal(lines_count: usize) -> io::Result<Vec<String>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
 
-    let lines: Result<Vec<String>, _> = reader.lines().collect();
-    let mut all_lines = lines?;
-
-    if all_lines.len() > lines_count {
-        let skip = all_lines.len() - lines_count;
-        all_lines.drain(0..skip);
+    let mut deque = std::collections::VecDeque::with_capacity(lines_count);
+    
+    for line in reader.lines() {
+        let line = line?;
+        if deque.len() == lines_count {
+            deque.pop_front();
+        }
+        deque.push_back(line);
     }
 
-    Ok(all_lines)
+    Ok(deque.into())
 }

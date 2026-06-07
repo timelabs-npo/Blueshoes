@@ -2,51 +2,9 @@ use crate::profiles::schema::{ProfileIntent, ProfileSchema};
 use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum NftFamily {
-    Inet,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum NftTable {
-    Filter,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum NftChain {
-    Forward,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum TransportProtocol {
-    Tcp,
-    Udp,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum NftAction {
-    Accept,
-    Drop,
-    Reject,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(tag = "action")]
-pub enum PlanStep {
-    AddRoute {
-        target: String,
-        via: String,
-    },
-    FlushRouteCache,
-    AddNftRule {
-        family: NftFamily,
-        table: NftTable,
-        chain: NftChain,
-        protocol: TransportProtocol,
-        dport: u16,
-        rule_action: NftAction,
-    },
-    SetMtu {
-        interface: String,
-        mtu: u32,
-    },
-}
+use crate::executor::capabilities::{
+    CapabilityGraph, NetworkCapability, NftAction, NftChain, NftFamily, NftTable, TransportProtocol,
+};
 
 const ALLOWED_INTERFACES: &[&str] = &["pppoe-wan", "wan", "wg0", "br-lan"];
 
@@ -61,14 +19,14 @@ pub struct DryRunEvidence {
     pub execution_mode: String,
     pub mutation_performed: bool,
     pub profile_name: String,
-    pub plan_steps: Vec<PlanStep>,
+    pub plan_steps: CapabilityGraph,
     pub plan_sha256: String,
     pub refusal_reason: String,
 }
 
 impl Planner {
-    pub fn plan(profile: &ProfileSchema) -> Result<Vec<PlanStep>, String> {
-        let mut steps = Vec::new();
+    pub fn plan(profile: &ProfileSchema, default_gateway: &str) -> Result<CapabilityGraph, String> {
+        let mut graph = CapabilityGraph::new();
 
         match profile.intent {
             ProfileIntent::DnsPrivacy => {
@@ -79,17 +37,17 @@ impl Planner {
                             format!("Invalid IP address in DnsPrivacy profile: {}", ip_str)
                         })?;
 
-                        let via = "10.0.0.1".to_string();
+                        let via = default_gateway.to_string();
                         if !is_valid_interface_or_ip(&via) {
                             return Err(format!("Invalid via interface/IP: {}", via));
                         }
-                        steps.push(PlanStep::AddRoute {
+                        graph.push(NetworkCapability::AddRoute {
                             target: ip.to_string(),
                             via,
                         });
                     }
                     // Add safe NFT rule
-                    steps.push(PlanStep::AddNftRule {
+                    graph.push(NetworkCapability::AddNftRule {
                         family: NftFamily::Inet,
                         table: NftTable::Filter,
                         chain: NftChain::Forward,
@@ -102,7 +60,7 @@ impl Planner {
                 }
             }
             ProfileIntent::EchPreserve => {
-                steps.push(PlanStep::AddNftRule {
+                graph.push(NetworkCapability::AddNftRule {
                     family: NftFamily::Inet,
                     table: NftTable::Filter,
                     chain: NftChain::Forward,
@@ -116,9 +74,9 @@ impl Planner {
                 if !is_valid_interface_or_ip(&via) {
                     return Err(format!("Invalid via interface/IP: {}", via));
                 }
-                steps.push(PlanStep::AddRoute {
+                graph.push(NetworkCapability::AddRoute {
                     target: "0.0.0.0/0".to_string(),
-                    via,
+                    via: "10.0.0.1".to_string(),
                 });
             }
             ProfileIntent::SafeMtu => {
@@ -126,17 +84,17 @@ impl Planner {
                 if !is_valid_interface_or_ip(&interface) {
                     return Err(format!("Invalid interface: {}", interface));
                 }
-                steps.push(PlanStep::SetMtu {
+                graph.push(NetworkCapability::SetMtu {
                     interface,
                     mtu: 1492,
                 });
             }
             ProfileIntent::RecoverySafeMode => {
-                steps.push(PlanStep::FlushRouteCache);
+                graph.push(NetworkCapability::FlushRouteCache);
             }
         }
 
-        Ok(steps)
+        Ok(graph)
     }
 
     pub fn dry_run(
@@ -144,7 +102,7 @@ impl Planner {
         refusal_reason: &str,
     ) -> Result<DryRunEvidence, String> {
         use sha2::{Digest, Sha256};
-        let steps = Self::plan(profile)?;
+        let steps = Self::plan(profile, "10.0.0.1")?;
 
         let steps_json = serde_json::to_string(&steps).map_err(|e| e.to_string())?;
         let mut hasher = Sha256::new();
@@ -183,7 +141,7 @@ mod tests {
             }),
             routes: None,
         };
-        let plan = Planner::plan(&profile).unwrap();
+        let plan = Planner::plan(&profile, "10.0.0.1").unwrap();
         assert_eq!(plan.len(), 3); // 2 routes, 1 nft rule
     }
 
@@ -199,7 +157,7 @@ mod tests {
             }),
             routes: None,
         };
-        let result = Planner::plan(&profile);
+        let result = Planner::plan(&profile, "10.0.0.1");
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("Invalid IP address"));
     }
