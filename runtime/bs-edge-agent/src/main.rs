@@ -188,10 +188,32 @@ fn main() {
             let plan_str = std::fs::read_to_string(plan_file).expect("Failed to read plan file");
             let plan: executor::capabilities::CapabilityGraph = serde_json::from_str(&plan_str).expect("Invalid plan file");
 
+            // Fix 5: Check actual preconditions, not string claims
+            let rollback_dir = std::path::Path::new("/tmp/blueshoes/rollbacks");
+            let rollback_exists = rollback_dir.exists() && rollback_dir.read_dir().map(|mut d| d.next().is_some()).unwrap_or(false);
+            let watchdog_binary = std::env::current_exe()
+                .ok()
+                .and_then(|p| p.parent().map(|d| d.join("bs-watchdog")))
+                .map(|p| p.exists())
+                .unwrap_or(false);
+
+            let mut evidence = Vec::new();
+            if rollback_exists {
+                evidence.push("rollback_anchor.exists".to_string());
+            } else {
+                evidence.push("rollback_anchor.MISSING".to_string());
+            }
+            if watchdog_binary {
+                evidence.push("watchdog.binary_present".to_string());
+            } else {
+                evidence.push("watchdog.binary_MISSING".to_string());
+            }
+            evidence.push(format!("tx_json.valid: {}", plan_file));
+
             let prov = semantic::check::Provenance {
                 result: "ALLOW_APPLY_CONFIRMED".to_string(),
                 derived_from: vec!["inv.no_irreversible_mutation".to_string(), "cap.apply_confirmed".to_string(), "gen.current".to_string()],
-                evidence: vec!["rollback_anchor.exists".to_string(), format!("tx_json.valid: {}", plan_file)],
+                evidence,
                 hash: String::new(),
             };
             if let Err((report, code)) = semantic::check::validate_transformation(prov) {
@@ -243,10 +265,11 @@ fn main() {
         Commands::SubstrateVerify => {
             let mut substrate = semantic::substrate::SemanticSubstrate::new();
             seed_substrate_from_schema(&mut substrate);
-            match substrate.verify_chain_integrity() {
+            match substrate.verify_link_integrity() {
                 Ok(()) => {
                     println!("{}", serde_json::to_string_pretty(&serde_json::json!({
                         "status": "INTACT",
+                        "verification": "link_integrity_only",
                         "generation": substrate.generation,
                         "chain_length": substrate.lineage.len(),
                         "chain_head": substrate.lineage.last().map(|r| &r.transformation_hash),
@@ -255,6 +278,7 @@ fn main() {
                 Err((idx, msg)) => {
                     eprintln!("{}", serde_json::to_string_pretty(&serde_json::json!({
                         "status": "BROKEN",
+                        "verification": "link_integrity_only",
                         "broken_at_index": idx,
                         "error": msg,
                     })).unwrap());
@@ -278,49 +302,62 @@ fn main() {
             let report = detector.analyze(&ground_truth, &tokens);
             println!("{}", serde_json::to_string_pretty(&report).unwrap());
 
-            if report.drift_alarm || report.preemptive_alarm {
-                std::process::exit(21);
+            // Exit codes aligned with Python drift_monitor.py:
+            //   0 = clean, 1 = drift alarm, 2 = preemptive alarm, 3 = both
+            let mut exit_code = 0;
+            if report.drift_alarm {
+                exit_code |= 1;
+            }
+            if report.preemptive_alarm {
+                exit_code |= 2;
+            }
+            if exit_code != 0 {
+                std::process::exit(exit_code);
             }
         }
     }
 }
 
 /// Populate the substrate with entities derived from the core schema.
-/// This is the bridge between the static JSON schema and the live substrate engine.
+/// Uses deterministic timestamps (epoch 0 + generation offset) so
+/// identical schemas always produce identical provenance chains.
 fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubstrate) {
     use semantic::substrate::{ConceptType, Entity, Relation};
     use std::collections::HashMap;
+
+    // Fixed epoch for deterministic seeding — generation offsets ensure unique timestamps
+    const SEED_EPOCH: u64 = 0;
 
     // Invariant
     let mut inv_props = HashMap::new();
     inv_props.insert("statement".into(), "No state transition may become irreversible, unverifiable, or sovereign.".into());
     inv_props.insert("authority".into(), "local_0log".into());
     inv_props.insert("status".into(), "active".into());
-    substrate.commit_entity(Entity {
+    substrate.commit_entity_deterministic(Entity {
         id: "Invariant:no_irreversible_mutation".into(),
         concept: ConceptType::Invariant,
         properties: inv_props,
         relations: vec![],
-    }, "schema_seed");
+    }, "schema_seed", SEED_EPOCH);
 
     // Capability
     let mut cap_props = HashMap::new();
     cap_props.insert("allowed_actor".into(), "executor".into());
     cap_props.insert("requires".into(), "rollback_anchor,watchdog,confirmation_window".into());
-    substrate.commit_entity(Entity {
+    substrate.commit_entity_deterministic(Entity {
         id: "Capability:apply_confirmed".into(),
         concept: ConceptType::Capability,
         properties: cap_props,
         relations: vec![
             Relation { predicate: "requires_invariant".into(), target_id: "Invariant:no_irreversible_mutation".into() },
         ],
-    }, "schema_seed");
+    }, "schema_seed", SEED_EPOCH + 1);
 
     // StateGeneration
     let mut gen_props = HashMap::new();
     gen_props.insert("source".into(), "0.log".into());
     gen_props.insert("promotion_requires".into(), "validation_passed,confirmation_received,rollback_available".into());
-    substrate.commit_entity(Entity {
+    substrate.commit_entity_deterministic(Entity {
         id: "StateGeneration:current".into(),
         concept: ConceptType::StateGeneration,
         properties: gen_props,
@@ -328,47 +365,47 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
             Relation { predicate: "governed_by".into(), target_id: "Invariant:no_irreversible_mutation".into() },
             Relation { predicate: "promoted_via".into(), target_id: "Capability:apply_confirmed".into() },
         ],
-    }, "schema_seed");
+    }, "schema_seed", SEED_EPOCH + 2);
 
     // ExternalMirror (Spanner)
     let mut mirror_props = HashMap::new();
     mirror_props.insert("may_store".into(), "replicated_observations,promoted_artifacts,advisory_acl".into());
     mirror_props.insert("may_not".into(), "override_0log,command_edge_mutation,become_runtime_source_of_truth".into());
-    substrate.commit_entity(Entity {
+    substrate.commit_entity_deterministic(Entity {
         id: "ExternalMirror:spanner".into(),
         concept: ConceptType::ExternalMirror,
         properties: mirror_props,
         relations: vec![
             Relation { predicate: "mirrors".into(), target_id: "StateGeneration:current".into() },
         ],
-    }, "schema_seed");
+    }, "schema_seed", SEED_EPOCH + 3);
 
     // Project: Blueshoes itself
     let mut proj_props = HashMap::new();
     proj_props.insert("name".into(), "Blueshoes".into());
     proj_props.insert("domain".into(), "adaptive-networking".into());
-    substrate.commit_entity(Entity {
+    substrate.commit_entity_deterministic(Entity {
         id: "Project:blueshoes".into(),
         concept: ConceptType::Project,
         properties: proj_props,
         relations: vec![
             Relation { predicate: "enforces".into(), target_id: "Invariant:no_irreversible_mutation".into() },
         ],
-    }, "schema_seed");
+    }, "schema_seed", SEED_EPOCH + 4);
 
     // Metric: Drift score
     let mut metric_props = HashMap::new();
     metric_props.insert("name".into(), "semantic_drift_kl".into());
     metric_props.insert("unit".into(), "bits".into());
     metric_props.insert("alarm_threshold".into(), "0.35".into());
-    substrate.commit_entity(Entity {
+    substrate.commit_entity_deterministic(Entity {
         id: "Metric:semantic_drift_kl".into(),
         concept: ConceptType::Metric,
         properties: metric_props,
         relations: vec![
             Relation { predicate: "monitors".into(), target_id: "Project:blueshoes".into() },
         ],
-    }, "schema_seed");
+    }, "schema_seed", SEED_EPOCH + 5);
 }
 
 fn handle_canary(cli: &Cli) {

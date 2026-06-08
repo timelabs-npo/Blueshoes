@@ -4,7 +4,7 @@ Semantic Drift Monitor — Real-Time Telemetry Sensor for the Blueshoes Substrat
 
 This script is the operational counterpart to the Rust drift engine.
 It reads JSON-LD exports from the substrate, accepts streaming agent payloads,
-and computes live KL divergence + Shannon entropy + Markov prediction.
+and computes live KL divergence + Shannon entropy + heuristic KL extrapolation.
 
 Usage:
   # One-shot audit of a payload file against the substrate
@@ -71,9 +71,9 @@ class DriftReport:
 class SemanticDriftMonitor:
     """
     Mathematical drift detector with three layers of defense:
-      1. KL Divergence    — distribution shift detection
-      2. Shannon Entropy   — structural chaos measurement
-      3. Markov Predictor  — future drift trajectory forecasting
+      1. KL Divergence               — distribution shift detection
+      2. Shannon Entropy              — structural chaos measurement
+      3. Heuristic KL Extrapolator    — future drift trajectory estimation
     """
 
     def __init__(
@@ -130,7 +130,7 @@ class SemanticDriftMonitor:
 
         # Update history and predict
         self.kl_history.append(kl)
-        predicted = self._markov_predict()
+        predicted = self._extrapolate_kl()
         report.predicted_kl_at_horizon = predicted
 
         # Alarms
@@ -159,8 +159,11 @@ class SemanticDriftMonitor:
                 h -= p * math.log2(p)
         return h
 
-    def _markov_predict(self) -> float:
-        """Predict KL divergence N steps ahead using weighted Markov extrapolation."""
+    def _extrapolate_kl(self) -> float:
+        """Estimate KL divergence N steps ahead using weighted-delta heuristic extrapolation.
+
+        This is NOT a true Markov transition model. It uses recency-weighted
+        deltas with exponential acceleration to estimate future drift."""
         n = len(self.kl_history)
         if n == 0:
             return 0.0
@@ -302,7 +305,7 @@ def cmd_selftest(_args):
     assert r.missing_concepts == 3, f"FAIL: expected 3 missing, got {r.missing_concepts}"
     print("✓ Test 4 PASSED: Empty payload → total drift")
 
-    # Test 5: Markov prediction with accelerating drift
+    # Test 5: Heuristic extrapolation with accelerating drift
     monitor.reset()
     payloads = [
         ["Person", "Person", "Project", "Project", "Metric"],
@@ -318,7 +321,7 @@ def cmd_selftest(_args):
         last_kl = r.kl_divergence_bits
 
     assert r.preemptive_alarm, "FAIL: accelerating drift should trigger preemptive alarm"
-    print(f"✓ Test 5 PASSED: Markov predictor detected accelerating drift (predicted KL={r.predicted_kl_at_horizon:.4f})")
+    print(f"✓ Test 5 PASSED: Heuristic extrapolator detected accelerating drift (predicted KL={r.predicted_kl_at_horizon:.4f})")
 
     # Test 6: Shannon entropy sanity
     monitor_e = SemanticDriftMonitor()

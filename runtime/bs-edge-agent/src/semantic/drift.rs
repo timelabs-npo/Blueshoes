@@ -9,9 +9,9 @@ use std::collections::HashMap;
 // growth and detect it using information-theoretic divergence metrics.
 //
 // Three layers of defense:
-//   1. KL Divergence   — detects distribution shift (hallucination onset)
-//   2. Shannon Entropy  — detects structural chaos (random property injection)
-//   3. Markov Predictor — forecasts future drift trajectory (preemptive kill)
+//   1. KL Divergence              — detects distribution shift (hallucination onset)
+//   2. Shannon Entropy             — detects structural chaos (random property injection)
+//   3. Heuristic KL Extrapolator   — estimates future drift trajectory (preemptive kill)
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Complete drift analysis result. This is what the orchestration layer reads
@@ -30,7 +30,7 @@ pub struct DriftReport {
     pub drift_alarm: bool,
     /// Whether the entropy delta exceeds the structural chaos threshold.
     pub entropy_alarm: bool,
-    /// Predicted KL divergence N steps ahead (Markov extrapolation).
+    /// Estimated KL divergence N steps ahead (heuristic extrapolation, not a true Markov model).
     pub predicted_kl_at_horizon: f64,
     /// Whether the predicted future drift will breach the threshold.
     pub preemptive_alarm: bool,
@@ -55,7 +55,7 @@ pub struct DriftConfig {
     pub prediction_horizon: usize,
     /// Smoothing constant for unseen categories (Laplace). Default: 1e-6
     pub smoothing_epsilon: f64,
-    /// Exponential decay factor for Markov prediction. Default: 1.15
+    /// Exponential scaling factor for heuristic KL extrapolation. Default: 1.15
     /// Values > 1.0 model accelerating drift (pessimistic, safer).
     pub drift_acceleration: f64,
 }
@@ -74,7 +74,7 @@ impl Default for DriftConfig {
 
 pub struct DriftDetector {
     config: DriftConfig,
-    /// Rolling history of KL divergence scores for Markov prediction
+    /// Rolling history of KL divergence scores for heuristic extrapolation
     kl_history: Vec<f64>,
 }
 
@@ -130,7 +130,7 @@ impl DriftDetector {
 
         // Update history and predict
         self.kl_history.push(kl);
-        let predicted_kl = self.markov_predict();
+        let predicted_kl = self.extrapolate_kl();
 
         let drift_alarm = kl > self.config.kl_threshold;
         let entropy_alarm = entropy_delta > self.config.entropy_threshold;
@@ -185,15 +185,16 @@ impl DriftDetector {
         h
     }
 
-    /// Markov prediction: extrapolate the KL divergence trajectory.
+    /// Heuristic KL extrapolation: estimate KL divergence N steps ahead.
     ///
-    /// We model drift as an accelerating process — once an agent starts
-    /// hallucinating, it tends to compound. The drift_acceleration factor
+    /// This is a weighted-delta extrapolation with exponential acceleration,
+    /// NOT a true Markov transition model. It assumes that drift compounds
+    /// once an agent starts hallucinating. The drift_acceleration factor
     /// (default 1.15) models this pessimistic assumption.
     ///
     /// With only 1 data point, we assume linear growth from 0.
-    /// With 2+, we compute the average step delta and project forward.
-    fn markov_predict(&self) -> f64 {
+    /// With 2+, we compute the recency-weighted average step delta and project forward.
+    fn extrapolate_kl(&self) -> f64 {
         let n = self.kl_history.len();
         if n == 0 {
             return 0.0;
@@ -310,7 +311,7 @@ mod tests {
     }
 
     #[test]
-    fn test_markov_prediction_with_accelerating_drift() {
+    fn test_heuristic_extrapolation_with_accelerating_drift() {
         let mut detector = DriftDetector::with_defaults();
         let gt = ground_truth();
 

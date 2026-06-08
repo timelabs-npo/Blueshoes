@@ -75,9 +75,9 @@ pub enum Commands {
         #[arg(long)]
         out: Option<String>,
     },
-    /// Verify the provenance chain integrity of the substrate
+    /// Verify the provenance link integrity of the substrate (checks prev_hash chain only)
     SubstrateVerify,
-    /// Run mathematical drift analysis against an agent's output tokens
+    /// Run drift analysis against an agent's output tokens (KL divergence + heuristic extrapolation)
     DriftAudit {
         /// Path to a JSON file containing an array of concept type strings
         #[arg(required = true)]

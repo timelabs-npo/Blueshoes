@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -92,12 +92,12 @@ pub struct ProvenanceReceipt {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JsonLdExport {
     #[serde(rename = "@context")]
-    pub context: HashMap<String, String>,
+    pub context: BTreeMap<String, String>,
     #[serde(rename = "@graph")]
     pub graph: Vec<JsonLdNode>,
     pub provenance_chain_head: String,
     pub generation: u64,
-    pub concept_distribution: HashMap<String, f64>,
+    pub concept_distribution: BTreeMap<String, f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -184,6 +184,51 @@ impl SemanticSubstrate {
         receipt
     }
 
+    /// Commit with a caller-supplied timestamp for deterministic replay.
+    /// Use this when seeding from a static schema so identical inputs
+    /// always produce identical provenance chains and JSON-LD exports.
+    pub fn commit_entity_deterministic(
+        &mut self,
+        entity: Entity,
+        operator: &str,
+        fixed_timestamp: u64,
+    ) -> ProvenanceReceipt {
+        let previous_hash = self
+            .lineage
+            .last()
+            .map(|r| r.transformation_hash.clone())
+            .unwrap_or_else(|| "GENESIS".to_string());
+
+        let entity_json = serde_json::to_string(&entity).unwrap();
+        let hash_input = format!(
+            "{}|{}|{}|{}",
+            entity.id, fixed_timestamp, previous_hash, entity_json
+        );
+        let mut hasher = Sha256::new();
+        hasher.update(hash_input.as_bytes());
+        let transformation_hash = hasher
+            .finalize()
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
+
+        self.generation += 1;
+
+        let receipt = ProvenanceReceipt {
+            entity_id: entity.id.clone(),
+            timestamp: fixed_timestamp,
+            operator_signature: operator.to_string(),
+            transformation_hash,
+            previous_hash,
+            generation: self.generation,
+        };
+
+        self.registry.insert(entity.id.clone(), entity);
+        self.lineage.push(receipt.clone());
+
+        receipt
+    }
+
     /// Deterministic query: identical output regardless of external context.
     /// No LLM interpolation, no cloud fetch — pure local filter.
     pub fn query_by_type(&self, concept: &ConceptType) -> Vec<&Entity> {
@@ -198,9 +243,11 @@ impl SemanticSubstrate {
         self.registry.get(id)
     }
 
-    /// Verify the integrity of the entire provenance chain.
+    /// Verify the link integrity of the provenance chain.
+    /// Checks that each receipt's previous_hash matches the prior receipt's
+    /// transformation_hash. Does NOT recompute hashes from entity data.
     /// Returns Err with the index of the first broken link.
-    pub fn verify_chain_integrity(&self) -> Result<(), (usize, String)> {
+    pub fn verify_link_integrity(&self) -> Result<(), (usize, String)> {
         for i in 1..self.lineage.len() {
             let expected_prev = &self.lineage[i - 1].transformation_hash;
             let actual_prev = &self.lineage[i].previous_hash;
@@ -208,7 +255,7 @@ impl SemanticSubstrate {
                 return Err((
                     i,
                     format!(
-                        "Chain broken at index {}: expected previous_hash={}, got={}",
+                        "Link broken at index {}: expected previous_hash={}, got={}",
                         i, expected_prev, actual_prev
                     ),
                 ));
@@ -237,8 +284,9 @@ impl SemanticSubstrate {
 
     /// Export the entire substrate as JSON-LD for external consumption.
     /// This is the serialization boundary — agents read this, never the raw structs.
+    /// Graph nodes are sorted by ID for deterministic output.
     pub fn export_jsonld(&self) -> JsonLdExport {
-        let mut context = HashMap::new();
+        let mut context = BTreeMap::new();
         context.insert(
             "bs".to_string(),
             "https://blueshoes.dev/schema/v0#".to_string(),
@@ -248,7 +296,7 @@ impl SemanticSubstrate {
             "http://schema.org/".to_string(),
         );
 
-        let graph: Vec<JsonLdNode> = self
+        let mut graph: Vec<JsonLdNode> = self
             .registry
             .values()
             .map(|e| JsonLdNode {
@@ -265,6 +313,8 @@ impl SemanticSubstrate {
                     .collect(),
             })
             .collect();
+        // Sort by @id for deterministic output
+        graph.sort_by(|a, b| a.id.cmp(&b.id));
 
         let chain_head = self
             .lineage
@@ -272,12 +322,15 @@ impl SemanticSubstrate {
             .map(|r| r.transformation_hash.clone())
             .unwrap_or_else(|| "EMPTY".to_string());
 
+        let dist = self.concept_distribution();
+        let sorted_dist: BTreeMap<String, f64> = dist.into_iter().collect();
+
         JsonLdExport {
             context,
             graph,
             provenance_chain_head: chain_head,
             generation: self.generation,
-            concept_distribution: self.concept_distribution(),
+            concept_distribution: sorted_dist,
         }
     }
 
@@ -324,17 +377,45 @@ mod tests {
     }
 
     #[test]
-    fn test_chain_integrity() {
+    fn test_link_integrity() {
         let mut substrate = SemanticSubstrate::new();
         substrate.commit_entity(make_entity("a", ConceptType::Metric), "op");
         substrate.commit_entity(make_entity("b", ConceptType::Metric), "op");
         substrate.commit_entity(make_entity("c", ConceptType::Metric), "op");
 
-        assert!(substrate.verify_chain_integrity().is_ok());
+        assert!(substrate.verify_link_integrity().is_ok());
 
         // Tamper with the chain
         substrate.lineage[1].previous_hash = "TAMPERED".to_string();
-        assert!(substrate.verify_chain_integrity().is_err());
+        assert!(substrate.verify_link_integrity().is_err());
+    }
+
+    #[test]
+    fn test_deterministic_seed_produces_identical_output() {
+        let build = || {
+            let mut s = SemanticSubstrate::new();
+            s.commit_entity_deterministic(
+                make_entity("X:a", ConceptType::Metric),
+                "seed",
+                1000000,
+            );
+            s.commit_entity_deterministic(
+                make_entity("X:b", ConceptType::Project),
+                "seed",
+                1000001,
+            );
+            s
+        };
+        let a = build();
+        let b = build();
+        let ja = serde_json::to_string(&a.export_jsonld()).unwrap();
+        let jb = serde_json::to_string(&b.export_jsonld()).unwrap();
+        assert_eq!(ja, jb, "Deterministic seeds must produce byte-identical JSON-LD");
+        assert_eq!(
+            a.lineage.last().unwrap().transformation_hash,
+            b.lineage.last().unwrap().transformation_hash,
+            "Chain heads must match"
+        );
     }
 
     #[test]
