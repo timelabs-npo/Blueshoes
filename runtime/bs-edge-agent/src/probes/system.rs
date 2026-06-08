@@ -15,7 +15,15 @@ pub fn run() -> TelemetryEvent {
     evidence["loadavg"] = json!(read_loadavg());
     evidence["uptime"] = json!(read_uptime());
 
-    let status = if total.is_some() { "ok" } else { "warn" };
+    let tmp_compliant = crate::mutation::rollback::verify_ephemeral_tmp().is_ok();
+    let boot_compliant = crate::mutation::rollback::verify_boot_read_only().is_ok();
+    evidence["compliance"] = json!({
+        "ephemeral_tmp": tmp_compliant,
+        "read_only_boot": boot_compliant,
+        "fully_compliant": tmp_compliant && boot_compliant,
+    });
+
+    let status = if total.is_some() && tmp_compliant && boot_compliant { "ok" } else { "warn" };
 
     TelemetryEvent::new(
         "system",

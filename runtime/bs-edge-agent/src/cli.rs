@@ -88,4 +88,6 @@ pub enum Commands {
         #[arg(long, default_value_t = 0.35)]
         threshold: f64,
     },
+    /// Verify constitutional environment compliance (ephemeral /tmp and read-only /boot)
+    CheckCompliance,
 }

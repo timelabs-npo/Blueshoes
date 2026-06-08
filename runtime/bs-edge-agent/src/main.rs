@@ -346,6 +346,38 @@ fn main() {
                 std::process::exit(exit_code);
             }
         }
+        Commands::CheckCompliance => {
+            println!("[+] Running constitutional compliance verification...");
+            let mut compliant = true;
+
+            match mutation::rollback::verify_ephemeral_tmp() {
+                Ok(()) => {
+                    println!("  [OK] /tmp is mounted as an ephemeral memory allocation (tmpfs/md).");
+                }
+                Err(e) => {
+                    eprintln!("  [FAIL] /tmp is NOT compliant: {:?}", e);
+                    compliant = false;
+                }
+            }
+
+            match mutation::rollback::verify_boot_read_only() {
+                Ok(()) => {
+                    println!("  [OK] /boot (RHEKNEL_CORE) is safely read-only.");
+                }
+                Err(e) => {
+                    eprintln!("  [FAIL] /boot is NOT compliant: {:?}", e);
+                    compliant = false;
+                }
+            }
+
+            if compliant {
+                println!("[+] Constitutional compliance audit: PASSED");
+                std::process::exit(0);
+            } else {
+                eprintln!("[-] Constitutional compliance audit: FAILED");
+                std::process::exit(1);
+            }
+        }
     }
 }
 
