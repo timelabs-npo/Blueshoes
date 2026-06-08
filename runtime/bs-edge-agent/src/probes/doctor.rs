@@ -4,13 +4,13 @@ use std::fs;
 
 pub fn run() -> TelemetryEvent {
     let mut status = "ok";
-    let mut FreeBSD_readable = false;
+    let mut freebsd_readable = false;
     let mut dev_urandom_readable = false;
     let mut is_root = false;
 
     // Check FreeBSD release file
     if fs::metadata("/etc/FreeBSD_release").is_ok() {
-        FreeBSD_readable = true;
+        freebsd_readable = true;
     }
 
     // Check /dev/urandom
@@ -30,7 +30,7 @@ pub fn run() -> TelemetryEvent {
         }
     }
 
-    if !FreeBSD_readable {
+    if !freebsd_readable {
         status = "warning_not_FreeBSD";
     }
 
@@ -39,7 +39,7 @@ pub fn run() -> TelemetryEvent {
         status,
         0,
         json!({
-            "FreeBSD_readable": FreeBSD_readable,
+            "FreeBSD_readable": freebsd_readable,
             "dev_urandom_readable": dev_urandom_readable,
             "is_root": is_root,
         }),

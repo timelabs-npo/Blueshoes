@@ -42,6 +42,7 @@ impl Executor for DryRunExecutor {
 }
 
 pub mod freebsd;
+#[allow(unused_imports)]
 pub use freebsd::FreeBsdExecutor;
 
 #[cfg(feature = "dangerous_execution")]

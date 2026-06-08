@@ -98,6 +98,7 @@ pub fn confirm_transaction(tx_id: &str) -> io::Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn generate_tribunal_request_stub(tx_id: &str, intent: &str, target_repo: &str) -> io::Result<()> {
     // In actual implementation, find repo root. For prototype, use local .tasks.
     let tasks_dir = Path::new("../../.tasks");

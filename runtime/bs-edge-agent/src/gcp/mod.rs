@@ -11,7 +11,6 @@ use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 
 #[derive(Debug, Deserialize)]
 pub struct ServiceAccountKey {

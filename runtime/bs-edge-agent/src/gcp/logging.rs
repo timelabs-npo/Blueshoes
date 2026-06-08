@@ -4,14 +4,15 @@ use chrono::Utc;
 
 pub struct LoggingClient {
     auth: GcpAuth,
-    project_id: String,
     log_name: String,
 }
 
 #[derive(Serialize)]
 struct LogEntry {
-    logName: String,
-    textPayload: String,
+    #[serde(rename = "logName")]
+    log_name: String,
+    #[serde(rename = "textPayload")]
+    text_payload: String,
     timestamp: String,
 }
 
@@ -25,7 +26,6 @@ impl LoggingClient {
         let log_name = format!("projects/{}/logs/{}", project_id, urlencoding::encode(log_id));
         Self {
             auth,
-            project_id: project_id.to_string(),
             log_name,
         }
     }
@@ -35,8 +35,8 @@ impl LoggingClient {
         let url = "https://logging.googleapis.com/v2/entries:write";
 
         let entry = LogEntry {
-            logName: self.log_name.clone(),
-            textPayload: message.to_string(),
+            log_name: self.log_name.clone(),
+            text_payload: message.to_string(),
             timestamp: Utc::now().to_rfc3339(),
         };
 

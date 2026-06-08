@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::process::Command;
@@ -80,7 +81,7 @@ impl FreeBsdExecutor {
         context.consume(entity.id.as_bytes());
         context.consume(timestamp.to_string().as_bytes());
         context.consume(operator.as_bytes());
-        let transformation_hash = format!("{:x}", context.compute()); // Keeping compute since it works with {:x}
+        let transformation_hash = format!("{:x}", context.finalize());
         
         let receipt = ProvenanceReceipt {
             entity_id: entity.id.clone(),

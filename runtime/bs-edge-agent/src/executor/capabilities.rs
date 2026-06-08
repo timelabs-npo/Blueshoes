@@ -61,6 +61,7 @@ pub struct CapabilityGraph {
     pub network_caps: Vec<NetworkCapability>,
 }
 
+#[allow(dead_code)]
 impl CapabilityGraph {
     pub fn new() -> Self {
         Self {

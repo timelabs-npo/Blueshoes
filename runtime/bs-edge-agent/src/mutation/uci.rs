@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::io::Write;
 use std::process::{Command, Stdio};
 
@@ -52,7 +53,6 @@ pub fn apply_uci_batch(commands: &[String]) -> Result<(), UciError> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_payload_generation_does_not_contain_forbidden_strings() {
