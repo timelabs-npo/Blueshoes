@@ -247,7 +247,7 @@ impl SemanticSubstrate {
     /// Checks that each receipt's previous_hash matches the prior receipt's
     /// transformation_hash. Does NOT recompute hashes from entity data.
     /// Returns Err with the index of the first broken link.
-    pub fn verify_link_integrity(&self) -> Result<(), (usize, String)> {
+    pub fn verify_link_integrity_only(&self) -> Result<(), (usize, String)> {
         for i in 1..self.lineage.len() {
             let expected_prev = &self.lineage[i - 1].transformation_hash;
             let actual_prev = &self.lineage[i].previous_hash;
@@ -383,11 +383,11 @@ mod tests {
         substrate.commit_entity(make_entity("b", ConceptType::Metric), "op");
         substrate.commit_entity(make_entity("c", ConceptType::Metric), "op");
 
-        assert!(substrate.verify_link_integrity().is_ok());
+        assert!(substrate.verify_link_integrity_only().is_ok());
 
         // Tamper with the chain
         substrate.lineage[1].previous_hash = "TAMPERED".to_string();
-        assert!(substrate.verify_link_integrity().is_err());
+        assert!(substrate.verify_link_integrity_only().is_err());
     }
 
     #[test]

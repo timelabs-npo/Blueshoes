@@ -13,7 +13,6 @@ use serde_json::json;
 pub mod semantic;
 use std::env;
 use std::fs;
-use std::path::Path;
 use semantic::check::{Provenance, validate_transformation};
 
 fn handle_provenance_cli() {
@@ -265,7 +264,7 @@ fn main() {
         Commands::SubstrateVerify => {
             let mut substrate = semantic::substrate::SemanticSubstrate::new();
             seed_substrate_from_schema(&mut substrate);
-            match substrate.verify_link_integrity() {
+            match substrate.verify_link_integrity_only() {
                 Ok(()) => {
                     println!("{}", serde_json::to_string_pretty(&serde_json::json!({
                         "status": "INTACT",
@@ -410,7 +409,9 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
 
 fn handle_canary(cli: &Cli) {
 
-    use executor::{DryRunExecutor, Executor};
+    use executor::Executor;
+    #[cfg(not(feature = "dangerous_execution"))]
+    use executor::DryRunExecutor;
     use journal::transaction::{TransactionEvent, TransactionState};
 
     // Choose executor based on feature flag
