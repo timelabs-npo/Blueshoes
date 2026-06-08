@@ -3,7 +3,9 @@
 /// For B0+ mutations, use `mutation::uci::apply_uci_batch` with `mutation::rollback`.
 /// This module is retained only for the legacy M7 Canary MTU test path.
 use crate::executor::{Executor, Snapshot};
-use crate::journal::planner::PlanStep;
+use crate::executor::capabilities::{
+    CapabilityGraph, NetworkCapability, NftAction, NftChain, NftFamily, NftTable, TransportProtocol,
+};
 use std::process::Command;
 
 pub struct FreeBSDExecutor;
@@ -17,10 +19,6 @@ impl Executor for FreeBSDExecutor {
 
         let state = String::from_utf8_lossy(&output.stdout).to_string();
 
-        // Very basic extraction of MTU for rollback (we can just store the whole JSON for the watchdog)
-        // We will just let the watchdog parse the JSON or we can parse it here.
-        // Actually, for simplicity we will just extract the MTU manually or pass the JSON.
-        // Let's extract the MTU.
         let parsed: serde_json::Value = serde_json::from_str(&state).unwrap_or_default();
         let mtu = parsed[0]["mtu"].as_u64().unwrap_or(1500);
 
@@ -30,15 +28,15 @@ impl Executor for FreeBSDExecutor {
         })
     }
 
-    fn apply(&self, plan: &[PlanStep]) -> std::io::Result<()> {
-        for step in plan {
+    fn apply(&self, plan: &CapabilityGraph) -> std::io::Result<()> {
+        for step in &plan.network_caps {
             let status = match step {
-                PlanStep::AddRoute { target, via } => {
+                NetworkCapability::AddRoute { target, via } => {
                     Command::new("ip")
                         .args(["route", "add", target, "via", via])
                         .status()?
                 }
-                PlanStep::AddNftRule {
+                NetworkCapability::AddNftRule {
                     family,
                     table,
                     chain,
@@ -46,10 +44,6 @@ impl Executor for FreeBSDExecutor {
                     dport,
                     rule_action,
                 } => {
-                    use crate::journal::planner::{
-                        NftAction, NftChain, NftFamily, NftTable, TransportProtocol,
-                    };
-
                     let family_str = match family {
                         NftFamily::Inet => "inet",
                     };
@@ -82,16 +76,24 @@ impl Executor for FreeBSDExecutor {
                         ])
                         .status()?
                 }
-                PlanStep::SetMtu { interface, mtu } => {
+                NetworkCapability::SetMtu { interface, mtu } => {
                     Command::new("ip")
                         .args(["link", "set", "dev", interface, "mtu", &mtu.to_string()])
                         .status()?
                 }
-                PlanStep::FlushRouteCache => {
+                NetworkCapability::FlushRouteCache => {
                     Command::new("ip")
                         .args(["route", "flush", "cache"])
                         .status()?
                 }
+                NetworkCapability::EstablishMasqueTunnel { endpoint: _, sni: _, psk: _ } => {
+                    // Placeholder for legacy MTU path
+                    Command::new("true").status()?
+                }
+                NetworkCapability::CommitConfig => {
+                    Command::new("true").status()?
+                }
+
             };
 
             if !status.success() {

@@ -41,5 +41,12 @@ impl Executor for DryRunExecutor {
     }
 }
 
+pub mod freebsd;
+pub use freebsd::FreeBsdExecutor;
+
 #[cfg(feature = "dangerous_execution")]
-pub mod FreeBSD;
+pub mod openwrt;
+#[cfg(feature = "dangerous_execution")]
+pub use openwrt as FreeBSD;
+
+

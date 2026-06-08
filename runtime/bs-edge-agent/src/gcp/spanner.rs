@@ -86,6 +86,17 @@ impl SpannerMemoryFabric {
     /// - This method must ONLY be used for READ queries (SELECT).
     ///   Write operations are restricted to the promotion pipeline.
     pub fn query_advisory(&self, sql: &str) -> AdvisoryResultSet {
+        // Simple write operation guard: block INSERT or DELETE statements
+        let sql_upper = sql.to_ascii_uppercase();
+        if sql_upper.contains("INSERT") || sql_upper.contains("DELETE") {
+            eprintln!("[spanner::memory_fabric] WRITE OPERATION BLOCKED by temporary shield.");
+            return AdvisoryResultSet {
+                rows: None,
+                field_names: vec![],
+                source: AdvisorySource::Unavailable,
+            };
+        }
+        // Existing advisory read logic
         match self.execute_sql_inner(sql) {
             Ok(result) => result,
             Err(e) => {
