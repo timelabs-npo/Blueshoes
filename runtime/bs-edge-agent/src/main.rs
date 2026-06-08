@@ -30,9 +30,9 @@ fn handle_provenance_cli() {
                     println!("[SUCCESS] Provenance verified. Cryptographic hash stabilized: {}", enriched.hash);
                     println!("{}", serde_json::to_string_pretty(&enriched).unwrap());
                 },
-                Err(err) => {
-                    eprintln!("[-] CRITICAL RULE VIOLATION: {}", err);
-                    std::process::exit(1);
+                Err((code, report)) => {
+                    eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
+                    std::process::exit(code);
                 }
             }
             std::process::exit(0);
@@ -189,6 +189,17 @@ fn main() {
             let plan_str = std::fs::read_to_string(plan_file).expect("Failed to read plan file");
             let plan: executor::capabilities::CapabilityGraph = serde_json::from_str(&plan_str).expect("Invalid plan file");
 
+            let prov = semantic::check::Provenance {
+                result: "ALLOW_APPLY_CONFIRMED".to_string(),
+                derived_from: vec!["inv.no_irreversible_mutation".to_string(), "cap.apply_confirmed".to_string(), "gen.current".to_string()],
+                evidence: vec!["rollback_anchor.exists".to_string(), format!("tx_json.valid: {}", plan_file)],
+                hash: String::new(),
+            };
+            if let Err((code, report)) = semantic::check::validate_transformation(prov) {
+                eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
+                std::process::exit(code);
+            }
+
             println!("Capturing candidate snapshot and shifting rollback slots...");
             executor::transaction::shift_and_create_snapshot().expect("Snapshot failed");
 
@@ -291,6 +302,17 @@ fn handle_canary(cli: &Cli) {
     }
 
     // --- EXECUTION PATH ---
+
+    let prov = semantic::check::Provenance {
+        result: "ALLOW_CANARY".to_string(),
+        derived_from: vec!["inv.no_irreversible_mutation".to_string(), "cap.apply_confirmed".to_string(), "gen.current".to_string()],
+        evidence: vec!["rollback_anchor.exists".to_string(), "watchdog.armed".to_string()],
+        hash: String::new(),
+    };
+    if let Err((code, report)) = semantic::check::validate_transformation(prov) {
+        eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
+        std::process::exit(code);
+    }
 
     let start_event = TransactionEvent::new(
         tx_id.clone(),

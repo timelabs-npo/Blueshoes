@@ -1,0 +1,6 @@
+{
+  "result": "ALLOW_APPLY_CONFIRMED",
+  "derived_from": ["inv.no_irreversible_mutation", "cap.apply_confirmed"],
+  "evidence": ["tx_json.valid"],
+  "hash": ""
+}

@@ -1,0 +1,6 @@
+{
+  "result": "ALLOW_LLM_EXECUTOR",
+  "derived_from": ["inv.no_irreversible_mutation"],
+  "evidence": ["rollback_anchor.exists"],
+  "hash": ""
+}
