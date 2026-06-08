@@ -3,6 +3,7 @@ pub mod firestore;
 pub mod logging;
 pub mod pubsub;
 pub mod secret_manager;
+pub mod spanner;
 pub mod storage;
 
 use chrono::Utc;

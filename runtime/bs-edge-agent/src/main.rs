@@ -5,6 +5,7 @@ mod probes;
 mod profiles;
 mod mutation;
 pub mod gcp;
+pub mod secrets;
 
 use clap::Parser;
 use cli::{Cli, Commands};

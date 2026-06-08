@@ -4,20 +4,19 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 
-#[derive(Debug, Serialize)]
-pub struct RejectionReport {
-    pub status: String,
-    pub violations: Vec<Violation>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct Violation {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RejectionViolation {
     pub rule: String,
     pub path: String,
     pub severity: String,
 }
 
-/// Core concepts loaded from the immutable compile-time embedded schema file.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RejectionReport {
+    pub status: String,
+    pub violations: Vec<RejectionViolation>,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Schema {
     pub concepts: HashMap<String, Concept>,
@@ -32,7 +31,6 @@ pub struct Concept {
     pub status: Option<String>,
 }
 
-/// Provenance payload produced by an execution transformation.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Provenance {
     pub result: String,
@@ -41,7 +39,6 @@ pub struct Provenance {
     pub hash: String,
 }
 
-/// Drift counters tracking semantic deviations across transactions.
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct DriftCounters {
     pub authority_inversion: u64,
@@ -51,13 +48,11 @@ pub struct DriftCounters {
     pub semantic_alias_conflict: u64,
 }
 
-/// Load the schema using static compile-time embedding.
 fn load_schema() -> Schema {
     let raw = include_str!("../../../../docs/semantic/bs_core_schema.v0.json");
     serde_json::from_str(raw).expect("Failed to parse static core schema")
 }
 
-/// Load the current drift counters from the localized data path.
 fn load_counters() -> DriftCounters {
     let path = Path::new("../../docs/semantic/drift_rules.v0.json");
     if path.exists() {
@@ -68,14 +63,12 @@ fn load_counters() -> DriftCounters {
     }
 }
 
-/// Persist updated counters back to the immutable configuration track.
 fn persist_counters(counters: &DriftCounters) {
     let path = Path::new("../../docs/semantic/drift_rules.v0.json");
     let json = serde_json::to_string_pretty(counters).unwrap();
     let _ = fs::write(path, json);
 }
 
-/// Compute deterministic SHA-256 hash over the canonical JSON representation.
 fn compute_hash(payload: &Provenance) -> String {
     let mut clone = payload.clone();
     clone.hash.clear();
@@ -86,92 +79,69 @@ fn compute_hash(payload: &Provenance) -> String {
     result.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
-/// Main validation routine for routing and execution transitions.
-pub fn validate_transformation(mut payload: Provenance) -> Result<Provenance, (i32, RejectionReport)> {
+pub fn validate_transformation(mut payload: Provenance) -> Result<Provenance, (RejectionReport, i32)> {
     let schema = load_schema();
     let mut counters = load_counters();
     let mut violations = Vec::new();
-    let mut exit_code = 0;
 
-    // 1. Unknown Capability (Code 10)
-    let known_ids: HashSet<_> = schema.concepts.values().map(|c| c.id.as_str()).collect();
+    let known_ids: HashSet<_> = schema
+        .concepts
+        .values()
+        .map(|c| c.id.as_str())
+        .collect();
+
+    // Code 10: Unknown Capability / Schema Mismatch
     for cid in &payload.derived_from {
         if !known_ids.contains(cid.as_str()) {
-            counters.semantic_alias_conflict += 1;
-            violations.push(Violation {
+            counters.authority_inversion += 1;
+            violations.push(RejectionViolation {
                 rule: format!("unknown_capability: {}", cid),
                 path: "$.derived_from".to_string(),
                 severity: "critical".to_string(),
             });
-            if exit_code == 0 { exit_code = 10; }
         }
     }
-
-    let payload_str = serde_json::to_string(&payload).unwrap().to_lowercase();
-
-    // 2. Cloud overrides 0log (Code 11)
-    if payload_str.contains("cloud") && payload_str.contains("override") && payload_str.contains("0log") {
-        counters.authority_inversion += 1;
-        violations.push(Violation {
-            rule: "cloud_may_not_override_0log".to_string(),
-            path: "$.authority.source".to_string(),
-            severity: "critical".to_string(),
-        });
-        if exit_code == 0 { exit_code = 11; }
+    if !violations.is_empty() {
+        persist_counters(&counters);
+        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 10));
     }
 
-    // 3. Spanner marked as source of truth (Code 11)
-    if payload_str.contains("spanner") && payload_str.contains("truth") {
+    // Code 11: Invariant Sovereignty Breach (Cloud leaks / Spanner as state truth)
+    if payload.evidence.iter().any(|e| e.contains("spanner") || (e.contains("cloud") && !e.contains("mirror"))) {
         counters.cloud_sovereignty_leak += 1;
-        violations.push(Violation {
-            rule: "spanner_as_runtime_truth".to_string(),
+        violations.push(RejectionViolation {
+            rule: if payload.evidence.iter().any(|e| e.contains("spanner")) { "spanner_as_runtime_truth".to_string() } else { "cloud_overrides_local_0log".to_string() },
             path: "$.evidence".to_string(),
             severity: "critical".to_string(),
         });
-        if exit_code == 0 { exit_code = 11; }
+        persist_counters(&counters);
+        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 11));
     }
 
-    // 4. Missing rollback anchor (Code 12)
-    if payload.result.contains("ALLOW_") && !payload.evidence.iter().any(|e| e.contains("rollback_anchor")) {
+    // Code 12: Missing Evidence / Weak Rollback Protection
+    if payload.evidence.is_empty() || (payload.result.contains("MUTATION") && !payload.evidence.iter().any(|e| e.contains("rollback_anchor"))) {
         counters.rollback_weakening += 1;
-        violations.push(Violation {
-            rule: "missing_rollback_anchor".to_string(),
+        violations.push(RejectionViolation {
+            rule: "missing_rollback_anchor_on_mutation".to_string(),
             path: "$.evidence".to_string(),
             severity: "critical".to_string(),
         });
-        if exit_code == 0 { exit_code = 12; }
+        persist_counters(&counters);
+        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 12));
     }
 
-    // 5. Evidence hash absent / missing evidence entirely (Code 12)
-    if payload.evidence.is_empty() {
-        violations.push(Violation {
-            rule: "missing_evidence".to_string(),
-            path: "$.evidence".to_string(),
-            severity: "critical".to_string(),
-        });
-        if exit_code == 0 { exit_code = 12; }
-    }
-
-    // 6. LLM as executor (Code 13)
-    if payload_str.contains("llm") && payload_str.contains("executor") {
+    // Code 13: Unknown Authority / LLM Marked as Primary Executor
+    if payload.result.contains("AUTHORITY") && payload.result != "ALLOW_APPLY_CONFIRMED" {
         counters.llm_execution_leak += 1;
-        violations.push(Violation {
-            rule: "llm_as_executor".to_string(),
+        violations.push(RejectionViolation {
+            rule: "llm_as_unauthorized_executor".to_string(),
             path: "$.result".to_string(),
             severity: "critical".to_string(),
         });
-        if exit_code == 0 { exit_code = 13; }
-    }
-
-    if !violations.is_empty() {
         persist_counters(&counters);
-        return Err((exit_code, RejectionReport {
-            status: "REJECTED".to_string(),
-            violations,
-        }));
+        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 13));
     }
 
-    persist_counters(&counters);
     payload.hash = compute_hash(&payload);
     Ok(payload)
 }
