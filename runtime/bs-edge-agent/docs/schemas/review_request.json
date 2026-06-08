@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "schema_id": "urn:tribunal:review-request:v1",
+  "request_id": "uuid-v4",
+  "created_at_utc": "RFC3339",
+  "milestone": "M4.1|M5|B0.1|B1",
+  "review_mode": "openrouter|local_manual",
+  "review_target": {
+    "repo": "timelabs-npo/Blueshoes",
+    "branch": "main",
+    "commit": "commit_sha",
+    "paths": []
+  },
+  "risk_context": {
+    "mutation_risk": "none|planned|possible|active",
+    "router_access": false,
+    "runtime_change": false,
+    "governance_change": false,
+    "external_api_dependency": false
+  },
+  "evidence": {
+    "summary": "",
+    "diff_summary": "",
+    "test_output_summary": "",
+    "artifact_hashes": []
+  },
+  "questions": [
+    "Is this change consistent with Rollback is Sacred?",
+    "Does this introduce runtime mutation?",
+    "Does this introduce governance creep?",
+    "Does this preserve default dry-run behavior?"
+  ],
+  "required_roles": [
+    "security_reviewer",
+    "governance_reviewer",
+    "runtime_stability_reviewer",
+    "architecture_consistency_reviewer"
+  ],
+  "forbidden_for_reviewers": [
+    "execute commands",
+    "write repo files",
+    "access router",
+    "request secrets",
+    "make final commit/push decision"
+  ]
+}

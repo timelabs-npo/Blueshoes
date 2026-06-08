@@ -4,6 +4,7 @@ use std::path::Path;
 use tar::Builder;
 use flate2::write::GzEncoder;
 use flate2::Compression;
+use serde_json::json;
 
 const LOCK_FILE: &str = "/tmp/blueshoes.lock";
 const ROLLBACK_DIR: &str = "/tmp/blueshoes/rollbacks"; // /tmp for QEMU compatibility/test env
@@ -94,5 +95,58 @@ pub fn confirm_transaction(tx_id: &str) -> io::Result<()> {
     let confirm_file = format!("/tmp/blueshoes_confirm_{}", tx_id);
     let mut file = File::create(&confirm_file)?;
     file.write_all(b"CONFIRMED")?;
+    Ok(())
+}
+
+pub fn generate_tribunal_request_stub(tx_id: &str, intent: &str, target_repo: &str) -> io::Result<()> {
+    // In actual implementation, find repo root. For prototype, use local .tasks.
+    let tasks_dir = Path::new("../../.tasks");
+    let resolved_dir = if tasks_dir.exists() {
+        tasks_dir
+    } else {
+        Path::new(".tasks")
+    };
+    
+    if !resolved_dir.exists() {
+        fs::create_dir_all(resolved_dir)?;
+    }
+
+    let request = json!({
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "schema_id": "urn:tribunal:review-request:v1",
+        "request_id": tx_id,
+        "milestone": "Prototype",
+        "review_mode": "local_manual",
+        "review_target": {
+            "repo": target_repo,
+            "branch": "main",
+            "commit": "pending",
+            "paths": []
+        },
+        "risk_context": {
+            "mutation_risk": "possible",
+            "router_access": true,
+            "runtime_change": true,
+            "governance_change": false,
+            "external_api_dependency": false
+        },
+        "evidence": {
+            "summary": intent,
+            "diff_summary": "",
+            "test_output_summary": "",
+            "artifact_hashes": []
+        },
+        "questions": [
+            "Is this change consistent with Rollback is Sacred?",
+            "Does this introduce runtime mutation?",
+            "Does this introduce governance creep?",
+            "Does this preserve default dry-run behavior?"
+        ]
+    });
+
+    let pending_file = resolved_dir.join(format!("pending_request_{}.json", tx_id));
+    let mut file = File::create(&pending_file)?;
+    file.write_all(serde_json::to_string_pretty(&request).unwrap().as_bytes())?;
+    
     Ok(())
 }

@@ -4,6 +4,7 @@ mod journal;
 mod probes;
 mod profiles;
 mod mutation;
+pub mod gcp;
 
 use clap::Parser;
 use cli::{Cli, Commands};

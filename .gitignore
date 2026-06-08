@@ -6,3 +6,7 @@ artifacts/*
 *grant*.json
 !synthetic-grant.json
 !human-capability-grant.template.json
+agent-gcp-key.json
+*.pem
+*-key.json
+proof.txt

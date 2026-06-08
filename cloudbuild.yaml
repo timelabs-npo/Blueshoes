@@ -1,0 +1,13 @@
+steps:
+  - name: 'rust:latest'
+    entrypoint: 'cargo'
+    args: ['build', '--release']
+    dir: 'runtime/bs-edge-agent'
+
+  - name: 'rust:latest'
+    entrypoint: 'cargo'
+    args: ['test']
+    dir: 'runtime/bs-edge-agent'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

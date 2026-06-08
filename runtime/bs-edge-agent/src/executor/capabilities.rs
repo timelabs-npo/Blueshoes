@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::net::IpAddr;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum NftFamily {
@@ -71,5 +70,13 @@ impl CapabilityGraph {
 
     pub fn push(&mut self, cap: NetworkCapability) {
         self.network_caps.push(cap);
+    }
+
+    pub fn len(&self) -> usize {
+        self.network_caps.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.network_caps.is_empty()
     }
 }
