@@ -285,6 +285,38 @@ fn main() {
                 }
             }
         }
+        Commands::SubstrateReproAudit => {
+            let mut substrate1 = semantic::substrate::SemanticSubstrate::new();
+            seed_substrate_from_schema(&mut substrate1);
+            let export1 = substrate1.export_jsonld();
+            let json1 = serde_json::to_string(&export1).unwrap();
+
+            let mut substrate2 = semantic::substrate::SemanticSubstrate::new();
+            seed_substrate_from_schema(&mut substrate2);
+            let export2 = substrate2.export_jsonld();
+            let json2 = serde_json::to_string(&export2).unwrap();
+
+            if json1 != json2 {
+                eprintln!("Canonicalization mismatch: export outputs differ between identical seeds");
+                std::process::exit(31);
+            }
+
+            if let Err((idx, msg)) = substrate1.verify_receipt_integrity() {
+                eprintln!("Receipt mismatch at index {}: {}", idx, msg);
+                std::process::exit(32);
+            }
+
+            let head1 = substrate1.lineage.last().map(|r| &r.transformation_hash);
+            let head2 = substrate2.lineage.last().map(|r| &r.transformation_hash);
+
+            if head1 != head2 {
+                eprintln!("Chain divergence: heads do not match");
+                std::process::exit(33);
+            }
+
+            println!("Reproducibility Audit: PASSED");
+            std::process::exit(0);
+        }
         Commands::DriftAudit { payload_file, threshold } => {
             let mut substrate = semantic::substrate::SemanticSubstrate::new();
             seed_substrate_from_schema(&mut substrate);
@@ -322,13 +354,13 @@ fn main() {
 /// identical schemas always produce identical provenance chains.
 fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubstrate) {
     use semantic::substrate::{ConceptType, Entity, Relation};
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     // Fixed epoch for deterministic seeding — generation offsets ensure unique timestamps
     const SEED_EPOCH: u64 = 0;
 
     // Invariant
-    let mut inv_props = HashMap::new();
+    let mut inv_props = BTreeMap::new();
     inv_props.insert("statement".into(), "No state transition may become irreversible, unverifiable, or sovereign.".into());
     inv_props.insert("authority".into(), "local_0log".into());
     inv_props.insert("status".into(), "active".into());
@@ -340,7 +372,7 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
     }, "schema_seed", SEED_EPOCH);
 
     // Capability
-    let mut cap_props = HashMap::new();
+    let mut cap_props = BTreeMap::new();
     cap_props.insert("allowed_actor".into(), "executor".into());
     cap_props.insert("requires".into(), "rollback_anchor,watchdog,confirmation_window".into());
     substrate.commit_entity_deterministic(Entity {
@@ -353,7 +385,7 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
     }, "schema_seed", SEED_EPOCH + 1);
 
     // StateGeneration
-    let mut gen_props = HashMap::new();
+    let mut gen_props = BTreeMap::new();
     gen_props.insert("source".into(), "0.log".into());
     gen_props.insert("promotion_requires".into(), "validation_passed,confirmation_received,rollback_available".into());
     substrate.commit_entity_deterministic(Entity {
@@ -367,7 +399,7 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
     }, "schema_seed", SEED_EPOCH + 2);
 
     // ExternalMirror (Spanner)
-    let mut mirror_props = HashMap::new();
+    let mut mirror_props = BTreeMap::new();
     mirror_props.insert("may_store".into(), "replicated_observations,promoted_artifacts,advisory_acl".into());
     mirror_props.insert("may_not".into(), "override_0log,command_edge_mutation,become_runtime_source_of_truth".into());
     substrate.commit_entity_deterministic(Entity {
@@ -380,7 +412,7 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
     }, "schema_seed", SEED_EPOCH + 3);
 
     // Project: Blueshoes itself
-    let mut proj_props = HashMap::new();
+    let mut proj_props = BTreeMap::new();
     proj_props.insert("name".into(), "Blueshoes".into());
     proj_props.insert("domain".into(), "adaptive-networking".into());
     substrate.commit_entity_deterministic(Entity {
@@ -393,7 +425,7 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
     }, "schema_seed", SEED_EPOCH + 4);
 
     // Metric: Drift score
-    let mut metric_props = HashMap::new();
+    let mut metric_props = BTreeMap::new();
     metric_props.insert("name".into(), "semantic_drift_kl".into());
     metric_props.insert("unit".into(), "bits".into());
     metric_props.insert("alarm_threshold".into(), "0.35".into());

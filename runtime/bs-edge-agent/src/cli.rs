@@ -77,6 +77,8 @@ pub enum Commands {
     },
     /// Verify the provenance link integrity of the substrate (checks prev_hash chain only)
     SubstrateVerify,
+    /// Run a full reproducibility audit on the semantic substrate
+    SubstrateReproAudit,
     /// Run drift analysis against an agent's output tokens (KL divergence + heuristic extrapolation)
     DriftAudit {
         /// Path to a JSON file containing an array of concept type strings

@@ -19,6 +19,7 @@ Welcome to the Blueshoes documentation index. This document serves as a map of t
 - [Runtime Boundaries and Constraints](runtime-boundaries.md)
 - [M1 Telemetry Architecture](m1-telemetry.md)
 - [Mecha Execution Specification](mecha-execution.md)
+- [Semantic Canonicalization Contract](SEMANTIC_CANONICALIZATION.md)
 
 ## 📑 Request for Comments (RFCs)
 - [0001 - Runtime Doctrine](rfcs/0001-runtime-doctrine.md)
