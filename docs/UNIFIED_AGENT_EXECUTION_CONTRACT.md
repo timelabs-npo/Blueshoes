@@ -195,7 +195,7 @@ Then provide:
 ## XI. PROJECT DIRECTION
 
 This project researches:
-*constitutional event-sourced infrastructure for recoverable operator sovereignty under probabilistic computational environments.*
+*constitutional event-sourced infrastructure for recoverable operator sovereignty under probabilistic computational environments, using FreeBSD principles and pf firewall reference semantics.*
 
 It is **NOT**:
 - an AI god-system
@@ -203,6 +203,7 @@ It is **NOT**:
 - AGI orchestration
 - cloud-native governance
 - fully autonomous infrastructure
+- an OpenWrt admin panel or UI-centric firmware (OpenWrt is a hardware-support compatibility bootstrap substrate, not a constitutional authority)
 
 LLMs are replaceable epistemic workers. Meaning must survive model replacement.
 
