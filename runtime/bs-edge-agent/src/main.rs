@@ -9,8 +9,42 @@ pub mod gcp;
 use clap::Parser;
 use cli::{Cli, Commands};
 use serde_json::json;
+pub mod semantic;
+use std::env;
+use std::fs;
+use std::path::Path;
+use semantic::check::{Provenance, validate_transformation};
+
+fn handle_provenance_cli() {
+    let args: Vec<String> = env::args().collect();
+    if let Some(index) = args.iter().position(|r| r == "--check-provenance") {
+        if index + 1 < args.len() {
+            let target_path = &args[index + 1];
+            println!("[+] Loading provenance file target: {}", target_path);
+            
+            let data = fs::read_to_string(target_path).expect("Failed to read targeted target payload");
+            let payload: Provenance = serde_json::from_str(&data).expect("Payload violates Provenance format structural schema");
+            
+            match validate_transformation(payload) {
+                Ok(enriched) => {
+                    println!("[SUCCESS] Provenance verified. Cryptographic hash stabilized: {}", enriched.hash);
+                    println!("{}", serde_json::to_string_pretty(&enriched).unwrap());
+                },
+                Err(err) => {
+                    eprintln!("[-] CRITICAL RULE VIOLATION: {}", err);
+                    std::process::exit(1);
+                }
+            }
+            std::process::exit(0);
+        } else {
+            eprintln!("[-] Error: Missing argument target path for --check-provenance");
+            std::process::exit(1);
+        }
+    }
+}
 
 fn main() {
+    handle_provenance_cli();
     let cli = Cli::parse();
 
     match &cli.command {
