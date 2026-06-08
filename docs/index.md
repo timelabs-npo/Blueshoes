@@ -26,7 +26,7 @@ Welcome to the Blueshoes documentation index. This document serves as a map of t
 - [0003 - Edge Agent Constraints](rfcs/0003-edge-agent-constraints.md)
 - [0004 - ECH Position](rfcs/0004-ech-position.md)
 - [0005 - MITM Ban](rfcs/0005-mitm-ban.md)
-- [0006 - OpenWrt State Snapshot](rfcs/0006-openwrt-state-snapshot.md)
+- [0006 - FreeBSD State Snapshot](rfcs/0006-freebsd-state-snapshot.md)
 - [0007 - Phase 1 Acceptance](rfcs/0007-phase1-acceptance.md)
 - [0008 - Architecture](rfcs/0008-architecture.md)
 - [0009 - Registries](rfcs/0009-registries.md)

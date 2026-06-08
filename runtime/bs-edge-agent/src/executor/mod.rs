@@ -45,8 +45,6 @@ pub mod freebsd;
 pub use freebsd::FreeBsdExecutor;
 
 #[cfg(feature = "dangerous_execution")]
-pub mod openwrt;
+pub mod freebsd_legacy;
 #[cfg(feature = "dangerous_execution")]
-pub use openwrt as FreeBSD;
-
-
+pub use freebsd_legacy as FreeBSD;

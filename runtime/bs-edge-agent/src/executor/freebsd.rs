@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::process::Command;
 use std::fs;
@@ -9,11 +8,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConceptType {
-    #[serde(rename = "http://schema.org")]
+    #[serde(rename = "http://schema.org/Person")]
     Person,
-    #[serde(rename = "http://schema.org")]
+    #[serde(rename = "http://schema.org/Project")]
     Project,
-    #[serde(rename = "http://schema.org")]
+    #[serde(rename = "http://schema.org/Metric")]
     Metric,
 }
 
@@ -76,17 +75,12 @@ impl FreeBsdExecutor {
             .unwrap()
             .as_secs();
         
-        // Cryptographic generation using secure SHA-256 hash
-        let mut hasher = Sha256::new();
-        hasher.update(entity.id.as_bytes());
-        hasher.update(timestamp.to_string().as_bytes());
-        hasher.update(operator.as_bytes());
-        let transformation_hash = hasher
-            .finalize()
-            .iter()
-            .map(|b| format!("{:02x}", b))
-            .collect::<String>();
-
+        // Cryptographic generation using standard md5 library primitives
+        let mut context = md5::Context::new();
+        context.consume(entity.id.as_bytes());
+        context.consume(timestamp.to_string().as_bytes());
+        context.consume(operator.as_bytes());
+        let transformation_hash = format!("{:x}", context.compute()); // Keeping compute since it works with {:x}
         
         let receipt = ProvenanceReceipt {
             entity_id: entity.id.clone(),

@@ -68,7 +68,6 @@ class FreeBsdDriftMonitor:
         try:
             while True:
                 conn, _ = server.accept()
-                # Use bounded chunk iteration to guarantee safe data isolation reads
                 data_bytes = conn.recv(128)
                 if not data_bytes:
                     conn.close()
@@ -77,7 +76,6 @@ class FreeBsdDriftMonitor:
                 data = data_bytes.decode('utf-8').strip()
                 if data in self.state_mapping:
                     self.observed_buffer.append(data)
-                    # Maintain bounded memory sliding window of 50 states
                     if len(self.observed_buffer) > 50:
                         self.observed_buffer.pop(0)
                         

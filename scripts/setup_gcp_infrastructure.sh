@@ -1,8 +1,15 @@
-#!/bin/bash
-# GCP Infrastructure Provisioning Script for bs-edge-agent
-# This script enables necessary APIs and provisions base resources for the 9 selected solutions.
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+# HARD CONSTRAINT: Architectural Sovereignty Frame (Audit 2026-06-08)
+if [ "${BLUESHOES_HUMAN_CONFIRMED:-false}" != "true" ]; then
+    echo "ERROR: Cloud expansion blocked by Architecture Frame."
+    echo "Reason: Agent attempted unverified infrastructure mutation."
+    echo "To execute, a human must explicitly set BLUESHOES_HUMAN_CONFIRMED=true"
+    exit 1
+fi
+# Strict Allowlist: Block GKE, Firestore, BigQuery evolution
+# Only local-first auxiliary services allowed beyond this point...
 
 echo "Starting GCP Infrastructure Provisioning..."
 

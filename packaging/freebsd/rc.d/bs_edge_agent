@@ -1,0 +1,68 @@
+#!/bin/sh
+# PROVIDE: bs_edge_agent
+# REQUIRE: LOGIN CLEANFILES
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="bs_edge_agent"
+rcvar="bs_edge_agent_enable"
+
+load_rc_config $name
+
+: ${bs_edge_agent_enable:="NO"}
+: ${bs_edge_agent_socket:="/var/run/bs-edge-agent.sock"}
+: ${bs_edge_agent_dir:="/usr/local/libexec/bs-edge-agent"}
+
+pidfile_monitor="/var/run/bs_drift_monitor.pid"
+pidfile_agent="/var/run/bs_edge_agent.pid"
+
+start_cmd="bs_edge_agent_start"
+stop_cmd="bs_edge_agent_stop"
+status_cmd="bs_edge_agent_status"
+
+bs_edge_agent_start()
+{
+    echo "⚡ Initiating Sovereign Edge Infrastructure..."
+    
+    # 1. Start Telemetry Monitor Server
+    if [ -f "${bs_edge_agent_dir}/scripts/drift_monitor.py" ]; then
+        echo "  [INIT] Launching local drift monitoring daemon..."
+        /usr/local/bin/python3 ${bs_edge_agent_dir}/scripts/drift_monitor.py > /var/log/bs_drift_monitor.log 2>&1 &
+        echo $! > ${pidfile_monitor}
+        sleep 1 # Secure socket path initialization window
+    fi
+
+    # 2. Launch Core Binary Node
+    if [ -x "${bs_edge_agent_dir}/bin/bs-edge-agent" ]; then
+        echo "  [INIT] Executing FreeBsdExecutor microkernel..."
+        ${bs_edge_agent_dir}/bin/bs-edge-agent --socket ${bs_edge_agent_socket} > /var/log/bs_edge_agent.log 2>&1 &
+        echo $! > ${pidfile_agent}
+    fi
+    echo "✅ Agent mesh online."
+}
+
+bs_edge_agent_stop()
+{
+    echo "🛑 Halting infrastructure nodes..."
+    if [ -f "${pidfile_agent}" ]; then
+        kill -9 $(cat ${pidfile_agent}) && rm -f ${pidfile_agent}
+        echo "  [STOPPED] Core runtime terminated."
+    fi
+    if [ -f "${pidfile_monitor}" ]; then
+        kill -9 $(cat ${pidfile_monitor}) && rm -f ${pidfile_monitor}
+        echo "  [STOPPED] Telemetry loop closed."
+    fi
+    rm -f ${bs_edge_agent_socket}
+}
+
+bs_edge_agent_status()
+{
+    if [ -f "${pidfile_agent}" ] && kill -0 $(cat ${pidfile_agent}) 2>/dev/null; then
+        echo "bs_edge_agent core binary is running."
+    else
+        echo "bs_edge_agent core binary is stopped."
+    fi
+}
+
+run_rc_command "$1"
