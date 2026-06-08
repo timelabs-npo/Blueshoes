@@ -16,7 +16,7 @@ CARGO_CRATES=	\
 		chacha20poly1305-0.10.1 \
 		serde-1.0.197 \
 		serde_json-1.0.114 \
-		md5-0.7.0 \
 		rand-0.8.5
+
 
 .include <bsd.port.mk>
