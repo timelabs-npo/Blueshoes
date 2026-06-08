@@ -69,4 +69,21 @@ pub enum Commands {
         #[arg(required = true)]
         tx_id: String,
     },
+    /// Export the semantic substrate as JSON-LD
+    SubstrateExport {
+        /// Optional output file path. Prints to stdout if omitted.
+        #[arg(long)]
+        out: Option<String>,
+    },
+    /// Verify the provenance chain integrity of the substrate
+    SubstrateVerify,
+    /// Run mathematical drift analysis against an agent's output tokens
+    DriftAudit {
+        /// Path to a JSON file containing an array of concept type strings
+        #[arg(required = true)]
+        payload_file: String,
+        /// KL divergence alarm threshold in bits
+        #[arg(long, default_value_t = 0.35)]
+        threshold: f64,
+    },
 }

@@ -27,17 +27,15 @@ fn handle_provenance_cli() {
             
             match validate_transformation(payload) {
                 Ok(enriched) => {
-                    println!("[SUCCESS] Provenance verified. Cryptographic hash stabilized: {}", enriched.hash);
                     println!("{}", serde_json::to_string_pretty(&enriched).unwrap());
+                    std::process::exit(0);
                 },
-                Err((code, report)) => {
+                Err((report, exit_code)) => {
                     eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
-                    std::process::exit(code);
+                    std::process::exit(exit_code);
                 }
             }
-            std::process::exit(0);
         } else {
-            eprintln!("[-] Error: Missing argument target path for --check-provenance");
             std::process::exit(1);
         }
     }
@@ -195,7 +193,7 @@ fn main() {
                 evidence: vec!["rollback_anchor.exists".to_string(), format!("tx_json.valid: {}", plan_file)],
                 hash: String::new(),
             };
-            if let Err((code, report)) = semantic::check::validate_transformation(prov) {
+            if let Err((report, code)) = semantic::check::validate_transformation(prov) {
                 eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
                 std::process::exit(code);
             }
@@ -228,10 +226,152 @@ fn main() {
             executor::transaction::confirm_transaction(tx_id).expect("Failed to confirm transaction");
             println!("Transaction {} confirmed successfully.", tx_id);
         }
+        Commands::SubstrateExport { out } => {
+            let mut substrate = semantic::substrate::SemanticSubstrate::new();
+            // Populate from the core schema
+            seed_substrate_from_schema(&mut substrate);
+            let export = substrate.export_jsonld();
+            let json = serde_json::to_string_pretty(&export).unwrap();
+            if let Some(path) = out {
+                fs::write(path, &json).expect("Failed to write JSON-LD export");
+                println!("[+] Substrate exported to {}", path);
+            } else {
+                println!("{}", json);
+            }
+        }
+        Commands::SubstrateVerify => {
+            let mut substrate = semantic::substrate::SemanticSubstrate::new();
+            seed_substrate_from_schema(&mut substrate);
+            match substrate.verify_chain_integrity() {
+                Ok(()) => {
+                    println!("{}", serde_json::to_string_pretty(&serde_json::json!({
+                        "status": "INTACT",
+                        "generation": substrate.generation,
+                        "chain_length": substrate.lineage.len(),
+                        "chain_head": substrate.lineage.last().map(|r| &r.transformation_hash),
+                    })).unwrap());
+                }
+                Err((idx, msg)) => {
+                    eprintln!("{}", serde_json::to_string_pretty(&serde_json::json!({
+                        "status": "BROKEN",
+                        "broken_at_index": idx,
+                        "error": msg,
+                    })).unwrap());
+                    std::process::exit(20);
+                }
+            }
+        }
+        Commands::DriftAudit { payload_file, threshold } => {
+            let mut substrate = semantic::substrate::SemanticSubstrate::new();
+            seed_substrate_from_schema(&mut substrate);
+            let ground_truth = substrate.concept_distribution();
+
+            let payload_raw = fs::read_to_string(payload_file).expect("Failed to read payload file");
+            let tokens: Vec<String> = serde_json::from_str(&payload_raw).expect("Payload must be a JSON array of strings");
+
+            let config = semantic::drift::DriftConfig {
+                kl_threshold: *threshold,
+                ..Default::default()
+            };
+            let mut detector = semantic::drift::DriftDetector::new(config);
+            let report = detector.analyze(&ground_truth, &tokens);
+            println!("{}", serde_json::to_string_pretty(&report).unwrap());
+
+            if report.drift_alarm || report.preemptive_alarm {
+                std::process::exit(21);
+            }
+        }
     }
 }
 
+/// Populate the substrate with entities derived from the core schema.
+/// This is the bridge between the static JSON schema and the live substrate engine.
+fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubstrate) {
+    use semantic::substrate::{ConceptType, Entity, Relation};
+    use std::collections::HashMap;
+
+    // Invariant
+    let mut inv_props = HashMap::new();
+    inv_props.insert("statement".into(), "No state transition may become irreversible, unverifiable, or sovereign.".into());
+    inv_props.insert("authority".into(), "local_0log".into());
+    inv_props.insert("status".into(), "active".into());
+    substrate.commit_entity(Entity {
+        id: "Invariant:no_irreversible_mutation".into(),
+        concept: ConceptType::Invariant,
+        properties: inv_props,
+        relations: vec![],
+    }, "schema_seed");
+
+    // Capability
+    let mut cap_props = HashMap::new();
+    cap_props.insert("allowed_actor".into(), "executor".into());
+    cap_props.insert("requires".into(), "rollback_anchor,watchdog,confirmation_window".into());
+    substrate.commit_entity(Entity {
+        id: "Capability:apply_confirmed".into(),
+        concept: ConceptType::Capability,
+        properties: cap_props,
+        relations: vec![
+            Relation { predicate: "requires_invariant".into(), target_id: "Invariant:no_irreversible_mutation".into() },
+        ],
+    }, "schema_seed");
+
+    // StateGeneration
+    let mut gen_props = HashMap::new();
+    gen_props.insert("source".into(), "0.log".into());
+    gen_props.insert("promotion_requires".into(), "validation_passed,confirmation_received,rollback_available".into());
+    substrate.commit_entity(Entity {
+        id: "StateGeneration:current".into(),
+        concept: ConceptType::StateGeneration,
+        properties: gen_props,
+        relations: vec![
+            Relation { predicate: "governed_by".into(), target_id: "Invariant:no_irreversible_mutation".into() },
+            Relation { predicate: "promoted_via".into(), target_id: "Capability:apply_confirmed".into() },
+        ],
+    }, "schema_seed");
+
+    // ExternalMirror (Spanner)
+    let mut mirror_props = HashMap::new();
+    mirror_props.insert("may_store".into(), "replicated_observations,promoted_artifacts,advisory_acl".into());
+    mirror_props.insert("may_not".into(), "override_0log,command_edge_mutation,become_runtime_source_of_truth".into());
+    substrate.commit_entity(Entity {
+        id: "ExternalMirror:spanner".into(),
+        concept: ConceptType::ExternalMirror,
+        properties: mirror_props,
+        relations: vec![
+            Relation { predicate: "mirrors".into(), target_id: "StateGeneration:current".into() },
+        ],
+    }, "schema_seed");
+
+    // Project: Blueshoes itself
+    let mut proj_props = HashMap::new();
+    proj_props.insert("name".into(), "Blueshoes".into());
+    proj_props.insert("domain".into(), "adaptive-networking".into());
+    substrate.commit_entity(Entity {
+        id: "Project:blueshoes".into(),
+        concept: ConceptType::Project,
+        properties: proj_props,
+        relations: vec![
+            Relation { predicate: "enforces".into(), target_id: "Invariant:no_irreversible_mutation".into() },
+        ],
+    }, "schema_seed");
+
+    // Metric: Drift score
+    let mut metric_props = HashMap::new();
+    metric_props.insert("name".into(), "semantic_drift_kl".into());
+    metric_props.insert("unit".into(), "bits".into());
+    metric_props.insert("alarm_threshold".into(), "0.35".into());
+    substrate.commit_entity(Entity {
+        id: "Metric:semantic_drift_kl".into(),
+        concept: ConceptType::Metric,
+        properties: metric_props,
+        relations: vec![
+            Relation { predicate: "monitors".into(), target_id: "Project:blueshoes".into() },
+        ],
+    }, "schema_seed");
+}
+
 fn handle_canary(cli: &Cli) {
+
     use executor::{DryRunExecutor, Executor};
     use journal::transaction::{TransactionEvent, TransactionState};
 
@@ -309,9 +449,9 @@ fn handle_canary(cli: &Cli) {
         evidence: vec!["rollback_anchor.exists".to_string(), "watchdog.armed".to_string()],
         hash: String::new(),
     };
-    if let Err((code, report)) = semantic::check::validate_transformation(prov) {
-        eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
-        std::process::exit(code);
+    if let Err((report, code)) = semantic::check::validate_transformation(prov) {
+                eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
+                std::process::exit(code);
     }
 
     let start_event = TransactionEvent::new(
