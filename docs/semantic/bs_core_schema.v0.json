@@ -1,0 +1,41 @@
+{
+  "concepts": {
+    "Invariant": {
+      "id": "inv.no_irreversible_mutation",
+      "statement": "No state transition may become irreversible, unverifiable, or sovereign.",
+      "authority": "local_0log",
+      "status": "active"
+    },
+    "Capability": {
+      "id": "cap.apply_confirmed",
+      "allowed_actor": "executor",
+      "requires": [
+        "rollback_anchor",
+        "watchdog",
+        "confirmation_window"
+      ]
+    },
+    "StateGeneration": {
+      "id": "gen.current",
+      "source": "0.log",
+      "promotion_requires": [
+        "validation_passed",
+        "confirmation_received",
+        "rollback_available"
+      ]
+    },
+    "ExternalMirror": {
+      "id": "mirror.spanner",
+      "may_store": [
+        "replicated_observations",
+        "promoted_artifacts",
+        "advisory_acl"
+      ],
+      "may_not": [
+        "override_0log",
+        "command_edge_mutation",
+        "become_runtime_source_of_truth"
+      ]
+    }
+  }
+}

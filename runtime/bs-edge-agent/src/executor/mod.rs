@@ -42,4 +42,4 @@ impl Executor for DryRunExecutor {
 }
 
 #[cfg(feature = "dangerous_execution")]
-pub mod openwrt;
+pub mod FreeBSD;

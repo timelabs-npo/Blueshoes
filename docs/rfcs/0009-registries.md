@@ -3,7 +3,7 @@
 This document outlines the core constraints that govern all pull requests and architectural decisions for Blueshoes.
 
 ## 1. Hardware & Compilation
-- **Target**: GL-MT3000 (OpenWrt).
+- **Target**: GL-MT3000 (FreeBSD).
 - **Language**: Memory-safe preferred (Rust or Go). Final selection depends on passing footprint targets.
 - **Budgets**: Targeting < 15MB RAM and < 5MB Flash.
 

@@ -6,9 +6,9 @@ use crate::executor::{Executor, Snapshot};
 use crate::journal::planner::PlanStep;
 use std::process::Command;
 
-pub struct OpenWrtExecutor;
+pub struct FreeBSDExecutor;
 
-impl Executor for OpenWrtExecutor {
+impl Executor for FreeBSDExecutor {
     fn capture_snapshot(&self) -> std::io::Result<Snapshot> {
         // M7 Canary: Capture MTU via JSON
         let output = Command::new("ip")

@@ -73,6 +73,11 @@ def main():
     success, out = run_cmd(["gcloud", "firestore", "databases", "list"])
     proof.append(f"Firestore Trace: {'SUCCESS' if '(default)' in out else 'FAILED'}")
 
+    # 10. Spanner
+    print("--- 10. Spanner ---")
+    success, out = run_cmd(["gcloud", "spanner", "databases", "list", "--instance=edge-spanner-instance"])
+    proof.append(f"Spanner Trace: {'SUCCESS' if 'edge_state' in out else 'FAILED'}")
+
     print("\n\n" + "="*40)
     print("TRACED PROOF SUMMARY")
     print("="*40)

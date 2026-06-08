@@ -4,13 +4,13 @@ use std::fs;
 
 pub fn run() -> TelemetryEvent {
     let mut status = "ok";
-    let mut openwrt_readable = false;
+    let mut FreeBSD_readable = false;
     let mut dev_urandom_readable = false;
     let mut is_root = false;
 
-    // Check OpenWrt release file
-    if fs::metadata("/etc/openwrt_release").is_ok() {
-        openwrt_readable = true;
+    // Check FreeBSD release file
+    if fs::metadata("/etc/FreeBSD_release").is_ok() {
+        FreeBSD_readable = true;
     }
 
     // Check /dev/urandom
@@ -30,8 +30,8 @@ pub fn run() -> TelemetryEvent {
         }
     }
 
-    if !openwrt_readable {
-        status = "warning_not_openwrt";
+    if !FreeBSD_readable {
+        status = "warning_not_FreeBSD";
     }
 
     TelemetryEvent::new(
@@ -39,7 +39,7 @@ pub fn run() -> TelemetryEvent {
         status,
         0,
         json!({
-            "openwrt_readable": openwrt_readable,
+            "FreeBSD_readable": FreeBSD_readable,
             "dev_urandom_readable": dev_urandom_readable,
             "is_root": is_root,
         }),

@@ -4,7 +4,7 @@ The initial development phase of Blueshoes focuses strictly on validating the tr
 
 ## In Scope for Phase 1
 - **Target Hardware**: GL.iNet MT-3000 (MediaTek MT7981B).
-- **Core Engine**: A bare-metal daemon (`bs-edge-agent`) running natively on OpenWrt.
+- **Core Engine**: A bare-metal daemon (`bs-edge-agent`) running natively on FreeBSD.
 - **Rollback Safety**: Implementing the Snapshot $\to$ Apply $\to$ Validate $\to$ Rollback loop.
 - **Static Profiles**: Basic fallback profiles (e.g., encrypted DNS upstreams, ECH preservation behaviors, and optionally an explicit operator-configured tunnel profile with no bundled commercial endpoints).
 - **Basic Telemetry**: Logging connection failures (TCP RST, DNS timeouts) to a local SQLite database.

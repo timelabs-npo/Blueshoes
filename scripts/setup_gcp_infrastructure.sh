@@ -31,7 +31,8 @@ gcloud services enable \
     bigquery.googleapis.com \
     storage-component.googleapis.com \
     container.googleapis.com \
-    cloudbuild.googleapis.com
+    cloudbuild.googleapis.com \
+    spanner.googleapis.com
 
 echo "2. Setting up Pub/Sub..."
 TOPIC_NAME="edge-telemetry-events"
@@ -99,6 +100,26 @@ else
     echo "GKE cluster $CLUSTER_NAME already exists or is creating."
 fi
 
+echo "6.7 Setting up Cloud Spanner..."
+SPANNER_INSTANCE="edge-spanner-instance"
+if ! gcloud spanner instances describe $SPANNER_INSTANCE &>/dev/null; then
+    gcloud spanner instances create $SPANNER_INSTANCE \
+        --config=regional-us-central1 \
+        --description="Edge Routing Global State" \
+        --processing-units=100
+    echo "Created Spanner instance: $SPANNER_INSTANCE"
+else
+    echo "Spanner instance $SPANNER_INSTANCE already exists."
+fi
+
+if ! gcloud spanner databases describe edge_state --instance=$SPANNER_INSTANCE &>/dev/null; then
+    gcloud spanner databases create edge_state --instance=$SPANNER_INSTANCE \
+        --ddl="CREATE TABLE GlobalAcl (Ip STRING(45) NOT NULL, Blocked BOOL NOT NULL) PRIMARY KEY(Ip)"
+    echo "Created Spanner database: edge_state"
+else
+    echo "Spanner database edge_state already exists."
+fi
+
 echo "7. Service Account Setup for bs-edge-agent..."
 SA_NAME="bs-edge-agent-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
@@ -117,6 +138,7 @@ ROLES=(
     "roles/logging.logWriter"
     "roles/secretmanager.secretAccessor"
     "roles/run.invoker"
+    "roles/spanner.databaseUser"
 )
 
 for ROLE in "${ROLES[@]}"; do

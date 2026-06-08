@@ -18,7 +18,7 @@ Provide a brief overview of the exact changes being proposed. Include file paths
 
 ## Security & Boundary Checklist
 - [ ] Are any raw shell commands being generated?
-- [ ] Is `executor/openwrt.rs` the ONLY location invoking `Command::new`?
+- [ ] Is `executor/FreeBSD.rs` the ONLY location invoking `Command::new`?
 - [ ] Do these changes violate the Bounded Profile Engine rules?
 
 ## Request for Advisory

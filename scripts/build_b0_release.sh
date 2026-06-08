@@ -39,8 +39,8 @@ get_file_info() {
     fi
 }
 
-OPENWRT_INFO=$(get_file_info "runtime/bs-edge-agent/target/aarch64-unknown-linux-musl/release/bs-edge-agent")
-OPENWRT_WATCHDOG_INFO=$(get_file_info "runtime/bs-edge-agent/target/aarch64-unknown-linux-musl/release/bs-watchdog")
+FreeBSD_INFO=$(get_file_info "runtime/bs-edge-agent/target/aarch64-unknown-linux-musl/release/bs-edge-agent")
+FreeBSD_WATCHDOG_INFO=$(get_file_info "runtime/bs-edge-agent/target/aarch64-unknown-linux-musl/release/bs-watchdog")
 LINUX_INFO=$(get_file_info "runtime/bs-edge-agent/target/x86_64-unknown-linux-musl/release/bs-edge-agent")
 LINUX_WATCHDOG_INFO=$(get_file_info "runtime/bs-edge-agent/target/x86_64-unknown-linux-musl/release/bs-watchdog")
 MACOS_INFO=$(get_file_info "runtime/bs-edge-agent/target/aarch64-apple-darwin/release/bs-edge-agent")
@@ -59,8 +59,8 @@ cat <<EOF > artifacts/b0_release_metadata.json
   },
   "targets": {
     "aarch64-unknown-linux-musl": {
-      "bs-edge-agent": $OPENWRT_INFO,
-      "bs-watchdog": $OPENWRT_WATCHDOG_INFO
+      "bs-edge-agent": $FreeBSD_INFO,
+      "bs-watchdog": $FreeBSD_WATCHDOG_INFO
     },
     "x86_64-unknown-linux-musl": {
       "bs-edge-agent": $LINUX_INFO,

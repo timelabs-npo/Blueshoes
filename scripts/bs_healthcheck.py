@@ -96,7 +96,7 @@ def check_self_violations():
         rel_path = path.relative_to(ROOT_DIR)
         
         # Executor is the only place allowed to use mutations
-        if "executor/openwrt.rs" in str(rel_path):
+        if "executor/FreeBSD.rs" in str(rel_path):
             continue
             
         # Ignore the audit test itself which contains the string patterns

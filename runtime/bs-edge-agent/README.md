@@ -1,6 +1,6 @@
 # bs-edge-agent
 
-This is the primary runtime daemon for the Blueshoes architecture. It is designed to run natively on OpenWrt routers (specifically targeting the GL.iNet MT-3000 in Phase 1).
+This is the primary runtime daemon for the Blueshoes architecture. It is designed to run natively on FreeBSD routers (specifically targeting the GL.iNet MT-3000 in Phase 1).
 
 ## Constraints
 - **Language**: Rust (currently scaffolded).

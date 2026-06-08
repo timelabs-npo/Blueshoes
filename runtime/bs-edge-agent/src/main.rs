@@ -86,7 +86,7 @@ fn main() {
         }
         Commands::Profiles => {
             let profiles = json!([
-                {"name": "DIRECT", "description": "Standard OpenWrt routing"},
+                {"name": "DIRECT", "description": "Standard FreeBSD routing"},
                 {"name": "DNS_PRIVACY", "description": "Encrypted DNS upstreams"},
                 {"name": "ECH_PRESERVE", "description": "Preserve TLS integrity"},
                 {"name": "USER_TUNNEL", "description": "Operator configured tunnel"}
@@ -211,7 +211,7 @@ fn main() {
             );
 
             println!("Applying capability graph...");
-            let exec = executor::DryRunExecutor; // Using DryRun for now, or OpenWrtExecutor if dangerous_execution
+            let exec = executor::DryRunExecutor; // Using DryRun for now, or FreeBSDExecutor if dangerous_execution
             if let Err(e) = executor::Executor::apply(&exec, &plan) {
                 eprintln!("Apply failed: {}", e);
                 std::process::exit(1);
@@ -378,7 +378,7 @@ fn handle_canary(cli: &Cli) {
 
     // Choose executor based on feature flag
     #[cfg(feature = "dangerous_execution")]
-    let exec = executor::openwrt::OpenWrtExecutor;
+    let exec = executor::FreeBSD::FreeBSDExecutor;
     #[cfg(not(feature = "dangerous_execution"))]
     let exec = DryRunExecutor;
 

@@ -15,7 +15,7 @@ Transparent Man-In-The-Middle (MITM) architecture is forbidden. Blueshoes will n
 Large Language Models (LLMs) are used strictly for offline log analysis and profile recommendations. They run on external hardware (the Workbench) and have **zero authority** to issue state-mutating shell commands on the router itself.
 
 ## 5. Non-Destructive Removability
-Blueshoes must operate cleanly. Disabling or removing the Blueshoes agent must perfectly restore the vanilla OpenWrt routing configuration without leaving residual broken states behind.
+Blueshoes must operate cleanly. Disabling or removing the Blueshoes agent must perfectly restore the vanilla FreeBSD routing configuration without leaving residual broken states behind.
 
 ## 6. Abuse Resistance & Compliance
 Blueshoes is built to improve lawful access and availability, not to enable profiteering or covert rerouting.

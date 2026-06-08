@@ -93,7 +93,7 @@ cargo run -- journal --tail 10
 ## Security Guarantees
 1. **No Target Mutations**: The `TelemetryEvent` struct natively enforces `mutation_performed = false`. 
 2. **Automated Audit**: During `cargo test`, `tests/audit_test.rs` rigorously scans the entire `src/` codebase to assert that forbidden strings (like `uci set` or `nft add`) do not exist. Any accidental inclusion of mutating commands will break the CI build.
-## OpenWrt Deployment (M1.5 Cross-Compilation)
+## FreeBSD Deployment (M1.5 Cross-Compilation)
 The GL-MT3000 router uses a MediaTek MT7981B chip (Dual-core ARM Cortex-A53). The correct Rust target for this architecture is `aarch64-unknown-linux-musl`.
 
 To build the static binary for the router, we use the `cross` toolchain (which utilizes Docker to handle the C cross-compilation dependencies).
@@ -104,7 +104,7 @@ To build the static binary for the router, we use the `cross` toolchain (which u
    ```
 2. Build the router binary:
    ```bash
-   make build-openwrt
+   make build-FreeBSD
    ```
 3. The resulting statically linked executable will be located at:
    `runtime/bs-edge-agent/target/aarch64-unknown-linux-musl/release/bs-edge-agent`

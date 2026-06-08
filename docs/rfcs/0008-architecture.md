@@ -3,7 +3,7 @@
 The Blueshoes architecture is bifurcated into two distinct environments to protect the router's stability while allowing for advanced analysis.
 
 ## The Edge Runtime (`bs-edge-agent`)
-This is the core daemon running directly on the OpenWrt router.
+This is the core daemon running directly on the FreeBSD router.
 - **Role**: It monitors connection health, switches routing profiles, and enforces atomic rollbacks.
 - **Constraints**: It must be extremely lightweight. We prefer memory-safe languages (Rust or Go), pending final compilation footprint tests.
 - **Determinism**: The agent only executes pre-defined, static profiles. It does not guess or generate rules dynamically.

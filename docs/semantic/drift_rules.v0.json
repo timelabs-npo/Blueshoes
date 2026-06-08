@@ -1,0 +1,7 @@
+{
+  "authority_inversion": 1,
+  "rollback_weakening": 3,
+  "cloud_sovereignty_leak": 1,
+  "llm_execution_leak": 1,
+  "semantic_alias_conflict": 1
+}

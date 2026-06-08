@@ -12,7 +12,7 @@
 - **M3: Profile Schema Parser**. JSON validation of routing intents (e.g., "DNS_PRIVACY").
 - **M4: Dry-Run Transaction Planner**. Calculate `ip route` and `nftables` diffs strictly in memory.
 - **M5: The Fake Rollback Loop**. Test atomic rollback triggers without touching the system.
-- **M6: OpenWrt Adapter**. Bind the dry-run planner to actual `uci` and `netifd` execution APIs.
+- **M6: FreeBSD Adapter**. Bind the dry-run planner to actual `uci` and `netifd` execution APIs.
 - **M7: Canary Validation**. Perform a 30-second mutation and auto-rollback to guarantee failsafes.
 - **M8: First Controlled Mutation**. Execute the first permanent, deterministic routing update.
 

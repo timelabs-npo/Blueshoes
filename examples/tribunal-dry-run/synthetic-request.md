@@ -4,14 +4,14 @@
 **Author**: Antigravity Local Agent
 
 ## Execution Plan Synopsis
-Implementing the MTU safeguard in `executor/openwrt.rs`. Adding an IPC call to `bs-watchdog` with the MTU snapshot.
+Implementing the MTU safeguard in `executor/FreeBSD.rs`. Adding an IPC call to `bs-watchdog` with the MTU snapshot.
 
 ```json
 {
   "milestone": "M7",
   "intent": "Implement Dead-Man's Switch Rollback",
   "affected_components": [
-    "runtime/bs-edge-agent/src/executor/openwrt.rs",
+    "runtime/bs-edge-agent/src/executor/FreeBSD.rs",
     "runtime/bs-edge-agent/src/watchdog.rs"
   ]
 }
@@ -19,7 +19,7 @@ Implementing the MTU safeguard in `executor/openwrt.rs`. Adding an IPC call to `
 
 ## Security & Boundary Checklist
 - [x] Are any raw shell commands being generated?
-- [x] Is `executor/openwrt.rs` the ONLY location invoking `Command::new`?
+- [x] Is `executor/FreeBSD.rs` the ONLY location invoking `Command::new`?
 - [x] Do these changes violate the Bounded Profile Engine rules?
 
 ## Request for Advisory

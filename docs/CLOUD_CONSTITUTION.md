@@ -88,20 +88,25 @@ This means Spanner stores **promoted semantic knowledge**, not operational sover
 
 ### 3.1 Spanner MAY Store
 
+- Asynchronous promoted artifacts
+- Global advisory threat intel
+- Signed policy overlays
 - Replicated observations (post-commit telemetry summaries)
 - Globally shared threat intelligence (adversarial fingerprints, DPI signatures)
 - Revocation broadcasts (compromised key announcements)
 - Advisory ACL overlays (suggested block lists — edge validates before applying)
-- Signed promoted artifacts (validated rollback patterns, capability schemas)
 - Promoted doctrine deltas (constitutional amendments after human approval)
 - Semantic invariants (cross-edge consistency checks)
 
 ### 3.2 Spanner MAY NOT
 
+- Block edge runtime
+- Override `0.log`
+- Issue mutations
+- Become canonical active router state
 - Directly command edge mutations
 - Become the source of runtime truth
 - Bypass local lineage validation
-- Override local commit log or operational state
 - Invalidate local recoverability
 - Act as the canonical operational clock
 - Require connectivity for safe edge execution
@@ -217,3 +222,33 @@ Cloud sovereignty + edge compliance = centralized control.
 
 BS chooses the first. Always.
 ```
+
+---
+
+## 9. Ratification & Oath of Fealty to the Edge
+
+We, the human creators and agent executors of the Blueshoes runtime, hereby ratify this Cloud Constitution. We pledge that the cloud shall remain an advisory memory, never an active sovereign, and that local rollback remains sacred.
+
+```
+                  ┌──────────────────────┐
+                  │   HUMAN AUTHORITY    │ (Root of Trust)
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │ BS EDGE SOVEREIGNTY  │ (Local Lineage)
+                  └──────────┬───────────┘
+                             │
+            ┌────────────────┴────────────────┐
+            ▼                                 ▼
+┌──────────────────────┐           ┌──────────────────────┐
+│  SPANNER (MEMORY)    │           │ FIRESTORE (MIRROR)   │
+└──────────────────────┘           └────────────────└─────┘
+ (Advisory Knowledge)                (Dashboard Reflect)
+```
+
+**Signed in compliance with the Sovereignty Invariant:**
+
+*   **Human Operator** (Canonical Root Authority) — *Approved*
+*   **Antigravity** (Constitutional Orchestrator) — *Attested*
+

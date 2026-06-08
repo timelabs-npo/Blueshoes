@@ -13,7 +13,7 @@ test:
 	@echo "Running unit tests..."
 	cd runtime/bs-edge-agent && cargo test
 
-# --- Cross Compilation for OpenWrt (GL-MT3000) ---
+# --- Cross Compilation for FreeBSD (GL-MT3000) ---
 # The GL-MT3000 uses a MediaTek MT7981B (Dual-core ARM Cortex-A53)
 # The correct Rust target is aarch64-unknown-linux-musl
 
@@ -36,7 +36,7 @@ setup-cross:
 		rustup target add aarch64-apple-darwin; \
 	fi
 
-build-openwrt:
+build-FreeBSD:
 	@echo "Cross-compiling bs-edge-agent for aarch64-unknown-linux-musl..."
 	cd runtime/bs-edge-agent && cargo zigbuild --target aarch64-unknown-linux-musl --release $(FEATURES)
 	@echo "Success! Binary is located at: runtime/bs-edge-agent/target/aarch64-unknown-linux-musl/release/bs-edge-agent"
@@ -51,7 +51,7 @@ build-macos:
 	cd runtime/bs-edge-agent && cargo build --target aarch64-apple-darwin --release $(FEATURES)
 	@echo "Success! Binary is located at: runtime/bs-edge-agent/target/aarch64-apple-darwin/release/bs-edge-agent"
 
-build-b0: build-openwrt build-x86_64 build-macos
+build-b0: build-FreeBSD build-x86_64 build-macos
 	@echo "B0 Build complete."
 
 clean:

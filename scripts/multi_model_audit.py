@@ -22,7 +22,7 @@ MODELS = [
 ]
 
 SYSTEM_PROMPT = """You are a senior security researcher specializing in embedded systems, Linux networking, and Rust.
-You are auditing a daemon that runs as root on an OpenWrt home router (GL-MT3000).
+You are auditing a daemon that runs as root on an FreeBSD home router (GL-MT3000).
 Your job is to identify logic flaws, path traversal vectors, unchecked assumptions, and command injection vulnerabilities.
 The agent uses 'uci batch' via stdin to mutate state, and has a strict 'no shell interpolation' governance policy.
 Please output a concise markdown report of your findings categorized by severity."""

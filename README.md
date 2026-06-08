@@ -2,7 +2,7 @@
 
 Blueshoes is a rollback-safe adaptive networking runtime doctrine and reference implementation for constrained edge devices.
 
-It operates primarily on OpenWrt-based routers to provide resilient routing, bounded recovery, and deterministic rollback without risking total loss of internet connectivity.
+It operates primarily on FreeBSD-based routers to provide resilient routing, bounded recovery, and deterministic rollback without risking total loss of internet connectivity.
 
 All `bs-edge-agent` execution capabilities are locked behind an explicit double-gate runtime acknowledgement and isolated by a `dangerous_execution` compile-time feature. 
 
@@ -22,7 +22,7 @@ The project architecture and doctrine are maintained as an RFC corpus. See the [
 
 - [Runtime Doctrine](docs/rfcs/0001-runtime-doctrine.md)
 - [Rollback Model](docs/rfcs/0002-rollback-model.md)
-- **Topics**: openwrt, router, networking, rollback, reliability, rust, dns, ech, edge-computing, observability, censorship-resilience
+- **Topics**: FreeBSD, router, networking, rollback, reliability, rust, dns, ech, edge-computing, observability, censorship-resilience
 
 ## Core Philosophy: Rollback is Sacred
 
@@ -39,7 +39,7 @@ The runtime must fail safely, deterministically, and recoverably.
 
 ## Scope
 
-Phase 1 targets the GL.iNet GL-MT3000 (OpenWrt) with a deterministic edge agent written in Rust.
+Phase 1 targets the GL.iNet GL-MT3000 (FreeBSD) with a deterministic edge agent written in Rust.
 
 ## Explicit Constraints
 
@@ -68,7 +68,7 @@ Current status: B0 Runtime Beta Pack.
 The runtime currently supports:
 - Read-only telemetry probes
 - Structured transaction journaling
-- Cross-compilation for OpenWrt targets
+- Cross-compilation for FreeBSD targets
 - Deterministic audit validation
 
 The runtime does NOT yet mutate routing state.

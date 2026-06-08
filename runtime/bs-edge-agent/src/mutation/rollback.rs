@@ -75,5 +75,5 @@ pub fn reload_network() -> Result<(), RollbackError> {
 
 #[cfg(test)]
 mod tests {
-    // Tests are mocked or ignored in CI since we don't have OpenWrt layout natively
+    // Tests are mocked or ignored in CI since we don't have FreeBSD layout natively
 }

@@ -78,7 +78,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    // Restart networking strictly via standard OpenWrt /etc/init.d script
+    // Restart networking strictly via standard FreeBSD /etc/init.d script
     // AUDIT EXEMPTION: bs-watchdog is the safety rollback daemon itself.
     println!("[Watchdog] Configuration restored. Restarting network services...");
     let mut reload_cmd = Command::new("/etc/init.d/network"); // audit:exempt:watchdog-rollback

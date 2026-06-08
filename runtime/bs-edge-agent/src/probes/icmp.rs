@@ -9,7 +9,7 @@ pub fn run(target: &str) -> TelemetryEvent {
     evidence["target"] = json!(target);
 
     // Read-only ICMP ping command
-    // Strictly OpenWrt/Linux target flags
+    // Strictly FreeBSD/Linux target flags
     let mut cmd = Command::new("ping");
     cmd.args(["-c", "1", "-W", "2", target]);
 

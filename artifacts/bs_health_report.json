@@ -170,9 +170,9 @@
       "id": "HLT-DOC-07229",
       "category": "dead_leftover",
       "severity": "medium",
-      "title": "Unreferenced documentation file: 0006-openwrt-state-snapshot.md",
+      "title": "Unreferenced documentation file: 0006-FreeBSD-state-snapshot.md",
       "evidence": [
-        "docs/0006-openwrt-state-snapshot.md"
+        "docs/0006-FreeBSD-state-snapshot.md"
       ],
       "impact": "Documentation drift and clutter",
       "remediation": {

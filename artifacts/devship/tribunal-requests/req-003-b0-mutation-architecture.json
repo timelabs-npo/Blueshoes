@@ -27,7 +27,7 @@
     "artifact_hashes": []
   },
   "questions": [
-    "1. How should bs-edge-agent apply configuration state to OpenWrt if arbitrary shell strings ('uci set') are forbidden in the binary? (Options: ubus API, FFI libuci, or deterministic payload ingestion)",
+    "1. How should bs-edge-agent apply configuration state to FreeBSD if arbitrary shell strings ('uci set') are forbidden in the binary? (Options: ubus API, FFI libuci, or deterministic payload ingestion)",
     "2. How do we ensure that any chosen mutation strategy strictly adheres to the 'Rollback is Sacred' doctrine (i.e. applying the new state, verifying, and rolling back if failed)?",
     "3. Does the proposed mutation architecture maintain the absolute governance boundary where AGY has zero runtime authority over the edge device?"
   ],
