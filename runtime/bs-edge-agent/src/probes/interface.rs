@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fs;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,7 +34,10 @@ pub fn run(interfaces: &[&str]) -> InterfaceTelemetry {
 
     InterfaceTelemetry {
         event_type: "probe_interface".to_string(),
-        timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+        timestamp: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs(),
         status: results,
     }
 }

@@ -31,9 +31,7 @@ pub enum Commands {
     /// Dump safe environment variables
     Env,
     /// Perform an explicit DNS lookup
-    Dns {
-        target: String,
-    },
+    Dns { target: String },
     /// Perform an explicit ICMP ping (latency)
     Latency {
         #[arg(required = true)]
@@ -44,7 +42,6 @@ pub enum Commands {
         #[arg(required = true)]
         target: String,
     },
-
 
     /// Run M7 Canary Mutation validation
     Canary,

@@ -1,10 +1,10 @@
+use flate2::write::GzEncoder;
+use flate2::Compression;
+use serde_json::json;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
 use std::path::Path;
 use tar::Builder;
-use flate2::write::GzEncoder;
-use flate2::Compression;
-use serde_json::json;
 
 const LOCK_FILE: &str = "/tmp/blueshoes.lock";
 const ROLLBACK_DIR: &str = "/tmp/blueshoes/rollbacks"; // /tmp for QEMU compatibility/test env
@@ -22,7 +22,7 @@ pub fn acquire_exclusive_lock() -> io::Result<TransactionLock> {
         .write(true)
         .create(true)
         .open(LOCK_FILE)?;
-        
+
     // Attempt to acquire an exclusive lock. If another process has it, this blocks or fails
     match rustix::fs::flock(&file, rustix::fs::FlockOperation::LockExclusive) {
         Ok(_) => Ok(TransactionLock { _file: file }),
@@ -79,14 +79,14 @@ pub fn arm_watchdog(tx_id: &str, timeout_secs: u64) -> io::Result<std::process::
         .parent()
         .unwrap()
         .join("bs-watchdog");
-        
+
     let child = std::process::Command::new(watchdog_path)
         .arg("--tx-id")
         .arg(tx_id)
         .arg("--timeout")
         .arg(timeout_secs.to_string())
         .spawn()?;
-        
+
     Ok(child)
 }
 
@@ -99,7 +99,11 @@ pub fn confirm_transaction(tx_id: &str) -> io::Result<()> {
 }
 
 #[allow(dead_code)]
-pub fn generate_tribunal_request_stub(tx_id: &str, intent: &str, target_repo: &str) -> io::Result<()> {
+pub fn generate_tribunal_request_stub(
+    tx_id: &str,
+    intent: &str,
+    target_repo: &str,
+) -> io::Result<()> {
     // In actual implementation, find repo root. For prototype, use local .tasks.
     let tasks_dir = Path::new("../../.tasks");
     let resolved_dir = if tasks_dir.exists() {
@@ -107,7 +111,7 @@ pub fn generate_tribunal_request_stub(tx_id: &str, intent: &str, target_repo: &s
     } else {
         Path::new(".tasks")
     };
-    
+
     if !resolved_dir.exists() {
         fs::create_dir_all(resolved_dir)?;
     }
@@ -148,6 +152,6 @@ pub fn generate_tribunal_request_stub(tx_id: &str, intent: &str, target_repo: &s
     let pending_file = resolved_dir.join(format!("pending_request_{}.json", tx_id));
     let mut file = File::create(&pending_file)?;
     file.write_all(serde_json::to_string_pretty(&request).unwrap().as_bytes())?;
-    
+
     Ok(())
 }

@@ -53,7 +53,7 @@ impl GcpAuth {
 
     pub fn get_token(&self) -> Result<String, Box<dyn std::error::Error>> {
         let now = Utc::now().timestamp() as u64;
-        
+
         let mut cache = self.cached_token.lock().unwrap();
         if let Some((token, expires_at)) = &*cache {
             if now < *expires_at - 60 {
@@ -64,7 +64,7 @@ impl GcpAuth {
         // Generate JWT
         let iat = now as usize;
         let exp = iat + 3600;
-        
+
         let claims = Claims {
             iss: self.key.client_email.clone(),
             scope: "https://www.googleapis.com/auth/cloud-platform".to_string(),
@@ -88,7 +88,7 @@ impl GcpAuth {
             ])?;
 
         let token_resp: TokenResponse = response.into_json()?;
-        
+
         let new_expires_at = now + token_resp.expires_in;
         *cache = Some((token_resp.access_token.clone(), new_expires_at));
 

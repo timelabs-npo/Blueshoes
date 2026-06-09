@@ -50,7 +50,9 @@ impl SovereignSecretManager {
         let plaintext_bytes = self
             .cipher
             .decrypt(nonce, vault.ciphertext.as_slice())
-            .map_err(|_| "Cryptographic key error: Unable to unlock local sovereign secrets.".to_string())?;
+            .map_err(|_| {
+                "Cryptographic key error: Unable to unlock local sovereign secrets.".to_string()
+            })?;
 
         self.memory_cache =
             serde_json::from_reader(plaintext_bytes.as_slice()).map_err(|e| e.to_string())?;
@@ -61,8 +63,13 @@ impl SovereignSecretManager {
         self.memory_cache.get(secret_id).cloned()
     }
 
-    pub fn insert_and_flush(&mut self, secret_id: &str, secret_value: String) -> Result<(), String> {
-        self.memory_cache.insert(secret_id.to_string(), secret_value);
+    pub fn insert_and_flush(
+        &mut self,
+        secret_id: &str,
+        secret_value: String,
+    ) -> Result<(), String> {
+        self.memory_cache
+            .insert(secret_id.to_string(), secret_value);
         self.flush_to_disk()
     }
 
@@ -90,7 +97,8 @@ impl SovereignSecretManager {
             .open(&self.local_cache_path)
             .map_err(|e| e.to_string())?;
 
-        file.write_all(&serialized_vault).map_err(|e| e.to_string())?;
+        file.write_all(&serialized_vault)
+            .map_err(|e| e.to_string())?;
         Ok(())
     }
 }

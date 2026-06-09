@@ -157,11 +157,7 @@ impl DriftDetector {
     /// If Q(i) = 0 for any i where P(i) > 0, the divergence is infinite.
     /// We use Laplace smoothing (epsilon) to prevent this while still
     /// producing a very high score — the agent dropped a core concept entirely.
-    fn kl_divergence(
-        &self,
-        p: &HashMap<String, f64>,
-        q: &HashMap<String, f64>,
-    ) -> f64 {
+    fn kl_divergence(&self, p: &HashMap<String, f64>, q: &HashMap<String, f64>) -> f64 {
         let eps = self.config.smoothing_epsilon;
         let mut kl = 0.0;
         for (key, &p_val) in p {
@@ -266,12 +262,17 @@ mod tests {
     fn test_zero_drift_on_perfect_fidelity() {
         let mut detector = DriftDetector::with_defaults();
         let tokens = vec![
-            "Person".into(), "Person".into(),
-            "Project".into(), "Project".into(),
+            "Person".into(),
+            "Person".into(),
+            "Project".into(),
+            "Project".into(),
             "Metric".into(),
         ];
         let report = detector.analyze(&ground_truth(), &tokens);
-        assert!(report.kl_divergence_bits < 0.01, "Perfect distribution should have near-zero KL");
+        assert!(
+            report.kl_divergence_bits < 0.01,
+            "Perfect distribution should have near-zero KL"
+        );
         assert!(!report.drift_alarm);
         assert!(!report.entropy_alarm);
     }
@@ -281,11 +282,17 @@ mod tests {
         let mut detector = DriftDetector::with_defaults();
         // Agent completely ignores Metric and skews to Person
         let tokens = vec![
-            "Person".into(), "Person".into(), "Person".into(),
-            "Person".into(), "Project".into(),
+            "Person".into(),
+            "Person".into(),
+            "Person".into(),
+            "Person".into(),
+            "Project".into(),
         ];
         let report = detector.analyze(&ground_truth(), &tokens);
-        assert!(report.kl_divergence_bits > 0.35, "Skewed output should trigger drift");
+        assert!(
+            report.kl_divergence_bits > 0.35,
+            "Skewed output should trigger drift"
+        );
         assert!(report.drift_alarm);
         assert_eq!(report.missing_concepts, 1);
     }
@@ -294,8 +301,11 @@ mod tests {
     fn test_hallucinated_concept_detection() {
         let mut detector = DriftDetector::with_defaults();
         let tokens = vec![
-            "Person".into(), "Project".into(), "Metric".into(),
-            "UnknownGarbage".into(), "Hallucinated".into(),
+            "Person".into(),
+            "Project".into(),
+            "Metric".into(),
+            "UnknownGarbage".into(),
+            "Hallucinated".into(),
         ];
         let report = detector.analyze(&ground_truth(), &tokens);
         assert_eq!(report.hallucinated_concepts, 2);
@@ -317,23 +327,47 @@ mod tests {
 
         // Simulate progressively drifting payloads
         let payloads: Vec<Vec<String>> = vec![
-            vec!["Person".into(), "Person".into(), "Project".into(), "Project".into(), "Metric".into()],
-            vec!["Person".into(), "Person".into(), "Person".into(), "Project".into(), "Metric".into()],
-            vec!["Person".into(), "Person".into(), "Person".into(), "Person".into(), "Metric".into()],
+            vec![
+                "Person".into(),
+                "Person".into(),
+                "Project".into(),
+                "Project".into(),
+                "Metric".into(),
+            ],
+            vec![
+                "Person".into(),
+                "Person".into(),
+                "Person".into(),
+                "Project".into(),
+                "Metric".into(),
+            ],
+            vec![
+                "Person".into(),
+                "Person".into(),
+                "Person".into(),
+                "Person".into(),
+                "Metric".into(),
+            ],
         ];
 
         let mut last_kl = 0.0;
         for payload in &payloads {
             let report = detector.analyze(&gt, payload);
-            assert!(report.kl_divergence_bits >= last_kl - 0.01, "Drift should be non-decreasing with worsening input");
+            assert!(
+                report.kl_divergence_bits >= last_kl - 0.01,
+                "Drift should be non-decreasing with worsening input"
+            );
             last_kl = report.kl_divergence_bits;
         }
 
         let final_report = detector.analyze(&gt, payloads.last().unwrap());
         // Prediction should be higher than current if drift is accelerating
-        assert!(final_report.predicted_kl_at_horizon >= last_kl,
+        assert!(
+            final_report.predicted_kl_at_horizon >= last_kl,
             "Predicted KL ({}) should be >= current KL ({})",
-            final_report.predicted_kl_at_horizon, last_kl);
+            final_report.predicted_kl_at_horizon,
+            last_kl
+        );
     }
 
     #[test]
@@ -346,12 +380,20 @@ mod tests {
         uniform.insert("C".to_string(), 0.25);
         uniform.insert("D".to_string(), 0.25);
         let h = detector.shannon_entropy(&uniform);
-        assert!((h - 2.0).abs() < 1e-6, "Uniform over 4 should have entropy 2.0, got {}", h);
+        assert!(
+            (h - 2.0).abs() < 1e-6,
+            "Uniform over 4 should have entropy 2.0, got {}",
+            h
+        );
 
         // Degenerate distribution: H = 0
         let mut degenerate = HashMap::new();
         degenerate.insert("A".to_string(), 1.0);
         let h = detector.shannon_entropy(&degenerate);
-        assert!(h.abs() < 1e-6, "Degenerate should have entropy 0.0, got {}", h);
+        assert!(
+            h.abs() < 1e-6,
+            "Degenerate should have entropy 0.0, got {}",
+            h
+        );
     }
 }

@@ -33,7 +33,7 @@ impl PubSubClient {
             self.project_id, self.topic
         );
 
-        use base64::{Engine as _, engine::general_purpose};
+        use base64::{engine::general_purpose, Engine as _};
         let b64_data = general_purpose::STANDARD.encode(payload.as_bytes());
 
         let req_body = PublishRequest {

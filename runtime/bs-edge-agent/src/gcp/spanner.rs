@@ -135,9 +135,11 @@ impl SpannerMemoryFabric {
             .send_json(serde_json::json!({}))?;
 
         if session_resp.status() != 200 {
-            return Err(
-                format!("Failed to create Spanner session: {}", session_resp.status()).into(),
-            );
+            return Err(format!(
+                "Failed to create Spanner session: {}",
+                session_resp.status()
+            )
+            .into());
         }
 
         let session_data: serde_json::Value = session_resp.into_json()?;

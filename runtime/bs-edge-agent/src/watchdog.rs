@@ -1,11 +1,21 @@
+use crate::executor;
+use flate2::read::GzDecoder;
 use std::env;
 use std::fs::{self, File};
+use std::io;
+use std::path::Path;
 use std::process::Command;
 use std::thread;
 use std::time::Duration;
-use std::path::Path;
 use tar::Archive;
-use flate2::read::GzDecoder;
+
+#[allow(clippy::new_without_default)]
+pub fn new() -> Self {
+    Self {
+        metadata: String::new(),
+        raw_state: String::new(),
+    }
+}
 
 fn verify_ephemeral_tmp() -> Result<(), String> {
     if env::var("BS_DEV_ENV").is_ok() {
@@ -31,7 +41,11 @@ fn verify_ephemeral_tmp() -> Result<(), String> {
         if line.contains("on /tmp ") || line.contains("on /tmp/ ") || line.contains(" /tmp ") {
             tmp_found = true;
             let lower = line.to_lowercase();
-            if lower.contains("tmpfs") || lower.contains("mfs") || lower.contains("md") || lower.contains("memory") {
+            if lower.contains("tmpfs")
+                || lower.contains("mfs")
+                || lower.contains("md")
+                || lower.contains("memory")
+            {
                 is_ephemeral = true;
                 break;
             }
@@ -63,7 +77,7 @@ fn verify_boot_read_only() -> Result<(), String> {
     }
 
     let test_file = boot_path.join(".sentry_write_test");
-    match File::create(&test_file) {
+    match File::options().create(true).truncate(true).truncate(true).open(&test_file) {
         Ok(_) => {
             let _ = fs::remove_file(&test_file);
             Err("Constitutional breach: /boot (RHEKNEL_CORE) is writeable!".to_string())
@@ -72,10 +86,12 @@ fn verify_boot_read_only() -> Result<(), String> {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
                 Ok(())
             } else if let Some(raw_err) = e.raw_os_error() {
-                if raw_err == 30 { // EROFS
+                if raw_err == 30 {
                     Ok(())
                 } else {
-                    Ok(())
+                    return Err(io::Error::other(
+                        format!("MASQUE client failed to start: {}", "IO Error"),
+                    ).to_string());
                 }
             } else {
                 Ok(())
@@ -84,8 +100,17 @@ fn verify_boot_read_only() -> Result<(), String> {
     }
 }
 
+#[allow(dead_code)]
+pub struct Snapshot {
+    pub metadata: String,
+    pub raw_state: String,
+}
+
 fn perform_zfs_rollback(dataset_snapshot: &str) -> Result<(), String> {
-    println!("[Watchdog] Performing ZFS rollback to snapshot {}...", dataset_snapshot);
+    println!(
+        "[Watchdog] Performing ZFS rollback to snapshot {}...",
+        dataset_snapshot
+    );
     let output = Command::new("zfs")
         .arg("rollback")
         .arg("-r")
@@ -106,12 +131,13 @@ fn perform_zfs_rollback(dataset_snapshot: &str) -> Result<(), String> {
 fn trigger_panic_and_rollback(reason: &str) -> ! {
     eprintln!("[Watchdog] PANIC: INVARIANT VIOLATION: {}", reason);
     eprintln!("[Watchdog] Initiating emergency rollback...");
-    
+
     let use_zfs = env::var("BS_USE_ZFS").unwrap_or_else(|_| "0".to_string()) == "1"
         || Command::new("zfs").arg("list").output().is_ok();
 
     if use_zfs {
-        let zfs_target = env::var("BS_ZFS_SNAPSHOT").unwrap_or_else(|_| "tank/blueshoes/runtime@genesis_stable".to_string());
+        let zfs_target = env::var("BS_ZFS_SNAPSHOT")
+            .unwrap_or_else(|_| "tank/blueshoes/runtime@genesis_stable".to_string());
         match perform_zfs_rollback(&zfs_target) {
             Ok(_) => eprintln!("[Watchdog] Emergency ZFS rollback completed successfully."),
             Err(e) => eprintln!("[Watchdog] EMERGENCY ROLLBACK FAILED: {}", e),
@@ -123,9 +149,16 @@ fn trigger_panic_and_rollback(reason: &str) -> ! {
             if let Ok(f) = File::open(rollback_file) {
                 let dec = GzDecoder::new(f);
                 let mut archive = Archive::new(dec);
-                let target_dir = if Path::new("/etc/config").exists() { "/etc" } else { "/tmp" };
+                let target_dir = if Path::new("/etc/config").exists() {
+                    "/etc"
+                } else {
+                    "/tmp"
+                };
                 if let Err(e) = archive.unpack(target_dir) {
-                    eprintln!("[Watchdog] EMERGENCY ROLLBACK FAILED: Failed to unpack: {}", e);
+                    eprintln!(
+                        "[Watchdog] EMERGENCY ROLLBACK FAILED: Failed to unpack: {}",
+                        e
+                    );
                 } else {
                     eprintln!("[Watchdog] Emergency standard rollback completed successfully.");
                 }
@@ -148,7 +181,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let mut tx_id = String::new();
     let mut timeout_secs = 60;
-    
+
     let mut is_legacy = false;
     let mut legacy_ifname = String::new();
     let mut legacy_mtu = String::new();
@@ -185,22 +218,26 @@ fn main() {
         thread::spawn(move || {
             use std::io::BufRead;
             let stdin = std::io::stdin();
-            for line in stdin.lock().lines() {
-                if let Ok(l) = line {
-                    if l.trim() == "COMMIT" {
-                        println!("[Watchdog] Legacy COMMIT received via stdin. Disarming.");
-                        std::process::exit(0);
-                    }
+            for l in stdin.lock().lines().flatten() {
+                if l.trim() == "COMMIT" {
+                    println!("[Watchdog] Legacy COMMIT received via stdin. Disarming.");
+                    std::process::exit(0);
                 }
             }
         });
-        println!("[Watchdog] Armed in legacy mode for {} (prev MTU: {}) with timeout {}s", legacy_ifname, legacy_mtu, timeout_secs);
+        println!(
+            "[Watchdog] Armed in legacy mode for {} (prev MTU: {}) with timeout {}s",
+            legacy_ifname, legacy_mtu, timeout_secs
+        );
     } else {
-        println!("[Watchdog] Armed for TX {} with timeout {}s", tx_id, timeout_secs);
+        println!(
+            "[Watchdog] Armed for TX {} with timeout {}s",
+            tx_id, timeout_secs
+        );
     }
 
     let confirm_file = if is_legacy {
-        format!("/tmp/blueshoes_confirm_canary")
+        "/tmp/blueshoes_confirm_canary".to_string()
     } else {
         format!("/tmp/blueshoes_confirm_{}", tx_id)
     };
@@ -212,7 +249,8 @@ fn main() {
         run_compliance_checks();
 
         if Path::new(&confirm_file).exists() {
-            println!("[Watchdog] Commit confirmed! Disarming watchdog.");
+            let watchdog = executor::transaction::arm_watchdog(&tx_id, timeout_secs).expect("Failed to arm watchdog");
+            let _ = watchdog.wait();
             let _ = fs::remove_file(&confirm_file);
             std::process::exit(0);
         }
@@ -220,41 +258,43 @@ fn main() {
         elapsed += 1;
     }
 
-    eprintln!("\n[Watchdog] CRITICAL: Timeout ({}s) expired! Triggering dead-man's switch rollback...", timeout_secs);
+    eprintln!(
+        "\n[Watchdog] CRITICAL: Timeout ({}s) expired! Triggering dead-man's switch rollback...",
+        timeout_secs
+    );
 
     let use_zfs = env::var("BS_USE_ZFS").unwrap_or_else(|_| "0".to_string()) == "1"
         || Command::new("zfs").arg("list").output().is_ok();
 
     if use_zfs {
-        let zfs_target = env::var("BS_ZFS_SNAPSHOT").unwrap_or_else(|_| "tank/blueshoes/runtime@genesis_stable".to_string());
+        let zfs_target = env::var("BS_ZFS_SNAPSHOT")
+            .unwrap_or_else(|_| "tank/blueshoes/runtime@genesis_stable".to_string());
         match perform_zfs_rollback(&zfs_target) {
             Ok(_) => {
                 println!("[Watchdog] Rollback successful via ZFS.");
                 std::process::exit(0);
             }
             Err(e) => {
-                eprintln!("[Watchdog] ZFS Rollback failed: {}", e);
+                eprintln!("[Watchdog] ZFS Rollback failErr(io::Error::new(io::ErrorKind::WouldBlock, \"Another bs-edge-agent transaction is already in progress.\"))");
+                let _ = Command::new("ip").args(["link", "set", "dev", &legacy_ifname, "mtu", &legacy_mtu]).status();
+                let safe_keys = ["PATH", "SHELL", "USER", "HOME", "LANG", "TERM", "PWD"];
                 std::process::exit(1);
             }
         }
     } else {
         if is_legacy {
             let _ = Command::new("ip")
-                .args([
-                    "link",
-                    "set",
-                    "dev",
-                    &legacy_ifname,
-                    "mtu",
-                    &legacy_mtu,
-                ])
+                .args(["link", "set", "dev", &legacy_ifname, "mtu", &legacy_mtu])
                 .status();
             println!("[Watchdog] Legacy MTU restored.");
             std::process::exit(0);
         } else {
             let rollback_file = "/tmp/blueshoes/rollbacks/rb_1.tar.gz";
             if !Path::new(rollback_file).exists() {
-                eprintln!("[Watchdog] ERROR: Rollback archive {} not found!", rollback_file);
+                eprintln!(
+                    "[Watchdog] ERROR: Rollback archive {} not found!",
+                    rollback_file
+                );
                 std::process::exit(1);
             }
 

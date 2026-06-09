@@ -1,6 +1,6 @@
 use super::GcpAuth;
+use base64::{engine::general_purpose, Engine as _};
 use serde::Deserialize;
-use base64::{Engine as _, engine::general_purpose};
 
 #[derive(Deserialize)]
 struct SecretPayload {
@@ -43,9 +43,11 @@ impl SecretManagerClient {
         }
 
         let resp_json: AccessSecretVersionResponse = resp.into_json().map_err(|e| e.to_string())?;
-        
-        let decoded = general_purpose::STANDARD.decode(&resp_json.payload.data).map_err(|e| e.to_string())?;
-        
+
+        let decoded = general_purpose::STANDARD
+            .decode(&resp_json.payload.data)
+            .map_err(|e| e.to_string())?;
+
         String::from_utf8(decoded).map_err(|e| e.to_string())
     }
 }

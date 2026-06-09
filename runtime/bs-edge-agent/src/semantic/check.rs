@@ -79,16 +79,14 @@ fn compute_hash(payload: &Provenance) -> String {
     result.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
-pub fn validate_transformation(mut payload: Provenance) -> Result<Provenance, (RejectionReport, i32)> {
+pub fn validate_transformation(
+    mut payload: Provenance,
+) -> Result<Provenance, (RejectionReport, i32)> {
     let schema = load_schema();
     let mut counters = load_counters();
     let mut violations = Vec::new();
 
-    let known_ids: HashSet<_> = schema
-        .concepts
-        .values()
-        .map(|c| c.id.as_str())
-        .collect();
+    let known_ids: HashSet<_> = schema.concepts.values().map(|c| c.id.as_str()).collect();
 
     // Code 10: Unknown Capability / Schema Mismatch
     for cid in &payload.derived_from {
@@ -103,23 +101,49 @@ pub fn validate_transformation(mut payload: Provenance) -> Result<Provenance, (R
     }
     if !violations.is_empty() {
         persist_counters(&counters);
-        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 10));
+        return Err((
+            RejectionReport {
+                status: "REJECTED".to_string(),
+                violations,
+            },
+            10,
+        ));
     }
 
     // Code 11: Invariant Sovereignty Breach (Cloud leaks / Spanner as state truth)
-    if payload.evidence.iter().any(|e| e.contains("spanner") || (e.contains("cloud") && !e.contains("mirror"))) {
+    if payload
+        .evidence
+        .iter()
+        .any(|e| e.contains("spanner") || (e.contains("cloud") && !e.contains("mirror")))
+    {
         counters.cloud_sovereignty_leak += 1;
         violations.push(RejectionViolation {
-            rule: if payload.evidence.iter().any(|e| e.contains("spanner")) { "spanner_as_runtime_truth".to_string() } else { "cloud_overrides_local_0log".to_string() },
+            rule: if payload.evidence.iter().any(|e| e.contains("spanner")) {
+                "spanner_as_runtime_truth".to_string()
+            } else {
+                "cloud_overrides_local_0log".to_string()
+            },
             path: "$.evidence".to_string(),
             severity: "critical".to_string(),
         });
         persist_counters(&counters);
-        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 11));
+        return Err((
+            RejectionReport {
+                status: "REJECTED".to_string(),
+                violations,
+            },
+            11,
+        ));
     }
 
     // Code 12: Missing Evidence / Weak Rollback Protection
-    if payload.evidence.is_empty() || (payload.result.contains("MUTATION") && !payload.evidence.iter().any(|e| e.contains("rollback_anchor"))) {
+    if payload.evidence.is_empty()
+        || (payload.result.contains("MUTATION")
+            && !payload
+                .evidence
+                .iter()
+                .any(|e| e.contains("rollback_anchor")))
+    {
         counters.rollback_weakening += 1;
         violations.push(RejectionViolation {
             rule: "missing_rollback_anchor_on_mutation".to_string(),
@@ -127,7 +151,13 @@ pub fn validate_transformation(mut payload: Provenance) -> Result<Provenance, (R
             severity: "critical".to_string(),
         });
         persist_counters(&counters);
-        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 12));
+        return Err((
+            RejectionReport {
+                status: "REJECTED".to_string(),
+                violations,
+            },
+            12,
+        ));
     }
 
     // Code 13: Unknown Authority / LLM Marked as Primary Executor
@@ -139,7 +169,13 @@ pub fn validate_transformation(mut payload: Provenance) -> Result<Provenance, (R
             severity: "critical".to_string(),
         });
         persist_counters(&counters);
-        return Err((RejectionReport { status: "REJECTED".to_string(), violations }, 13));
+        return Err((
+            RejectionReport {
+                status: "REJECTED".to_string(),
+                violations,
+            },
+            13,
+        ));
     }
 
     payload.hash = compute_hash(&payload);

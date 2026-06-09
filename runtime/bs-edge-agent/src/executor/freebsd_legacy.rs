@@ -1,11 +1,11 @@
+use crate::executor::capabilities::{
+    CapabilityGraph, NetworkCapability, NftAction, NftChain, NftFamily, NftTable, TransportProtocol,
+};
 /// DEPRECATED: This executor predates the B0 `mutation/uci.rs` batch engine.
 /// It executes raw `ip`/`nft` commands directly and only supports MTU rollback.
 /// For B0+ mutations, use `mutation::uci::apply_uci_batch` with `mutation::rollback`.
 /// This module is retained only for the legacy M7 Canary MTU test path.
 use crate::executor::{Executor, Snapshot};
-use crate::executor::capabilities::{
-    CapabilityGraph, NetworkCapability, NftAction, NftChain, NftFamily, NftTable, TransportProtocol,
-};
 use std::process::Command;
 
 pub struct FreeBSDExecutor;
@@ -31,11 +31,9 @@ impl Executor for FreeBSDExecutor {
     fn apply(&self, plan: &CapabilityGraph) -> std::io::Result<()> {
         for step in &plan.network_caps {
             let status = match step {
-                NetworkCapability::AddRoute { target, via } => {
-                    Command::new("ip")
-                        .args(["route", "add", target, "via", via])
-                        .status()?
-                }
+                NetworkCapability::AddRoute { target, via } => Command::new("ip")
+                    .args(["route", "add", target, "via", via])
+                    .status()?,
                 NetworkCapability::AddNftRule {
                     family,
                     table,
@@ -76,30 +74,28 @@ impl Executor for FreeBSDExecutor {
                         ])
                         .status()?
                 }
-                NetworkCapability::SetMtu { interface, mtu } => {
-                    Command::new("ip")
-                        .args(["link", "set", "dev", interface, "mtu", &mtu.to_string()])
-                        .status()?
-                }
-                NetworkCapability::FlushRouteCache => {
-                    Command::new("ip")
-                        .args(["route", "flush", "cache"])
-                        .status()?
-                }
-                NetworkCapability::EstablishMasqueTunnel { endpoint: _, sni: _, psk: _ } => {
+                NetworkCapability::SetMtu { interface, mtu } => Command::new("ip")
+                    .args(["link", "set", "dev", interface, "mtu", &mtu.to_string()])
+                    .status()?,
+                NetworkCapability::FlushRouteCache => Command::new("ip")
+                    .args(["route", "flush", "cache"])
+                    .status()?,
+                NetworkCapability::EstablishMasqueTunnel {
+                    endpoint: _,
+                    sni: _,
+                    psk: _,
+                } => {
                     // Placeholder for legacy MTU path
                     Command::new("true").status()?
                 }
-                NetworkCapability::CommitConfig => {
-                    Command::new("true").status()?
-                }
-
+                NetworkCapability::CommitConfig => Command::new("true").status()?,
             };
 
             if !status.success() {
-                return Err(std::io::Error::other(
-                    format!("Command for step {:?} failed with exit code: {}", step, status),
-                ));
+                return Err(std::io::Error::other(format!(
+                    "Command for step {:?} failed with exit code: {}",
+                    step, status
+                )));
             }
         }
         Ok(())

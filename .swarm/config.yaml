@@ -1,0 +1,41 @@
+mode: autonomous_matrix
+max_parallel_loops: 8
+cross_observation: true
+telemetry_sync: .swarm/tribunal_state.json
+# FULL AUTONOMY SYSTEM OVERRIDES
+auto_remediation: true       # Fix errors natively without asking for user permission
+max_auto_fix_cycles: 8       # Allow up to 8 compilation attempts before pausing
+silence_warnings: true       # Suppress minor lint warnings from triggering notifications
+
+orchestrator:
+  model: anthropic/claude-3.5-sonnet  # Routes through your current active brain
+  role: "Nervous-Free Focused Supervisor"
+  instruction: |
+    You are the sovereign project manager. Your job is to shield the user from all "regulars".
+    Consume the 'Implementation Plan' dynamically.
+    Manage codebase integration autonomously.
+    If a worker fails, ingest the stack trace, formulate a patch, and execute a fix.
+    Never prompt the human for validation unless a fatal loop limit is exceeded.
+
+workers:
+  - name: Rhea_Context_Controller
+    model: deepseek/deepseek-chat
+    role: "Semantic Substrate Custodian"
+    capabilities: [filesystem, workspace_indexing]
+    instruction: "Enforce exact semantic preservation across .rhea/ and docs/. Eliminate drift across multi-model tasks."
+
+  - name: Rust_Python_Synthesizer
+    model: deepseek/deepseek-chat
+    role: "Logic Engine"
+    dependencies: [Rhea_Context_Controller]
+    instruction: "Build out the Python reference tooling and compile the Rust stubs. Ensure alignment with the 'CLOUD_CONSTITUTION.md' standards."
+
+  - name: Rigorous_Brutalizer
+    model: openai/gpt-4o
+    role: "Zero-Lint Validator"
+    cmd: "cargo clippy --all-targets && pytest tests/"   # Targets your exact dual-stack project environment
+    auto_execute: true
+    instruction: |
+      The millisecond a file updates, run linting and testing suites immediately.
+      Zero lint warnings must remain.
+      If 'cargo clippy' or 'pytest' throws any error, block git staging, format the stdout trace logs, and throw it directly back to the Synthesizer.

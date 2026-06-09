@@ -1,12 +1,15 @@
 #![allow(dead_code)]
-use std::process::Command;
 use std::io;
+use std::process::Command;
 
 /// Spawns the external MASQUE client binary securely using the capability parameters.
 /// This runs strictly within the executor boundary.
 pub fn spawn_masque_tunnel(endpoint: &str, sni: &str, psk: &str) -> io::Result<()> {
     println!("[MASQUE] Initializing MASQUE tunnel to {}", endpoint);
-    println!("[MASQUE] Enforcing Encrypted Client Hello (ECH) with SNI: {}", sni);
+    println!(
+        "[MASQUE] Enforcing Encrypted Client Hello (ECH) with SNI: {}",
+        sni
+    );
 
     // In a real environment, this invokes the compiled MASQUE client daemon (e.g., quinn or proxy)
     // We pass the arguments securely without shell interpolation

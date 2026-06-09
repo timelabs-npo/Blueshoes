@@ -1,19 +1,19 @@
 mod cli;
 mod executor;
+pub mod gcp;
 mod journal;
+mod mutation;
 mod probes;
 mod profiles;
-mod mutation;
-pub mod gcp;
 pub mod secrets;
 
 use clap::Parser;
 use cli::{Cli, Commands};
 use serde_json::json;
 pub mod semantic;
+use semantic::check::{validate_transformation, Provenance};
 use std::env;
 use std::fs;
-use semantic::check::{Provenance, validate_transformation};
 
 fn handle_provenance_cli() {
     let args: Vec<String> = env::args().collect();
@@ -21,15 +21,17 @@ fn handle_provenance_cli() {
         if index + 1 < args.len() {
             let target_path = &args[index + 1];
             println!("[+] Loading provenance file target: {}", target_path);
-            
-            let data = fs::read_to_string(target_path).expect("Failed to read targeted target payload");
-            let payload: Provenance = serde_json::from_str(&data).expect("Payload violates Provenance format structural schema");
-            
+
+            let data =
+                fs::read_to_string(target_path).expect("Failed to read targeted target payload");
+            let payload: Provenance = serde_json::from_str(&data)
+                .expect("Payload violates Provenance format structural schema");
+
             match validate_transformation(payload) {
                 Ok(enriched) => {
                     println!("{}", serde_json::to_string_pretty(&enriched).unwrap());
                     std::process::exit(0);
-                },
+                }
                 Err((report, exit_code)) => {
                     eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
                     std::process::exit(exit_code);
@@ -54,26 +56,41 @@ fn main() {
             // Run all probes sequentially
             let sys_event = probes::system::run();
             let route_event = probes::route::run();
-            let dns_target = std::env::var("BS_DNS_TARGET").unwrap_or_else(|_| "google.com".to_string());
-            let icmp_target = std::env::var("BS_ICMP_TARGET").unwrap_or_else(|_| "1.1.1.1".to_string());
-            let https_target = std::env::var("BS_HTTPS_TARGET").unwrap_or_else(|_| "https://google.com".to_string());
+            let dns_target =
+                std::env::var("BS_DNS_TARGET").unwrap_or_else(|_| "google.com".to_string());
+            let icmp_target =
+                std::env::var("BS_ICMP_TARGET").unwrap_or_else(|_| "1.1.1.1".to_string());
+            let https_target = std::env::var("BS_HTTPS_TARGET")
+                .unwrap_or_else(|_| "https://google.com".to_string());
 
             let dns_event = probes::dns::run(&dns_target);
             let icmp_event = probes::icmp::run(&icmp_target);
             let https_event = probes::https::run(&https_target);
-            
+
             let iface_list = ["lo", "eth0", "wan", "br-lan"];
             let interface_event = probes::TelemetryEvent::new(
-                "interface", "ok", 0, 
-                serde_json::to_value(probes::interface::run(&iface_list)).unwrap()
-            );
-            
-            let mtu_event = probes::TelemetryEvent::new(
-                "mtu", "ok", 0, 
-                serde_json::to_value(probes::mtu::run(&iface_list)).unwrap()
+                "interface",
+                "ok",
+                0,
+                serde_json::to_value(probes::interface::run(&iface_list)).unwrap(),
             );
 
-            let events = vec![sys_event, route_event, dns_event, icmp_event, https_event, interface_event, mtu_event];
+            let mtu_event = probes::TelemetryEvent::new(
+                "mtu",
+                "ok",
+                0,
+                serde_json::to_value(probes::mtu::run(&iface_list)).unwrap(),
+            );
+
+            let events = vec![
+                sys_event,
+                route_event,
+                dns_event,
+                icmp_event,
+                https_event,
+                interface_event,
+                mtu_event,
+            ];
 
             for event in &events {
                 if let Err(e) = journal::jsonl::append_event(event) {
@@ -153,7 +170,7 @@ fn main() {
                 routes: None,
                 dns: None,
             };
-            
+
             // Acquire exclusive lock
             let _lock = match executor::transaction::acquire_exclusive_lock() {
                 Ok(l) => l,
@@ -162,7 +179,7 @@ fn main() {
                     std::process::exit(1);
                 }
             };
-            
+
             let plan = match journal::planner::Planner::plan(&prof, "10.0.0.1") {
                 Ok(p) => p,
                 Err(e) => {
@@ -170,7 +187,7 @@ fn main() {
                     std::process::exit(1);
                 }
             };
-            
+
             let json = serde_json::to_string_pretty(&plan).unwrap();
             std::fs::write(out, json).expect("Failed to write plan file");
             println!("Plan successfully written to {}", out);
@@ -185,11 +202,16 @@ fn main() {
             };
 
             let plan_str = std::fs::read_to_string(plan_file).expect("Failed to read plan file");
-            let plan: executor::capabilities::CapabilityGraph = serde_json::from_str(&plan_str).expect("Invalid plan file");
+            let plan: executor::capabilities::CapabilityGraph =
+                serde_json::from_str(&plan_str).expect("Invalid plan file");
 
             // Fix 5: Check actual preconditions, not string claims
             let rollback_dir = std::path::Path::new("/tmp/blueshoes/rollbacks");
-            let rollback_exists = rollback_dir.exists() && rollback_dir.read_dir().map(|mut d| d.next().is_some()).unwrap_or(false);
+            let rollback_exists = rollback_dir.exists()
+                && rollback_dir
+                    .read_dir()
+                    .map(|mut d| d.next().is_some())
+                    .unwrap_or(false);
             let watchdog_binary = std::env::current_exe()
                 .ok()
                 .and_then(|p| p.parent().map(|d| d.join("bs-watchdog")))
@@ -211,7 +233,11 @@ fn main() {
 
             let prov = semantic::check::Provenance {
                 result: "ALLOW_APPLY_CONFIRMED".to_string(),
-                derived_from: vec!["inv.no_irreversible_mutation".to_string(), "cap.apply_confirmed".to_string(), "gen.current".to_string()],
+                derived_from: vec![
+                    "inv.no_irreversible_mutation".to_string(),
+                    "cap.apply_confirmed".to_string(),
+                    "gen.current".to_string(),
+                ],
                 evidence,
                 hash: String::new(),
             };
@@ -238,14 +264,18 @@ fn main() {
                 std::process::exit(1);
             }
 
-            println!("Spawning watchdog with timeout {}s for tx_id: {}", timeout, tx_id);
+            println!(
+                "Spawning watchdog with timeout {}s for tx_id: {}",
+                timeout, tx_id
+            );
             executor::transaction::arm_watchdog(&tx_id, *timeout).expect("Failed to arm watchdog");
-            
+
             println!("Configuration active. Run `bs-edge-agent confirm {}` within {}s to make permanent.", tx_id, timeout);
         }
         Commands::Confirm { tx_id } => {
             // Does not need the exclusive lock to confirm, just signals watchdog
-            executor::transaction::confirm_transaction(tx_id).expect("Failed to confirm transaction");
+            executor::transaction::confirm_transaction(tx_id)
+                .expect("Failed to confirm transaction");
             println!("Transaction {} confirmed successfully.", tx_id);
         }
         Commands::SubstrateExport { out } => {
@@ -266,21 +296,29 @@ fn main() {
             seed_substrate_from_schema(&mut substrate);
             match substrate.verify_link_integrity_only() {
                 Ok(()) => {
-                    println!("{}", serde_json::to_string_pretty(&serde_json::json!({
-                        "status": "INTACT",
-                        "verification": "link_integrity_only",
-                        "generation": substrate.generation,
-                        "chain_length": substrate.lineage.len(),
-                        "chain_head": substrate.lineage.last().map(|r| &r.transformation_hash),
-                    })).unwrap());
+                    println!(
+                        "{}",
+                        serde_json::to_string_pretty(&serde_json::json!({
+                            "status": "INTACT",
+                            "verification": "link_integrity_only",
+                            "generation": substrate.generation,
+                            "chain_length": substrate.lineage.len(),
+                            "chain_head": substrate.lineage.last().map(|r| &r.transformation_hash),
+                        }))
+                        .unwrap()
+                    );
                 }
                 Err((idx, msg)) => {
-                    eprintln!("{}", serde_json::to_string_pretty(&serde_json::json!({
-                        "status": "BROKEN",
-                        "verification": "link_integrity_only",
-                        "broken_at_index": idx,
-                        "error": msg,
-                    })).unwrap());
+                    eprintln!(
+                        "{}",
+                        serde_json::to_string_pretty(&serde_json::json!({
+                            "status": "BROKEN",
+                            "verification": "link_integrity_only",
+                            "broken_at_index": idx,
+                            "error": msg,
+                        }))
+                        .unwrap()
+                    );
                     std::process::exit(20);
                 }
             }
@@ -297,7 +335,9 @@ fn main() {
             let json2 = serde_json::to_string(&export2).unwrap();
 
             if json1 != json2 {
-                eprintln!("Canonicalization mismatch: export outputs differ between identical seeds");
+                eprintln!(
+                    "Canonicalization mismatch: export outputs differ between identical seeds"
+                );
                 std::process::exit(31);
             }
 
@@ -317,13 +357,18 @@ fn main() {
             println!("Reproducibility Audit: PASSED");
             std::process::exit(0);
         }
-        Commands::DriftAudit { payload_file, threshold } => {
+        Commands::DriftAudit {
+            payload_file,
+            threshold,
+        } => {
             let mut substrate = semantic::substrate::SemanticSubstrate::new();
             seed_substrate_from_schema(&mut substrate);
             let ground_truth = substrate.concept_distribution();
 
-            let payload_raw = fs::read_to_string(payload_file).expect("Failed to read payload file");
-            let tokens: Vec<String> = serde_json::from_str(&payload_raw).expect("Payload must be a JSON array of strings");
+            let payload_raw =
+                fs::read_to_string(payload_file).expect("Failed to read payload file");
+            let tokens: Vec<String> = serde_json::from_str(&payload_raw)
+                .expect("Payload must be a JSON array of strings");
 
             let config = semantic::drift::DriftConfig {
                 kl_threshold: *threshold,
@@ -352,7 +397,9 @@ fn main() {
 
             match mutation::rollback::verify_ephemeral_tmp() {
                 Ok(()) => {
-                    println!("  [OK] /tmp is mounted as an ephemeral memory allocation (tmpfs/md).");
+                    println!(
+                        "  [OK] /tmp is mounted as an ephemeral memory allocation (tmpfs/md)."
+                    );
                 }
                 Err(e) => {
                     eprintln!("  [FAIL] /tmp is NOT compliant: {:?}", e);
@@ -393,89 +440,137 @@ fn seed_substrate_from_schema(substrate: &mut semantic::substrate::SemanticSubst
 
     // Invariant
     let mut inv_props = BTreeMap::new();
-    inv_props.insert("statement".into(), "No state transition may become irreversible, unverifiable, or sovereign.".into());
+    inv_props.insert(
+        "statement".into(),
+        "No state transition may become irreversible, unverifiable, or sovereign.".into(),
+    );
     inv_props.insert("authority".into(), "local_0log".into());
     inv_props.insert("status".into(), "active".into());
-    substrate.commit_entity_deterministic(Entity {
-        id: "Invariant:no_irreversible_mutation".into(),
-        concept: ConceptType::Invariant,
-        properties: inv_props,
-        relations: vec![],
-    }, "schema_seed", SEED_EPOCH);
+    substrate.commit_entity_deterministic(
+        Entity {
+            id: "Invariant:no_irreversible_mutation".into(),
+            concept: ConceptType::Invariant,
+            properties: inv_props,
+            relations: vec![],
+        },
+        "schema_seed",
+        SEED_EPOCH,
+    );
 
     // Capability
     let mut cap_props = BTreeMap::new();
     cap_props.insert("allowed_actor".into(), "executor".into());
-    cap_props.insert("requires".into(), "rollback_anchor,watchdog,confirmation_window".into());
-    substrate.commit_entity_deterministic(Entity {
-        id: "Capability:apply_confirmed".into(),
-        concept: ConceptType::Capability,
-        properties: cap_props,
-        relations: vec![
-            Relation { predicate: "requires_invariant".into(), target_id: "Invariant:no_irreversible_mutation".into() },
-        ],
-    }, "schema_seed", SEED_EPOCH + 1);
+    cap_props.insert(
+        "requires".into(),
+        "rollback_anchor,watchdog,confirmation_window".into(),
+    );
+    substrate.commit_entity_deterministic(
+        Entity {
+            id: "Capability:apply_confirmed".into(),
+            concept: ConceptType::Capability,
+            properties: cap_props,
+            relations: vec![Relation {
+                predicate: "requires_invariant".into(),
+                target_id: "Invariant:no_irreversible_mutation".into(),
+            }],
+        },
+        "schema_seed",
+        SEED_EPOCH + 1,
+    );
 
     // StateGeneration
     let mut gen_props = BTreeMap::new();
     gen_props.insert("source".into(), "0.log".into());
-    gen_props.insert("promotion_requires".into(), "validation_passed,confirmation_received,rollback_available".into());
-    substrate.commit_entity_deterministic(Entity {
-        id: "StateGeneration:current".into(),
-        concept: ConceptType::StateGeneration,
-        properties: gen_props,
-        relations: vec![
-            Relation { predicate: "governed_by".into(), target_id: "Invariant:no_irreversible_mutation".into() },
-            Relation { predicate: "promoted_via".into(), target_id: "Capability:apply_confirmed".into() },
-        ],
-    }, "schema_seed", SEED_EPOCH + 2);
+    gen_props.insert(
+        "promotion_requires".into(),
+        "validation_passed,confirmation_received,rollback_available".into(),
+    );
+    substrate.commit_entity_deterministic(
+        Entity {
+            id: "StateGeneration:current".into(),
+            concept: ConceptType::StateGeneration,
+            properties: gen_props,
+            relations: vec![
+                Relation {
+                    predicate: "governed_by".into(),
+                    target_id: "Invariant:no_irreversible_mutation".into(),
+                },
+                Relation {
+                    predicate: "promoted_via".into(),
+                    target_id: "Capability:apply_confirmed".into(),
+                },
+            ],
+        },
+        "schema_seed",
+        SEED_EPOCH + 2,
+    );
 
     // ExternalMirror (Spanner)
     let mut mirror_props = BTreeMap::new();
-    mirror_props.insert("may_store".into(), "replicated_observations,promoted_artifacts,advisory_acl".into());
-    mirror_props.insert("may_not".into(), "override_0log,command_edge_mutation,become_runtime_source_of_truth".into());
-    substrate.commit_entity_deterministic(Entity {
-        id: "ExternalMirror:spanner".into(),
-        concept: ConceptType::ExternalMirror,
-        properties: mirror_props,
-        relations: vec![
-            Relation { predicate: "mirrors".into(), target_id: "StateGeneration:current".into() },
-        ],
-    }, "schema_seed", SEED_EPOCH + 3);
+    mirror_props.insert(
+        "may_store".into(),
+        "replicated_observations,promoted_artifacts,advisory_acl".into(),
+    );
+    mirror_props.insert(
+        "may_not".into(),
+        "override_0log,command_edge_mutation,become_runtime_source_of_truth".into(),
+    );
+    substrate.commit_entity_deterministic(
+        Entity {
+            id: "ExternalMirror:spanner".into(),
+            concept: ConceptType::ExternalMirror,
+            properties: mirror_props,
+            relations: vec![Relation {
+                predicate: "mirrors".into(),
+                target_id: "StateGeneration:current".into(),
+            }],
+        },
+        "schema_seed",
+        SEED_EPOCH + 3,
+    );
 
     // Project: Blueshoes itself
     let mut proj_props = BTreeMap::new();
     proj_props.insert("name".into(), "Blueshoes".into());
     proj_props.insert("domain".into(), "adaptive-networking".into());
-    substrate.commit_entity_deterministic(Entity {
-        id: "Project:blueshoes".into(),
-        concept: ConceptType::Project,
-        properties: proj_props,
-        relations: vec![
-            Relation { predicate: "enforces".into(), target_id: "Invariant:no_irreversible_mutation".into() },
-        ],
-    }, "schema_seed", SEED_EPOCH + 4);
+    substrate.commit_entity_deterministic(
+        Entity {
+            id: "Project:blueshoes".into(),
+            concept: ConceptType::Project,
+            properties: proj_props,
+            relations: vec![Relation {
+                predicate: "enforces".into(),
+                target_id: "Invariant:no_irreversible_mutation".into(),
+            }],
+        },
+        "schema_seed",
+        SEED_EPOCH + 4,
+    );
 
     // Metric: Drift score
     let mut metric_props = BTreeMap::new();
     metric_props.insert("name".into(), "semantic_drift_kl".into());
     metric_props.insert("unit".into(), "bits".into());
     metric_props.insert("alarm_threshold".into(), "0.35".into());
-    substrate.commit_entity_deterministic(Entity {
-        id: "Metric:semantic_drift_kl".into(),
-        concept: ConceptType::Metric,
-        properties: metric_props,
-        relations: vec![
-            Relation { predicate: "monitors".into(), target_id: "Project:blueshoes".into() },
-        ],
-    }, "schema_seed", SEED_EPOCH + 5);
+    substrate.commit_entity_deterministic(
+        Entity {
+            id: "Metric:semantic_drift_kl".into(),
+            concept: ConceptType::Metric,
+            properties: metric_props,
+            relations: vec![Relation {
+                predicate: "monitors".into(),
+                target_id: "Project:blueshoes".into(),
+            }],
+        },
+        "schema_seed",
+        SEED_EPOCH + 5,
+    );
 }
 
 fn handle_canary(cli: &Cli) {
-
-    use executor::Executor;
     #[cfg(not(feature = "dangerous_execution"))]
     use executor::DryRunExecutor;
+    use executor::Executor;
     use journal::transaction::{TransactionEvent, TransactionState};
 
     // Choose executor based on feature flag
@@ -548,13 +643,20 @@ fn handle_canary(cli: &Cli) {
 
     let prov = semantic::check::Provenance {
         result: "ALLOW_CANARY".to_string(),
-        derived_from: vec!["inv.no_irreversible_mutation".to_string(), "cap.apply_confirmed".to_string(), "gen.current".to_string()],
-        evidence: vec!["rollback_anchor.exists".to_string(), "watchdog.armed".to_string()],
+        derived_from: vec![
+            "inv.no_irreversible_mutation".to_string(),
+            "cap.apply_confirmed".to_string(),
+            "gen.current".to_string(),
+        ],
+        evidence: vec![
+            "rollback_anchor.exists".to_string(),
+            "watchdog.armed".to_string(),
+        ],
         hash: String::new(),
     };
     if let Err((report, code)) = semantic::check::validate_transformation(prov) {
-                eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
-                std::process::exit(code);
+        eprintln!("{}", serde_json::to_string_pretty(&report).unwrap());
+        std::process::exit(code);
     }
 
     let start_event = TransactionEvent::new(

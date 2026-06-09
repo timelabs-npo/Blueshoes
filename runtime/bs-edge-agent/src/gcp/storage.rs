@@ -15,9 +15,13 @@ impl StorageClient {
         }
     }
 
-    pub fn upload_file(&self, local_path: &str, destination_object_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn upload_file(
+        &self,
+        local_path: &str,
+        destination_object_name: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let token = self.auth.get_token()?;
-        
+
         let mut file = File::open(local_path)?;
         let mut contents = Vec::new();
         file.read_to_end(&mut contents)?;

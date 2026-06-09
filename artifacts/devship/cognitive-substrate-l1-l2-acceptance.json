@@ -1,0 +1,162 @@
+{
+  "bundle": "cognitive-substrate-l1-l2-acceptance",
+  "status": "COGNITIVE_SUBSTRATE_LAYER_1_2_READY",
+  "accepted_at": "2026-06-08T08:46:00Z",
+  "schema_version": "v0.1",
+  "scope": {
+    "layer_1_doctrine": "ACCEPTED",
+    "layer_2_transport_language": "ACCEPTED",
+    "layer_3_runtime": "OUT_OF_SCOPE",
+    "layer_4_orchestration": "OUT_OF_SCOPE",
+    "layer_5_products_ui": "OUT_OF_SCOPE"
+  },
+  "namespace": {
+    "current": ".rhea/",
+    "marker": "LEGACY_NAMESPACE",
+    "migration_status": "DEFERRED",
+    "reason": "stability > purity at this stage"
+  },
+  "accepted_files": [
+    {
+      "path": ".rhea/constitution.md",
+      "layer": 1,
+      "role": "doctrine",
+      "sha256": "11a79630741dc12763dcbafba37f20cbfbc1be28e9a4fc13d7ee597969ab61d0"
+    },
+    {
+      "path": ".rhea/language.md",
+      "layer": 1,
+      "role": "doctrine",
+      "sha256": "84a1dbe4f8d07a0e718e6f679e02ba71ec95e23a275a9975c8e790f1b6a37907"
+    },
+    {
+      "path": ".rhea/protocol.md",
+      "layer": 1,
+      "role": "doctrine",
+      "sha256": "667e6ede0e09ab1dd5bee0e9761e08a35e27fafdfa61b2109f519f299d2e6029"
+    },
+    {
+      "path": ".rhea/status.example.md",
+      "layer": 1,
+      "role": "doctrine_template",
+      "note": "template only — live state must not be committed",
+      "sha256": "6011fe6641ea8f23f7e5621c344d4496fb6f5c7da786a8f7dfdd709769c3c396"
+    },
+    {
+      "path": ".rhea/schemas/message.v0.schema.json",
+      "layer": 2,
+      "role": "schema",
+      "sha256": "6fa2f7e26cfe00a6641de4cdc8f4eb43d38a095f161a0c423f7731029085edb6"
+    },
+    {
+      "path": ".rhea/tools/validate_message.py",
+      "layer": 2,
+      "role": "reference_tooling",
+      "sha256": "4910139bf798e9f4d151125b01a981d7624c54259d02b6966dee961c26f52a4a"
+    },
+    {
+      "path": ".rhea/examples/sample_message.json",
+      "layer": 2,
+      "role": "example",
+      "sha256": "339d13c2288107796be58ba91713de9ff228abb033b5d66332501e29bc9585f8"
+    },
+    {
+      "path": ".rhea/tests/test_semantic_preservation.py",
+      "layer": 2,
+      "role": "tests",
+      "sha256": "9d217af85a7e4a642a4caddb8e0d43d084d4fa8019ea9d268c7eea82e0d28a20"
+    }
+  ],
+  "applied_patches": [
+    {
+      "id": "P1",
+      "description": "Path notation: /.rhea/ → .rhea/",
+      "reason": "/.rhea/ means filesystem root; .rhea/ means repository root"
+    },
+    {
+      "id": "P2",
+      "description": "Schema rename: message_schema.json → message.v0.schema.json"
+    },
+    {
+      "id": "P3",
+      "description": "Success message: 'Rhea schema' → 'cognitive substrate schema'"
+    },
+    {
+      "id": "P4",
+      "description": "Status file: status.md → status.example.md",
+      "reason": "live mutable state must not be committed as canonical doctrine"
+    },
+    {
+      "id": "P5",
+      "description": "No-network rule enforced in test suite via NoNetworkGuard class"
+    },
+    {
+      "id": "P6",
+      "description": "Empty payload rejection: minProperties:1 in schema",
+      "reason": "empty {} is a syntactically valid semantic vacuum — ambiguity surface and lazy-agent loophole",
+      "noop_path": "add explicit 'noop' message type to schema if genuine no-op needed"
+    },
+    {
+      "id": "P7",
+      "description": "LEGACY_NAMESPACE marker added to .rhea/constitution.md"
+    }
+  ],
+  "invariants": [
+    "No irreversible mutation — every state transition is verifiable and reversible",
+    "Governance-first — doctrine and transport language before any runtime or UI",
+    "No layer collapse — doctrine must not contain runtime logic; runtime must not contain doctrine",
+    "No vendor lock — no vendor or model name in doctrine; bindings are runtime configuration",
+    "Thin viewports — UI products are cognition viewports only; they do not affect governance"
+  ],
+  "hard_boundary": {
+    "rejected_items": [
+      "runtime/bs-edge-agent/src/cognitive/*",
+      "Rust cognitive modules",
+      "tribunal CLI execution",
+      "vendor model bindings in doctrine",
+      "Antigravity IDE settings mutation",
+      "\"No further approval needed\" wording",
+      "evidence persistence inside constitution.md"
+    ],
+    "no_changes_to": [
+      "runtime/bs-edge-agent/",
+      "src/cognitive/",
+      "Antigravity IDE settings"
+    ]
+  },
+  "verification": {
+    "validator_command": "python3 .rhea/tools/validate_message.py .rhea/examples/sample_message.json",
+    "validator_output": "[OK] Message is valid according to the cognitive substrate schema.",
+    "test_command": "python3 -m pytest .rhea/tests/ -v",
+    "test_platform": "darwin",
+    "python_version": "3.13.6",
+    "pytest_version": "9.0.3",
+    "tests_total": 11,
+    "tests_passed": 11,
+    "tests_failed": 0,
+    "duration_seconds": 0.06,
+    "test_results": [
+      { "id": "NoNetworkGuard::test_no_http_client_imports", "result": "PASSED" },
+      { "id": "RoundTripEquality::test_round_trip", "result": "PASSED" },
+      { "id": "RoundTripEquality::test_canonical_is_stable", "result": "PASSED" },
+      { "id": "DriftDetection::test_identical_messages_same_hash", "result": "PASSED" },
+      { "id": "DriftDetection::test_changed_payload_different_hash", "result": "PASSED" },
+      { "id": "DriftDetection::test_changed_origin_different_hash", "result": "PASSED" },
+      { "id": "AmbiguityRejection::test_empty_payload_rejected", "result": "PASSED" },
+      { "id": "AmbiguityRejection::test_extra_field_rejected", "result": "PASSED" },
+      { "id": "AmbiguityRejection::test_missing_required_field_rejected", "result": "PASSED" },
+      { "id": "AmbiguityRejection::test_unknown_origin_rejected", "result": "PASSED" },
+      { "id": "AmbiguityRejection::test_unknown_type_rejected", "result": "PASSED" }
+    ]
+  },
+  "layer_3_gate": {
+    "status": "BLOCKED",
+    "condition": "explicit approval required before any Layer 3 work begins",
+    "prohibited_until_approved": [
+      "runtime code in bs-edge-agent",
+      "Rust cognitive modules",
+      "orchestration configuration",
+      "tribunal runtime"
+    ]
+  }
+}

@@ -13,9 +13,12 @@ impl CloudRunClient {
         }
     }
 
-    pub fn analyze_packet(&self, packet_header: &str) -> Result<String, Box<dyn std::error::Error>> {
+    pub fn analyze_packet(
+        &self,
+        packet_header: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let token = self.auth.get_token()?;
-        
+
         let resp = ureq::post(&self.endpoint_url)
             .set("Authorization", &format!("Bearer {}", token))
             .set("Content-Type", "application/json")

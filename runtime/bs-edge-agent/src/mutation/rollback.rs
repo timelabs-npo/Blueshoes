@@ -1,8 +1,8 @@
 #![allow(dead_code)]
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
-use std::fs;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
 pub enum RollbackError {
@@ -12,14 +12,13 @@ pub enum RollbackError {
     InvariantViolation(String),
 }
 
-
 /// Creates a snapshot of `/etc/config/` to `/tmp/bs_config_backup_<timestamp>`
 pub fn create_snapshot() -> Result<String, RollbackError> {
     let ts = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_secs();
-    
+
     let backup_path = format!("/tmp/bs_config_backup_{}", ts);
 
     let output = Command::new("cp")
@@ -41,7 +40,10 @@ pub fn create_snapshot() -> Result<String, RollbackError> {
 /// Restores the snapshot from the given path to `/etc/config`
 pub fn restore_snapshot(backup_path: &str) -> Result<(), RollbackError> {
     if !Path::new(backup_path).exists() {
-        return Err(RollbackError::Restore(format!("Backup path {} does not exist", backup_path)));
+        return Err(RollbackError::Restore(format!(
+            "Backup path {} does not exist",
+            backup_path
+        )));
     }
 
     // Safely copy back using `-a` with `/. ` suffix to avoid shell glob expansion
@@ -104,9 +106,9 @@ pub fn verify_ephemeral_tmp() -> Result<(), RollbackError> {
     }
 
     // Try executing mount
-    let output = Command::new("mount")
-        .output()
-        .map_err(|e| RollbackError::InvariantViolation(format!("Failed to run mount command: {}", e)))?;
+    let output = Command::new("mount").output().map_err(|e| {
+        RollbackError::InvariantViolation(format!("Failed to run mount command: {}", e))
+    })?;
 
     if !output.status.success() {
         return Err(RollbackError::InvariantViolation(format!(
@@ -124,7 +126,11 @@ pub fn verify_ephemeral_tmp() -> Result<(), RollbackError> {
         if line.contains("on /tmp ") || line.contains("on /tmp/ ") || line.contains(" /tmp ") {
             tmp_found = true;
             let lower = line.to_lowercase();
-            if lower.contains("tmpfs") || lower.contains("mfs") || lower.contains("md") || lower.contains("memory") {
+            if lower.contains("tmpfs")
+                || lower.contains("mfs")
+                || lower.contains("md")
+                || lower.contains("memory")
+            {
                 is_ephemeral = true;
                 break;
             }
@@ -141,7 +147,7 @@ pub fn verify_ephemeral_tmp() -> Result<(), RollbackError> {
         #[cfg(not(target_os = "macos"))]
         {
             return Err(RollbackError::InvariantViolation(
-                "No active mount point found for /tmp. It must be explicitly mounted.".to_string()
+                "No active mount point found for /tmp. It must be explicitly mounted.".to_string(),
             ));
         }
     }
@@ -170,7 +176,7 @@ pub fn verify_boot_read_only() -> Result<(), RollbackError> {
             // Write succeeded! This is an invariant breach!
             let _ = fs::remove_file(&test_file);
             Err(RollbackError::InvariantViolation(
-                "Constitutional breach: /boot (RHEKNEL_CORE) is writeable!".to_string()
+                "Constitutional breach: /boot (RHEKNEL_CORE) is writeable!".to_string(),
             ))
         }
         Err(e) => {
@@ -180,7 +186,8 @@ pub fn verify_boot_read_only() -> Result<(), RollbackError> {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
                 Ok(())
             } else if let Some(raw_err) = e.raw_os_error() {
-                if raw_err == 30 { // EROFS
+                if raw_err == 30 {
+                    // EROFS
                     Ok(())
                 } else {
                     // Other errors mean we couldn't write anyway, which is safe.

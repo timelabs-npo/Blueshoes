@@ -23,7 +23,11 @@ pub fn run() -> TelemetryEvent {
         "fully_compliant": tmp_compliant && boot_compliant,
     });
 
-    let status = if total.is_some() && tmp_compliant && boot_compliant { "ok" } else { "warn" };
+    let status = if total.is_some() && tmp_compliant && boot_compliant {
+        "ok"
+    } else {
+        "warn"
+    };
 
     TelemetryEvent::new(
         "system",

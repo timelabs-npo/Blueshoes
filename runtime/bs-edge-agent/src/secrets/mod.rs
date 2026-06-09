@@ -26,7 +26,8 @@ impl LocalFirstSecretProvider {
         match gcp_client {
             Some(client) => {
                 let upstream_secret = client.fetch_raw_secret(secret_id)?;
-                self.cache.insert_and_flush(secret_id, upstream_secret.clone())?;
+                self.cache
+                    .insert_and_flush(secret_id, upstream_secret.clone())?;
                 Ok(upstream_secret)
             }
             None => Err(format!(
@@ -47,9 +48,12 @@ mod tests {
         let path = "/tmp/test_sovereign_cache.json";
         let _ = fs::remove_file(path);
         let key = [42u8; 32];
-        
+
         let mut provider = LocalFirstSecretProvider::new(path, &key);
-        provider.cache.insert_and_flush("my_api_key", "super_secret_value".to_string()).unwrap();
+        provider
+            .cache
+            .insert_and_flush("my_api_key", "super_secret_value".to_string())
+            .unwrap();
 
         let mut offline_provider = LocalFirstSecretProvider::new(path, &key);
         let result = offline_provider.resolve_secret("my_api_key", None);
@@ -64,7 +68,7 @@ mod tests {
 
         let mut provider = LocalFirstSecretProvider::new(path, &key);
         let result = provider.resolve_secret("missing_key", None);
-        
+
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err(),

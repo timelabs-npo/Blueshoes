@@ -132,7 +132,11 @@ impl SemanticSubstrate {
     }
 
     /// Recompute the expected SHA-256 transformation hash from a canonical entity.
-    pub fn recompute_entity_receipt(entity: &Entity, timestamp: u64, previous_hash: &str) -> String {
+    pub fn recompute_entity_receipt(
+        entity: &Entity,
+        timestamp: u64,
+        previous_hash: &str,
+    ) -> String {
         let entity_json = Self::canonical_serialize(entity);
         let hash_input = format!(
             "{}|{}|{}|{}",
@@ -181,7 +185,8 @@ impl SemanticSubstrate {
             .unwrap_or_else(|| "GENESIS".to_string());
 
         // Deterministic hash: entity_id + timestamp + previous_hash + serialized entity
-        let transformation_hash = Self::recompute_entity_receipt(&entity, timestamp, &previous_hash);
+        let transformation_hash =
+            Self::recompute_entity_receipt(&entity, timestamp, &previous_hash);
 
         self.generation += 1;
 
@@ -215,7 +220,8 @@ impl SemanticSubstrate {
             .map(|r| r.transformation_hash.clone())
             .unwrap_or_else(|| "GENESIS".to_string());
 
-        let transformation_hash = Self::recompute_entity_receipt(&entity, fixed_timestamp, &previous_hash);
+        let transformation_hash =
+            Self::recompute_entity_receipt(&entity, fixed_timestamp, &previous_hash);
 
         self.generation += 1;
 
@@ -274,12 +280,22 @@ impl SemanticSubstrate {
     pub fn verify_receipt_integrity(&self) -> Result<(), (usize, String)> {
         for (i, receipt) in self.lineage.iter().enumerate() {
             let entity = self.registry.get(&receipt.entity_id).ok_or_else(|| {
-                (i, format!("Entity {} referenced in receipt {} is missing from registry", receipt.entity_id, i))
+                (
+                    i,
+                    format!(
+                        "Entity {} referenced in receipt {} is missing from registry",
+                        receipt.entity_id, i
+                    ),
+                )
             })?;
-            
-            let recomputed = Self::recompute_entity_receipt(entity, receipt.timestamp, &receipt.previous_hash);
+
+            let recomputed =
+                Self::recompute_entity_receipt(entity, receipt.timestamp, &receipt.previous_hash);
             if recomputed != receipt.transformation_hash {
-                return Err((i, format!("Receipt mismatch at index {}: entity tampering detected", i)));
+                return Err((
+                    i,
+                    format!("Receipt mismatch at index {}: entity tampering detected", i),
+                ));
             }
         }
         Ok(())
@@ -312,10 +328,7 @@ impl SemanticSubstrate {
             "bs".to_string(),
             "https://blueshoes.dev/schema/v0#".to_string(),
         );
-        context.insert(
-            "schema".to_string(),
-            "http://schema.org/".to_string(),
-        );
+        context.insert("schema".to_string(), "http://schema.org/".to_string());
 
         let mut graph: Vec<JsonLdNode> = self
             .registry
@@ -419,11 +432,7 @@ mod tests {
     fn test_deterministic_seed_produces_identical_output() {
         let build = || {
             let mut s = SemanticSubstrate::new();
-            s.commit_entity_deterministic(
-                make_entity("X:a", ConceptType::Metric),
-                "seed",
-                1000000,
-            );
+            s.commit_entity_deterministic(make_entity("X:a", ConceptType::Metric), "seed", 1000000);
             s.commit_entity_deterministic(
                 make_entity("X:b", ConceptType::Project),
                 "seed",
@@ -435,7 +444,10 @@ mod tests {
         let b = build();
         let ja = serde_json::to_string(&a.export_jsonld()).unwrap();
         let jb = serde_json::to_string(&b.export_jsonld()).unwrap();
-        assert_eq!(ja, jb, "Deterministic seeds must produce byte-identical JSON-LD");
+        assert_eq!(
+            ja, jb,
+            "Deterministic seeds must produce byte-identical JSON-LD"
+        );
         assert_eq!(
             a.lineage.last().unwrap().transformation_hash,
             b.lineage.last().unwrap().transformation_hash,
@@ -460,44 +472,65 @@ mod tests {
     fn test_adversarial_tampering() {
         let mut substrate = SemanticSubstrate::new();
         substrate.commit_entity(make_entity("a", ConceptType::Person), "op");
-        
+
         // Setup initial valid state
         assert!(substrate.verify_receipt_integrity().is_ok());
 
         // 1. Modified entity content with preserved links
         let original_entity = substrate.registry.get("a").unwrap().clone();
         let mut tampered_content = original_entity.clone();
-        tampered_content.properties.insert("evil".to_string(), "true".to_string());
+        tampered_content
+            .properties
+            .insert("evil".to_string(), "true".to_string());
         substrate.registry.insert("a".to_string(), tampered_content);
-        assert!(substrate.verify_receipt_integrity().is_err(), "Must catch content change");
-        
+        assert!(
+            substrate.verify_receipt_integrity().is_err(),
+            "Must catch content change"
+        );
+
         // Restore
-        substrate.registry.insert("a".to_string(), original_entity.clone());
+        substrate
+            .registry
+            .insert("a".to_string(), original_entity.clone());
         assert!(substrate.verify_receipt_integrity().is_ok());
 
         // 2. Reordered arrays (if we reorder relations, canonicalization sorts them, so hash remains the same)
         // But wait: if relations are modified, it catches it.
         let mut tampered_rels = original_entity.clone();
-        tampered_rels.relations.push(Relation { predicate: "b".to_string(), target_id: "c".to_string() });
+        tampered_rels.relations.push(Relation {
+            predicate: "b".to_string(),
+            target_id: "c".to_string(),
+        });
         substrate.registry.insert("a".to_string(), tampered_rels);
-        assert!(substrate.verify_receipt_integrity().is_err(), "Must catch relation added");
+        assert!(
+            substrate.verify_receipt_integrity().is_err(),
+            "Must catch relation added"
+        );
 
         // 3. Field order mutation: BTreeMap already sorts keys, so field order in memory doesn't matter for verification,
         // which means the verification *is* deterministic. We can't directly mutate BTreeMap order, but we can verify canonical_serialize sorts them.
-        
+
         // 4. Timestamp formatting mutation (change timestamp on receipt but keep hash)
         let mut original_receipt = substrate.lineage[0].clone();
         substrate.lineage[0].timestamp += 1;
-        assert!(substrate.verify_receipt_integrity().is_err(), "Must catch timestamp change");
+        assert!(
+            substrate.verify_receipt_integrity().is_err(),
+            "Must catch timestamp change"
+        );
         substrate.lineage[0] = original_receipt.clone();
 
         // 5. Unicode normalization mutation
         let mut tampered_unicode = original_entity.clone();
         // pre-composed vs decomposed character
-        tampered_unicode.properties.insert("café".to_string(), "1".to_string());
+        tampered_unicode
+            .properties
+            .insert("café".to_string(), "1".to_string());
         // Since we are adding a new property, it changes the hash.
         substrate.registry.insert("a".to_string(), tampered_unicode);
-        assert!(substrate.verify_receipt_integrity().is_err(), "Must catch unicode modifications");
+        assert!(
+            substrate.verify_receipt_integrity().is_err(),
+            "Must catch unicode modifications"
+        );
     }
 
     #[test]

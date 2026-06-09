@@ -22,7 +22,7 @@ fn test_no_mutating_commands_in_source() {
 
     for entry in WalkDir::new(&src_dir).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
-        
+
         // Skip build artifacts and hidden directories
         if path.components().any(|c| {
             let s = c.as_os_str().to_string_lossy();
@@ -35,7 +35,7 @@ fn test_no_mutating_commands_in_source() {
             if let Some(ext) = entry.path().extension() {
                 if ext == "rs" {
                     let content = fs::read_to_string(entry.path()).expect("Failed to read file");
-                    
+
                     if content.contains("linter:exempt") {
                         continue;
                     }

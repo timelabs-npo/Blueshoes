@@ -1,0 +1,6 @@
+{
+    "git.autofetch": "all",
+    "antigravity-plus.autoApprove.enabled": true,
+    "google.cloud.project": "gen-lang-client-0007794984",
+    "google.cloud.billingQuotaProject": "gen-lang-client-0007794984"
+}

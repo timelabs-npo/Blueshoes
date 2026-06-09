@@ -1,4 +1,3 @@
-
 use crate::probes::TelemetryEvent;
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufReader, Write};
@@ -42,7 +41,7 @@ pub fn tail_journal(lines_count: usize) -> io::Result<Vec<String>> {
     let reader = BufReader::new(file);
 
     let mut deque = std::collections::VecDeque::with_capacity(lines_count);
-    
+
     for line in reader.lines() {
         let line = line?;
         if deque.len() == lines_count {

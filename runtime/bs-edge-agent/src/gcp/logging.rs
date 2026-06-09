@@ -1,6 +1,6 @@
 use super::GcpAuth;
-use serde::Serialize;
 use chrono::Utc;
+use serde::Serialize;
 
 pub struct LoggingClient {
     auth: GcpAuth,
@@ -23,11 +23,12 @@ struct WriteLogEntriesRequest {
 
 impl LoggingClient {
     pub fn new(auth: GcpAuth, project_id: &str, log_id: &str) -> Self {
-        let log_name = format!("projects/{}/logs/{}", project_id, urlencoding::encode(log_id));
-        Self {
-            auth,
-            log_name,
-        }
+        let log_name = format!(
+            "projects/{}/logs/{}",
+            project_id,
+            urlencoding::encode(log_id)
+        );
+        Self { auth, log_name }
     }
 
     pub fn write_log(&self, message: &str) -> Result<(), Box<dyn std::error::Error>> {

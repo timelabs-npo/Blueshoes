@@ -15,7 +15,11 @@ impl FirestoreClient {
         }
     }
 
-    pub fn get_document(&self, collection: &str, document_id: &str) -> Result<String, Box<dyn std::error::Error>> {
+    pub fn get_document(
+        &self,
+        collection: &str,
+        document_id: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let token = self.auth.get_token()?;
         let url = format!(
             "https://firestore.googleapis.com/v1/projects/{}/databases/{}/documents/{}/{}",

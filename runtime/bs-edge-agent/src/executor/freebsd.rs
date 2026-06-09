@@ -1,10 +1,10 @@
 #![allow(dead_code)]
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::process::Command;
 use std::fs;
-use std::os::unix::net::UnixStream;
 use std::io::Write;
+use std::os::unix::net::UnixStream;
+use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -75,14 +75,14 @@ impl FreeBsdExecutor {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs();
-        
+
         // Cryptographic generation using standard md5 library primitives
         let mut context = md5::Context::new();
         context.consume(entity.id.as_bytes());
         context.consume(timestamp.to_string().as_bytes());
         context.consume(operator.as_bytes());
         let transformation_hash = format!("{:x}", context.finalize());
-        
+
         let receipt = ProvenanceReceipt {
             entity_id: entity.id.clone(),
             timestamp,
@@ -96,7 +96,7 @@ impl FreeBsdExecutor {
             ConceptType::Project => "Project",
             ConceptType::Metric => "Metric",
         };
-        
+
         // Hermetic isolation fallback: telemetry server down must never drop execution core
         if let Err(e) = self.send_ipc_telemetry(concept_str) {
             eprintln!("[SOVEREIGN_CORE_WARN] Telemetry pipeline offline: {}", e);
@@ -104,7 +104,7 @@ impl FreeBsdExecutor {
 
         self.registry.insert(entity.id.clone(), entity);
         self.lineage.push(receipt.clone());
-        
+
         receipt
     }
 
