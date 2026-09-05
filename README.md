@@ -10,14 +10,20 @@
 
 **OpenBSD-first · RAM-only · self-healing · self-evolving · Rheknel-governed**
 
+## **FLOWS → FLOW SURGERY TOOLKIT**
+
 *The router that refuses to trust the network, the cloud, the model — or itself.*
 
-[Why](#-the-proposition) · [Mutation](#-asynchronous-topological-mutation) · [mbsd](#-mbsd-the-empty-machine) · [Rheknel](#-rheknel-local-truth-or-it-didnt-happen) · [Post-quantum](#-post-quantum-by-architecture-not-by-sticker) · [Play](#-break-the-little-internet) · [Reality](#-we-dont-fake-receipts)
+**FAKE SPONSOR // F1\*** · **FAKE SPONSOR // X\*** · **SPACEPORT // [blueshoes.space](https://blueshoes.space) · PRE-LAUNCH**
+
+<sub>\* parody text labels only — no affiliation, sponsorship, endorsement, or copied logos.</sub>
+
+[Flows](#-flows-not-routes) · [Flow Surgery](#-flow-surgery-toolkit) · [Mutation](#-asynchronous-topological-mutation) · [mbsd](#-mbsd-the-empty-machine) · [Rheknel](#-rheknel-local-truth-or-it-didnt-happen) · [PQ](#-post-quantum-by-architecture-not-by-sticker) · [Space](#-blueshoesspace-the-spaceport) · [Reality](#-we-dont-fake-receipts)
 
 </div>
 
 <p align="center">
-  <img src="docs/readme/assets/hero.svg" alt="Blueshoes: The internet is free. Again! An OpenBSD-first RAM-only routing brick concept" width="100%" />
+  <img src="docs/readme/assets/hero.svg" alt="Blueshoes: The internet is free. Again!" width="100%" />
 </p>
 
 > **This is the target architecture Blueshoes is building toward.** The README is intentionally ambitious. The [reality section](#-we-dont-fake-receipts) separates architecture from what this repository has actually proved.
@@ -28,42 +34,144 @@
 
 The old router stack accumulated too many sovereigns.
 
-A firmware vendor owns the box. DNS owns the name. BGP owns the path. A VPN vendor rents you one exit. A cloud dashboard remembers the configuration. Classical-only public-key exchange assumes *harvest now, decrypt later* is someone else's problem. And an AI agent can always write a wonderfully confident sentence about a thing that never executed.
+A firmware vendor owns the box. DNS owns the name. BGP owns the path. A VPN vendor rents you one exit. A cloud dashboard remembers the configuration. Classical-only public-key exchange assumes *harvest now, decrypt later* is somebody else's problem. And an AI agent can always produce an extremely confident sentence about a thing that never executed.
 
 **Blueshoes is the refusal.**
 
 It is being designed as a **post-OpenWrt, post-VPN, post-DPI, post-quantum network operating system** for inexpensive commodity routers: a small OpenBSD-first machine that lives in RAM, measures its local network, forms bounded hypotheses, proposes topology changes, submits them to a deterministic local authority, validates the result, heals backward when wrong, and forgets operational exhaust when power disappears.
 
-No rented identity is required to believe in packets.
+The key abstraction is not **the tunnel**.
+
+It is not even **the route**.
+
+It is the **Flow**.
+
+---
+
+# 🌈 **FLOWS, NOT ROUTES**
+
+A route is one geometrical realization of connectivity.
+
+A **Flow** is the traffic relation we intend to preserve while the realization is allowed to change.
+
+For the scientific picture, model the locally known network at time `t` as a directed multigraph:
+
+$$
+G_t = (V, E_t)
+$$
+
+with time-dependent capacities `c_e(t)`, costs, policy labels, cryptographic requirements, reachability evidence and failure state attached to edges.
+
+A single-commodity feasible flow can be written as:
+
+$$
+f : E_t \to \mathbb{R}_{\ge 0}
+$$
+
+subject to
+
+$$
+Bf = b, \qquad 0 \le f_e \le c_e(t)
+$$
+
+where `B` is the oriented incidence matrix and `b` contains the source/sink demand boundary. At ordinary transit vertices, net flow is conserved.
+
+That gives Blueshoes a clean distinction:
+
+- **path** = one ordered support through the graph;
+- **Flow** = the conserved relation carried by one or more admissible supports;
+- **policy** = which supports are allowed;
+- **capacity** = how much traffic an edge can carry;
+- **receipt** = evidence that the chosen support actually satisfied the declared constraints.
+
+For multiple simultaneous traffic classes, the useful picture is a multi-commodity flow: each commodity keeps its own conservation equation while all commodities share edge capacity,
+
+$$
+\sum_k f^{(k)}_e \le c_e(t).
+$$
+
+That is much closer to reality than pretending “the Internet” is one line drawn from a laptop to a VPN server.
 
 <p align="center">
-  <img src="docs/readme/assets/post-era.svg" alt="One brick, four funerals: post-OpenWrt, post-VPN, post-DPI and post-quantum architecture" width="100%" />
+  <img src="docs/readme/assets/flow-surgery.svg" alt="Bright scientific-art diagram of Blueshoes Flows and the Flow Surgery toolkit" width="100%" />
 </p>
+
+### Topology, without fake mysticism
+
+When Blueshoes says **topology**, it means the **connectivity structure of the graph / capability graph**: which vertices can be joined through currently admissible edges and which cut-sets destroy that reachability.
+
+It does **not** mean the physical Internet has secretly become a smooth manifold because the README discovered Greek letters.
+
+Graph geometry is already strange enough.
+
+---
+
+# ✂️ **FLOW SURGERY TOOLKIT**
+
+A **Flow Surgery** operation changes the internal support of a Flow while trying to preserve its external intent and constitutional boundary.
+
+If the source/sink boundary stays unchanged, an idealized reroute can be written
+
+$$
+f' = f + \Delta f
+$$
+
+with
+
+$$
+B\Delta f = 0.
+$$
+
+That equation is the clean algebraic reason rerouting can alter internal edges without changing what enters and leaves the network boundary. The allowed `Δf` lives in the graph's cycle-space intuition — useful mathematics, not a claim that packet networks are topological manifolds.
+
+When an edge fails or becomes inadmissible, the problem becomes: find a new feasible `f'` on the residual admissible graph while preserving policy, capacity, endpoint intent and cryptographic requirements.
+
+### The toolkit vocabulary
+
+| Tool | Graph meaning | Blueshoes meaning |
+|---|---|---|
+| **CUT** | remove an edge or cut-set from the admissible graph | declare a failed, forbidden or policy-invalid capability unusable |
+| **BYPASS** | find feasible support in the residual graph | route the same Flow around the damaged region |
+| **SPLICE** | concatenate compatible path segments | join locally admissible segments through a real gateway / capability boundary |
+| **BRAID** | distribute a commodity across multiple supports | bounded multipath or risk-diverse carriage under shared capacity constraints |
+| **GRAFT** | introduce a new edge into the capability graph | add a **real** reachable overlay, peer, tunnel, SCION gateway, mesh adjacency, etc. |
+| **SEAL** | freeze candidate support after validation | validate reachability + invariants, then issue a receipt |
+| **ROLLBACK** | restore the previous admitted state | reverse surgery when validation or policy fails |
+
+### One non-negotiable rule
+
+**GRAFT never means invent connectivity.**
+
+An overlay edge exists only if there is an actual reachable substrate beneath it. A mesh needs peers and a medium. SCION needs reachable SCION infrastructure or gateways. A tunnel needs a peer. Physics remains annoyingly constitutional.
+
+### Cut-sets are where the drama lives
+
+A cut partitions the graph into two vertex sets. If the total admissible capacity across that cut collapses below the Flow demand, no amount of AI optimism makes the Flow feasible.
+
+That is why the Flow Surgery toolkit is allowed to return:
+
+> **REJECT — no admissible support exists.**
+
+A beautiful failure is better than invented connectivity.
 
 ---
 
 ## 🌊 Asynchronous topological mutation
 
-A fixed network has coordinates. Coordinates are easy to enumerate, classify, filter and break.
-
-Blueshoes treats connectivity less like a concrete building and more like **a set of replaceable constraints**. The node does not need one eternal path, one naming system, one transport medium or one cryptographic epoch. It needs a locally admissible way to reach an intended peer or service — and a deterministic way back if a mutation fails.
+Blueshoes does not require every dimension of a connection to move together.
 
 The target system can mutate across **four independent dimensions**:
 
-| Dimension | What may change | Candidate capability | What Blueshoes must *not* pretend |
+| Dimension | What may change | Candidate capability | Guardrail |
 |---|---|---|---|
-| **PATH** | Which network path carries a flow | ordinary IP routing, multipath, operator tunnels, **SCION** where SCION infrastructure is reachable | SCION is not a magic bypass of arbitrary BGP paths; endpoints/gateways and SCION control-plane reachability are required. |
-| **NAME** | How a service is resolved | DNS privacy mechanisms, local mappings, **GNS / RFC 9498** where appropriate | Decentralized naming is not literally unblockable and does not remove the need for reachable transport. |
-| **MEDIUM** | Which adjacency carries packets | Ethernet/Wi-Fi, local peer links, **Yggdrasil** overlay/mesh capabilities | Software cannot conjure a radio or an exit path that does not physically exist. |
-| **CRYPTOGRAPHIC EPOCH** | How new sessions establish secrets | crypto-agile classical + post-quantum hybrid key establishment | “Post-quantum” is not a logo. Both endpoints and the selected protocol must actually negotiate supported PQ/T mechanisms. |
+| **PATH** | support carrying the Flow | IP routing, multipath, operator tunnels, SCION where available | no claim that SCION unilaterally bypasses arbitrary BGP infrastructure |
+| **NAME** | service-resolution relation | encrypted DNS mechanisms, local mappings, GNS where appropriate | decentralized naming is not literally unblockable |
+| **MEDIUM** | underlying adjacency | Ethernet, Wi-Fi, local peer links, Yggdrasil-like overlay / mesh | software cannot conjure a missing radio or exit |
+| **CRYPTOGRAPHIC EPOCH** | session key-establishment capability | classical + standardized PQ/T hybrid mechanisms | “post-quantum” requires actual negotiated evidence |
 
-Mutation is **asynchronous** because these dimensions do not have to move together. A poisoned name does not require replacing the physical medium. A failed path does not require renaming the service. A cryptographic upgrade does not require a new routing protocol.
+A failed path does not require renaming the service. A poisoned naming path does not require changing the radio. A cryptographic epoch change does not require rebuilding the physical topology.
 
-The smallest sufficient mutation wins.
-
-<p align="center">
-  <img src="docs/readme/assets/route-story.svg" alt="Conceptual route mutation: observe, propose, local gate, validate, keep or roll back" width="100%" />
-</p>
+### **The smallest sufficient surgery wins.**
 
 ---
 
@@ -71,121 +179,110 @@ The smallest sufficient mutation wins.
 
 The end-state is a **routing brick**, not a general-purpose desktop hiding inside a plastic router.
 
-`mbsd` is the project name for the intended minimal trusted system: **OpenBSD-first in security and networking semantics, whole-OS RAM-only as the target operating model, and aggressively stripped of unnecessary durable state and interactive surface**.
+`mbsd` is the project name for the intended minimal trusted system: **OpenBSD-first in security/networking semantics, whole-OS RAM-only as the target operating model, and aggressively stripped of unnecessary durable state and interactive surface**.
 
 ```text
-                power on
-                   │
-                   ▼
-          immutable / verified seed
-                   │
-                   ▼
-        ┌──────────────────────┐
-        │      mbsd / RAM      │
-        │                      │
-        │  network substrate   │
-        │  local observations  │
-        │  capability graph    │
-        │  tribunal models     │
-        │  RHEKNEL authority   │
-        │  rollback material   │
-        └──────────────────────┘
-                   │
-              power removed
-                   │
-                   ▼
-              operational
-                amnesia
+                verified seed
+                    │
+                    ▼
+        ┌─────────────────────────┐
+        │       mbsd / RAM        │
+        │                         │
+        │   Flows / observations  │
+        │   capability graph      │
+        │   tribunal models       │
+        │   Flow Surgery plans    │
+        │   RHEKNEL authority     │
+        │   rollback material     │
+        └─────────────────────────┘
+                    │
+               power removed
+                    │
+                    ▼
+          operational amnesia
 ```
 
-**RAM-only does not mean “nothing can ever persist.”** It means persistence is an exception that must be explicit, bounded and justified. Keys, bootstrap material or signed upgrades may require durable storage; browsing exhaust, model chatter and accidental telemetry do not automatically earn that privilege.
+**RAM-only does not mean “nothing can ever persist.”** Persistence is an exception that must be explicit, bounded and justified. Keys, bootstrap material or signed upgrades may need durable storage; browsing exhaust, model chatter and accidental telemetry do not automatically earn that privilege.
 
-And one terminology guardrail: stock OpenBSD is not being renamed a microkernel. If `mbsd` ultimately uses a microkernel-style trusted computing base or hardware-enforced enclave around selected OpenBSD-derived components, that architecture must be specified and demonstrated separately.
+And a terminology guardrail: stock OpenBSD is not being renamed a microkernel. Any future microkernel-style TCB or hardware-isolation claim for `mbsd` must be specified and demonstrated separately.
 
 ---
 
 ## 🗿 omnia-playbook: memory of the normal
 
-You cannot detect a changing environment without a reference.
+`omnia-playbook` is intended to become a **versioned reference corpus of protocol invariants, standards-compliant behavior, historical local observations and admissible envelopes**.
 
-`omnia-playbook` is intended to become a **versioned reference corpus of protocol invariants, standards-compliant behavior, historical local observations and admissible envelopes**. It is not an oracle and it is not an “impersonate Apple/Google packet-for-packet” database.
+Not an oracle. Not “absolute truth.” Not a packet-for-packet impersonation database.
 
-The useful question is not:
+Its useful question is:
 
-> *“Can we cosplay somebody else's traffic?”*
+> **How far did the current local network move from the set of behaviors we were prepared to accept?**
 
-It is:
+That reference can feed topology, timing, failure-pattern, transport-negotiation and distributional metrics without giving a model application plaintext.
 
-> **“How far did the current local network move from the set of behaviors we were prepared to accept?”**
-
-That reference can feed metrics over topology, timing distributions, failure patterns, transport negotiation and entropy without giving any model access to application plaintext.
-
-A baseline is evidence. It is never absolute truth.
+A baseline is evidence. It is never sovereignty.
 
 ---
 
 ## 🧠 Three blind mathematicians
 
-The target **local Tribunal** separates sensing from authority.
+The target local Tribunal separates sensing from authority.
 
-Three independent model families can inspect different projections of the same network event without needing message content:
+Three independent model families can inspect different projections of the same event:
 
-1. **Topology observer** — path availability, adjacency changes, route discontinuities and reachability structure.
-2. **Timing / spectral observer** — delay distributions, bursts, retransmission structure and other temporal anomalies.
+1. **Topology observer** — adjacency, cut-sets, path availability, reachability discontinuities.
+2. **Timing / spectral observer** — delay distributions, bursts, retransmission structure and temporal anomalies.
 3. **Entropy / distribution observer** — changes in the statistical shape of locally observable metadata.
 
-Candidate tools may include distributional distances such as Wasserstein metrics, but **a metric is not a censor detector**. Congestion, radio interference, overloaded middleboxes and ordinary route changes can create the same symptoms. The Tribunal therefore produces **bounded observations and hypotheses**, not a verdict like “the government is inspecting packet 42.”
+Candidate statistics may include Wasserstein distances or other distributional metrics. But **a distance metric is not a censor detector**. Congestion, radio interference, overloaded middleboxes and ordinary route changes can produce similar signals.
 
-The models are allowed to disagree.
+The models produce bounded evidence and hypotheses.
 
-They are not allowed to promote their own answer.
+They do not promote their own answer.
 
 ---
 
 ## 🧿 Rheknel: local truth or it didn't happen
 
-Between probabilistic inference and network mutation sits **Rheknel**: the intended deterministic local arbiter.
+Between probabilistic inference and **Flow Surgery** sits **Rheknel**: the intended deterministic local arbiter.
 
 ```text
-observation
-    │
-    ▼
+observe Flow / graph state
+        │
+        ▼
 independent model outputs
-    │
-    ▼
-proposed capability graph
-    │
-    ▼
-┌─────────────────────────────┐
-│           RHEKNEL           │
-│                             │
-│ provenance?                 │
-│ admissible capability?      │
-│ invariant preserved?        │
-│ rollback exists?            │
-│ confirmation policy met?    │
-└─────────────────────────────┘
-    │ allow             │ reject
-    ▼                   └──────────▶ observe again
-snapshot
-    │
-    ▼
-apply bounded mutation
-    │
-    ▼
-validate
-  │      │
- pass   fail
-  │      │
-  ▼      ▼
-keep   rollback
-  │      │
-  └── receipt
+        │
+        ▼
+proposed surgery / capability graph
+        │
+        ▼
+┌──────────────────────────────┐
+│           RHEKNEL            │
+│ provenance?                  │
+│ flow boundary preserved?     │
+│ capability admissible?       │
+│ policy / crypto satisfied?   │
+│ rollback material exists?    │
+└──────────────────────────────┘
+     │ allow            │ reject
+     ▼                  └───────▶ observe again
+ snapshot
+     │
+     ▼
+ bounded surgery
+     │
+     ▼
+ validate
+  │       │
+ pass    fail
+  │       │
+  ▼       ▼
+ SEAL   ROLLBACK
+  │
+ receipt
 ```
 
-The desired reflex is small, deterministic and bounded. **No sub-millisecond or `O(1)` performance claim belongs here until a defined implementation and hardware benchmark produces a receipt.**
-
-The governing sentence is shorter:
+No sub-millisecond or `O(1)` performance claim belongs here until a defined implementation and hardware benchmark produces a receipt.
 
 ### **AI proposes. Rheknel arbitrates. The machine proves.**
 
@@ -193,19 +290,13 @@ The governing sentence is shorter:
 
 ## 🥷 Post-DPI does not mean “perfectly invisible”
 
-DPI should be treated as an **active, adaptive network condition**, not as one frozen signature to defeat forever.
+DPI is treated as an **active, adaptive network condition**, not one frozen signature to defeat forever.
 
-Blueshoes therefore aims to remove single points of classification and failure through:
+Blueshoes aims to remove single points of classification and failure through encrypted naming where supported, protocol/path diversity, modern standards-based transports, bounded Flow Surgery, local anomaly measurement and a strategy layer that may evolve while the **authority layer remains invariant**.
 
-- encrypted naming and metadata reduction where standards permit it;
-- protocol and path diversity;
-- standards-based modern transports such as QUIC, ECH and MASQUE where the peer/network supports them;
-- bounded route mutation when a specific path becomes unreliable;
-- optional overlay or tunnel capabilities without making one provider the architecture;
-- local anomaly measurement without pretending every timing deviation proves inspection;
-- a strategy layer that may evolve while the **authority layer remains invariant**.
+**Post-DPI** therefore means architectural non-ossification: one hostname, route, tunnel endpoint, transport fingerprint or provider must not become the permanent center of the system.
 
-This is the meaning of **post-DPI** here: not the fantasy that classification disappears, but an architecture that refuses to make one stable classifier, hostname, path, tunnel endpoint or transport fingerprint the permanent center of the system.
+It is not a claim of perfect invisibility or immunity to global traffic analysis.
 
 ---
 
@@ -213,58 +304,36 @@ This is the meaning of **post-DPI** here: not the fantasy that classification di
 
 The post-quantum target is **crypto agility plus standardized hybrid key establishment**.
 
-For TLS 1.3, [RFC 10024](https://www.rfc-editor.org/rfc/rfc10024.html) defines PQ/traditional hybrid groups including **X25519MLKEM768**, combining ML-KEM with traditional ECDHE. ML-KEM itself is standardized by [NIST FIPS 203](https://csrc.nist.gov/pubs/fips/203/final). For SSH, [RFC 10042](https://www.rfc-editor.org/rfc/rfc10042.html) defines ML-KEM-based PQ/traditional hybrid key exchange methods.
+For TLS 1.3, [RFC 10024](https://www.rfc-editor.org/rfc/rfc10024.html) defines PQ/traditional hybrid groups including **X25519MLKEM768**. ML-KEM itself is standardized by [NIST FIPS 203](https://csrc.nist.gov/pubs/fips/203/final). For SSH, [RFC 10042](https://www.rfc-editor.org/rfc/rfc10042.html) defines ML-KEM-based PQ/traditional hybrid key exchange methods.
 
-The target rules are:
+Target rules:
 
-- **prefer hybrid migration**, not a reckless one-shot replacement of mature classical cryptography;
+- prefer hybrid migration rather than a reckless one-shot replacement;
 - keep cryptographic selection behind a typed capability boundary;
-- make algorithm/version negotiation observable to the local validator;
-- never silently downgrade a policy that requires PQ/T protection;
-- keep identity, update-signing and stored-key strategy separately auditable from transport key establishment;
-- treat “PQ protected” as a **receipt-bearing property of a negotiated session**, not a project-wide adjective.
+- make negotiated algorithm/version observable to the validator;
+- never silently downgrade a policy requiring PQ/T protection;
+- audit identity/update signing separately from transport key establishment;
+- treat **PQ protected** as a receipt-bearing session property, not a decorative adjective.
 
-### Why hybrid?
-
-Because migration risk is real in both directions. A hybrid construction is designed so that session security can survive if all but one of its component key agreements remain secure. Blueshoes wants the network to cross cryptographic epochs without betting the router on a single new primitive.
-
-### Current status
-
-**The repository does not yet contain a verified Blueshoes PQ transport implementation or target-router PQ benchmark.** Post-quantum protection is an architectural requirement and roadmap item until those receipts exist.
+**The repository does not yet contain a verified Blueshoes PQ transport implementation or target-router PQ benchmark.**
 
 ---
 
-## 🧬 The polymorphic dance
+## 🧬 The polymorphic substrate
 
-When the local authority permits a topology mutation, the strategy layer may select among independent substrates.
+**SCION** may become a path capability where suitable infrastructure/gateways exist.
 
-### Path mutation — SCION
+**GNS / RFC 9498** may become an alternate naming capability for participating namespaces.
 
-SCION provides endpoint-visible path choice using cryptographically authenticated path information. Blueshoes can treat SCION as a path capability **where a SCION endpoint or gateway and the necessary SCION infrastructure are reachable**.
+**Yggdrasil** may become one experimental overlay/mesh capability where peers and an actual medium exist.
 
-That is materially different from claiming a cheap router can unilaterally reroute arbitrary Internet traffic around any AS.
-
-### Name mutation — GNS
-
-The GNU Name System, specified in [RFC 9498](https://www.rfc-editor.org/rfc/rfc9498.html), provides decentralized, privacy-enhancing name resolution without a single DNS root authority. Blueshoes can treat GNS as an alternate naming capability for namespaces and peers that actually participate in it.
-
-That is materially different from claiming a name is impossible to block.
-
-### Medium / overlay mutation — Mesh
-
-[Yggdrasil](https://yggdrasil-network.github.io/) is an experimental end-to-end encrypted IPv6 routing overlay designed for decentralized/mesh topologies. Blueshoes can treat it as one candidate overlay or local-peer capability.
-
-That is materially different from claiming software creates physical connectivity after every upstream link is cut. **A mesh still needs peers and a medium.**
-
-### Tunnel mutation — when useful
-
-A WireGuard-like or MASQUE-like tunnel may still be exactly the right primitive for a particular situation.
+A WireGuard-like or MASQUE-like tunnel may still be the right tool for one Flow.
 
 Fine.
 
-The post-VPN claim is not “tunnels are dead.” It is:
+The post-VPN claim is simply:
 
-> **the tunnel is no longer the operating system, the product, the identity, the policy engine and the business model all at once.**
+> **the tunnel is no longer the operating system, the identity, the policy engine, the route oracle and the business model all at once.**
 
 ---
 
@@ -272,68 +341,62 @@ The post-VPN claim is not “tunnels are dead.” It is:
 
 Privacy starts with refusing to manufacture evidence you never needed.
 
-The target design prefers:
-
-- ephemeral operational state in RAM;
-- short retention windows for diagnostics;
-- aggregate/model inputs rather than application payloads;
-- no mandatory browsing history;
-- no mandatory remote account to route packets;
-- no cloud control plane as runtime source of truth;
-- explicit durable-state allowlists;
-- secrets excluded from ordinary logs and model context;
-- reboot as a meaningful privacy boundary.
-
-This does **not** claim perfect anonymity, traffic-analysis immunity or invisibility to a global observer.
-
-It claims a simpler discipline:
+The target design prefers ephemeral operational state in RAM, short diagnostic retention, aggregate/model inputs rather than payloads, no mandatory browsing history, no mandatory remote routing account, explicit durable-state allowlists, secrets outside ordinary logs/model context, and reboot as a meaningful privacy boundary.
 
 ### **Collect less. Know less. Leak less. Forget on purpose.**
 
 ---
 
-## 🎛️ Break the little internet
+# 🪐 blueshoes.space: the spaceport
 
-The repository includes an **offline synthetic topology playground**:
+A project called Blueshoes was eventually going to acquire unnecessary astronomy.
 
-[`docs/readme/playground.html`](docs/readme/playground.html)
+So the repository now contains a tiny static **Flow Surgery Spaceport** prepared for:
 
-Download/open it locally to break links, change a toy policy ceiling, opt an imaginary tunnel in or out, isolate every path, and export a deliberately labeled synthetic receipt.
+### **[blueshoes.space](https://blueshoes.space)**
 
-<p align="center">
-  <img src="docs/readme/assets/route-story.svg" alt="Animated conceptual route-selection illustration" width="100%" />
-</p>
+```text
+blueshoes.space
+     │
+     ├── FLOW LAB
+     ├── FLOW SURGERY
+     ├── break the little internet
+     └── back to the actual GitHub evidence
+```
 
-The playground makes one design principle tangible:
+The repo includes:
 
-> **No admissible path means REJECT. It never invents connectivity to make the demo look successful.**
+- [`docs/CNAME`](docs/CNAME) → `blueshoes.space`
+- [`docs/index.html`](docs/index.html) → the bright pre-launch spaceport
+- [`docs/readme/playground.html`](docs/readme/playground.html) → the offline synthetic topology toy
 
-It is not the Blueshoes route solver, not live telemetry, not Rheknel, not a model call and not evidence of censorship resistance. GitHub does not execute arbitrary JavaScript inside README Markdown; the companion is therefore intentionally a standalone offline artifact.
+**Important boring fact:** GitHub Pages is not currently asserted as active for this repository, and DNS configuration lives outside the repo. The wiring is prepared; the launch switch still needs Pages + DNS.
 
 ---
 
-## 🪦 Post-VPN, for real this time
+## 🎛️ Break the little internet
 
-<details>
-<summary><b>Click to bury the wrong abstraction</b> 👟</summary>
+The offline synthetic topology playground lets you break links, change a toy policy ceiling, opt an imaginary tunnel in/out, isolate every path and export a deliberately labeled synthetic receipt:
 
-<br />
+### [`docs/readme/playground.html`](docs/readme/playground.html)
 
-| Failure | Tunnel-first reflex | Blueshoes target |
-|---|---|---|
-| Resolver interference | Put the entire device in a VPN | Change the naming capability first; prove whether routing itself is broken. |
-| One path is unhealthy | Move everything through one remote exit | Select the smallest admissible path mutation. |
-| One transport is classified | Buy a provider's “stealth mode” | Negotiate another standards-based transport/capability where supported. |
-| Tunnel endpoint is filtered | Hunt for another rented endpoint | Tunnels are replaceable capabilities, never constitutional infrastructure. |
-| Classical-only key exchange is no longer acceptable | Hope the VPN vendor upgrades someday | Enforce a local PQ/T crypto policy at the capability boundary. |
-| New policy bricks connectivity | SSH in and pray | Snapshot → apply → validate → keep or rollback. |
-| AI says “fixed” | Believe the prose | Rheknel asks for the receipt. |
+No admissible path means **REJECT**. It never invents connectivity to make the demo successful.
 
-</details>
+The playground is not the production Flow solver, not Rheknel, not live telemetry, not a model call and not evidence of censorship resistance.
 
-<p align="center">
-  <img src="docs/readme/vpn-graveyard.svg" alt="Blueshoes walks past the VPN subscription graveyard" width="100%" />
-</p>
+---
+
+## 🏁 The totally legitimate sponsor wall
+
+<div align="center">
+
+### **FAKE SPONSOR // F1\*** &nbsp;&nbsp;&nbsp; **FAKE SPONSOR // X\***
+
+**REAL SPONSORS // Kirchhoff · Ford–Fulkerson · Max-Flow/Min-Cut · boring conservation laws · physics**
+
+<sub>\* Parody text only. Blueshoes is not affiliated with, sponsored by, endorsed by, or pretending to be Formula 1 / Formula One or X. No official logos are used. Please send packet traces instead of lawyers.</sub>
+
+</div>
 
 ---
 
@@ -341,78 +404,29 @@ It is not the Blueshoes route solver, not live telemetry, not Rheknel, not a mod
 
 This README describes the **destination**. The repository is not yet the destination.
 
-### What exists in the inspected repository baseline
+### What exists in the inspected tree
 
-The current tree contains a Rust `bs-edge-agent`, network probes, structured journaling, capability-graph planning, rollback/watchdog machinery, semantic/provenance checks and an explicit `dangerous_execution` feature gate.
+The current repository contains a Rust `bs-edge-agent`, network probes, structured journaling, capability-graph planning, rollback/watchdog machinery, semantic/provenance checks and an explicit `dangerous_execution` feature gate.
 
-The inspected `ApplyConfirmed` path instantiates `DryRunExecutor` while also invoking transaction/snapshot/watchdog-related code. That is **not equivalent to proving a production-safe autonomous router** and should not be marketed as one.
-
-The code and existing RFC corpus are also substantially **FreeBSD-oriented**. OpenBSD-first `mbsd` is the intended direction; it is not established by changing the nouns in a README.
+The inspected source remains substantially **FreeBSD-oriented**. OpenBSD-first `mbsd` is the intended direction; it is not established by changing nouns in Markdown.
 
 ### Architecture target — not yet a verified implementation claim
 
-- bootable `mbsd` target on GL.iNet GL-MT3000 / MediaTek MT7981B-class hardware;
+- bootable `mbsd` on target cheap-router hardware;
 - whole-system RAM-only operation with a defined durable-state boundary;
-- any microkernel or hardware-isolation claim for `mbsd`;
-- Rheknel enforced inside the production authority path;
-- three-model independent Tribunal on-device;
-- automatic strategy synthesis and promotion under real fault injection;
-- SCION / GNS / Yggdrasil integration in the routing brick;
-- post-quantum/traditional hybrid transport enforcement;
-- target-router ML-KEM performance measurements;
-- reliable detection of DPI from timing/topological signals;
-- universal censorship resistance;
-- universal traffic obfuscation;
-- perfect anonymity;
-- country-scale disconnected mesh survivability.
+- microkernel / hardware-isolation claims;
+- production Rheknel enforcement;
+- on-device independent Tribunal;
+- production **Flows** abstraction and **Flow Surgery toolkit** operations;
+- automatic strategy synthesis/promotion under real fault injection;
+- SCION / GNS / Yggdrasil integration;
+- negotiated PQ/T transport enforcement and target-router ML-KEM benchmarks;
+- reliable attribution of DPI from timing/topological signals;
+- universal censorship resistance, obfuscation or anonymity.
 
 **A future commit may move an item above this line only with a reproducible receipt.**
 
-For the evidence map behind this presentation, see [`docs/readme/SOURCE_NOTES.md`](docs/readme/SOURCE_NOTES.md).
-
----
-
-## 🧪 Current developer surface
-
-The existing agent exposes inspection, planning and semantic-verification commands:
-
-```bash
-bs-edge-agent status
-bs-edge-agent netcheck
-bs-edge-agent doctor
-bs-edge-agent env
-bs-edge-agent profiles
-
-bs-edge-agent plan USER_TUNNEL --out /tmp/plan.json
-bs-edge-agent canary
-bs-edge-agent journal --tail 20
-
-bs-edge-agent substrate-verify
-bs-edge-agent substrate-repro-audit
-bs-edge-agent check-compliance
-```
-
-> **Current default posture:** observe and plan. High-risk mutation remains bounded by the repository's execution gates and requires evidence, rollback and human authority where specified.
-
----
-
-## 🛡️ Constitution
-
-```text
-NO CLOUD SOVEREIGNTY.
-NO AI ROOT SHELL.
-NO “VERIFIED” WITHOUT A RECEIPT.
-NO IRREVERSIBLE TOPOLOGY MUTATION.
-NO DURABLE TELEMETRY BY ACCIDENT.
-NO VPN VENDOR AS A REQUIRED TRUST ANCHOR.
-NO POST-QUANTUM CLAIM WITHOUT NEGOTIATED PQ/T EVIDENCE.
-NO DPI-DETECTION CLAIM FROM A TIMING BLIP.
-NO BRICKING THE BRICK TO WIN AN ARGUMENT WITH THE NETWORK.
-```
-
-The strategy layer may become strange.
-
-The authority path must remain boring.
+See [`docs/readme/SOURCE_NOTES.md`](docs/readme/SOURCE_NOTES.md) for the presentation evidence map.
 
 ---
 
@@ -423,50 +437,44 @@ The authority path must remain boring.
 - [x] read-only network telemetry surfaces
 - [x] deterministic plan / structured-journal surfaces
 - [x] explicit dangerous-execution compile gate
-- [x] rollback / watchdog architecture present in the tree
+- [x] rollback/watchdog architecture present in the tree
 - [x] provenance / semantic validation surfaces
 
-### mbsd
-- [ ] define the exact `mbsd` kernel/TCB architecture instead of overloading “OpenBSD microkernel”
-- [ ] bootable OpenBSD-first target image
-- [ ] RAM-only root / operational state on GL-MT3000-class hardware
-- [ ] explicit minimal durable-state partition
-- [ ] target-hardware pf / route / interface adapters
+### Flows / Flow Surgery
+- [ ] canonical `Flow` contract and identity model
+- [ ] capacity/policy/crypto constraint schema
+- [ ] residual-graph + cut-set evidence model
+- [ ] typed `CUT / BYPASS / SPLICE / BRAID / GRAFT / SEAL / ROLLBACK` capability vocabulary
+- [ ] multi-commodity admission experiments
+- [ ] receipt schema proving pre/post-surgery invariants
 
-### Local cognition
-- [ ] versioned `omnia-playbook` schema and evidence provenance
+### mbsd / local cognition
+- [ ] exact `mbsd` kernel/TCB architecture
+- [ ] OpenBSD-first boot image + RAM-only target
+- [ ] versioned `omnia-playbook`
 - [ ] independent topology / timing / entropy observers
 - [ ] Rheknel as enforced local promotion gate
 - [ ] bounded AI strategy synthesis
 - [ ] adversarial fault-injection corpus
-- [ ] self-healing mutation demonstrated with reproducible hardware receipts
 
-### Post-DPI topology
-- [ ] capability adapters for modern encrypted transports
-- [ ] SCION gateway/endpoint experiment
-- [ ] GNS naming experiment
-- [ ] Yggdrasil/local-mesh experiment
-- [ ] privacy-preserving multi-node topology intelligence
-
-### Post-quantum
+### Post-DPI / post-quantum
+- [ ] modern encrypted-transport capability adapters
+- [ ] SCION / GNS / Yggdrasil experiments
 - [ ] crypto-agility policy schema
 - [ ] X25519MLKEM768 TLS 1.3 experiment
-- [ ] PQ/T SSH/admin path experiment
+- [ ] PQ/T SSH/admin-path experiment
 - [ ] downgrade-policy receipts
 - [ ] ML-KEM latency / RAM / code-size measurements on target hardware
-- [ ] signed-update / identity migration design
 
 ---
 
 ## 🤝 Build the thing that survives the sentence
 
-Useful contributors are not limited to Rust programmers.
-
 Blueshoes needs people who enjoy breaking assumptions in:
 
-**OpenBSD · embedded boot · MediaTek · pf · routing · Rust · SCION · GNUnet/GNS · Yggdrasil · QUIC · MASQUE · ECH · ML-KEM · TLS 1.3 · adversarial measurement · reproducible systems · tiny ugly routers · formal-ish invariants · red-team engineering**
+**graph theory · network flow · max-flow/min-cut · OpenBSD · embedded boot · MediaTek · pf · Rust · SCION · GNUnet/GNS · Yggdrasil · QUIC · MASQUE · ECH · ML-KEM · TLS 1.3 · adversarial measurement · reproducible systems · tiny ugly routers · formal-ish invariants · red-team engineering**
 
-Start with [`SECURITY.md`](SECURITY.md), the RFC corpus, and the presentation [source notes](docs/readme/SOURCE_NOTES.md). Runtime changes must respect the repository's capability, tribunal and receipt requirements.
+Start with [`SECURITY.md`](SECURITY.md), the RFC corpus, and the [source notes](docs/readme/SOURCE_NOTES.md).
 
 If your contribution makes the README less exciting but the machine more truthful, it is probably a good contribution.
 
@@ -476,12 +484,14 @@ If your contribution makes the README less exciting but the machine more truthfu
 
 # 👟 BLUESHOES
 
-## **A NETWORK THAT CAN CHANGE ITS MIND WITHOUT LOSING ITS MEMORY OF TRUTH.**
+## **FLOWS SURVIVE. PATHS ARE NEGOTIABLE.**
 
-### **Own the brick. Mutate the topology. Distrust the route. Keep the internet.**
+### **CUT THE FAILURE. SPLICE THE GRAPH. BRAID THE FLOW. PROVE THE RESULT.**
 
-*The internet is free. Again!* 🌊
+**Own the brick. Mutate the topology. Distrust the route. Keep the internet.**
 
-[MIT License](LICENSE) · [Security](SECURITY.md) · [RFCs](docs/rfcs/) · [Offline Playground](docs/readme/playground.html)
+### *The internet is free. Again!* 🌈🌊✂️
+
+[blueshoes.space](https://blueshoes.space) · [MIT](LICENSE) · [Security](SECURITY.md) · [RFCs](docs/rfcs/) · [Flow Playground](docs/readme/playground.html)
 
 </div>
