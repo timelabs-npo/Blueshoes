@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Blueshoes: a playful, offline, synthetic route-selection playground. Not a VPN, network test or live control panel.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Blueshoes — take a different route.</title>
+<style>
+:root{--bg:#090d15;--panel:#101823;--line:#293549;--ink:#f3f0e6;--muted:#a6b3c9;--blue:#8bdcff;--mint:#b6f5d2;--red:#ffc1b1;--mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}button,a,input{touch-action:manipulation}a{color:var(--blue);text-underline-offset:4px}button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--blue);outline-offset:5px}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}.wrap{max-width:1280px;margin:auto;padding:0 40px}nav{min-height:92px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:20px}.brand{font-size:30px;font-weight:780;letter-spacing:-1.5px;color:var(--ink);text-decoration:none}.brand span{color:var(--blue)}.navlinks{display:flex;gap:28px;align-items:center;font-size:14px}.navlinks a{text-decoration:none;color:var(--muted)}.hero{position:relative;display:grid;grid-template-columns:1.35fr 1fr;gap:40px;align-items:center;padding:78px 0 65px}.hero h1{font-size:clamp(56px,6.5vw,88px);font-weight:710;line-height:1.05;letter-spacing:-5px;margin:0}.hero em{font-family:Georgia,serif;color:var(--blue);font-weight:400;font-size:1.32em;line-height:1.15}.hero p{font-size:19px;max-width:525px;margin:28px 0 0;color:var(--muted)}.hero p strong{color:var(--ink);font-weight:550}.orbit{width:100%;height:auto}.floating{animation:float 7s ease-in-out infinite}@keyframes float{50%{transform:translateY(-9px)}}.hero-note{position:absolute;bottom:10px;right:0;font:11px var(--mono);letter-spacing:1px;color:var(--muted)}.rule{border:0;border-top:1px solid var(--line);margin:0}.section-title{display:flex;align-items:end;justify-content:space-between;gap:32px;margin:40px 0 22px}h2{margin:0;font-size:35px;line-height:1.15;letter-spacing:-1px}.section-title p{max-width:400px;margin:0;color:var(--muted);font-size:14px}.lab{display:grid;grid-template-columns:minmax(0,1fr) 292px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel)}.stage{min-width:0;background:radial-gradient(ellipse at 50% 20%,#16283a,transparent 70%),#0c131e}.stagehead{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;gap:12px;border-bottom:1px solid #ffffff0e;font:11px var(--mono);color:var(--muted);letter-spacing:1px}.dot{width:6px;height:6px;background:var(--mint);display:inline-block;margin-right:8px;border-radius:50%}#network{display:block;width:100%;height:auto;overflow:visible}.edge-hit{fill:none;stroke:transparent;stroke-width:24}.edge-line{fill:none;stroke:#41516c;stroke-width:2.5;stroke-linecap:round}.edge-selected{stroke:var(--mint);stroke-width:4}.edge-blocked{stroke:#bb806f;stroke-dasharray:5 7}.edge-policy{stroke:#51556b;stroke-dasharray:2 7}.packet{fill:none;stroke:#efffed;stroke-width:5;stroke-dasharray:2 70;stroke-linecap:round;animation:travel 5s linear infinite;pointer-events:none}@keyframes travel{to{stroke-dashoffset:-360}}.paused .packet,.paused .floating{animation-play-state:paused}.edge-cost{font:12px var(--mono);fill:#c0d0e4;paint-order:stroke;stroke:#0e1724;stroke-width:6;stroke-linejoin:round;pointer-events:none}.node-label{font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#d7e3f4}.node-ring{fill:#121e2e;stroke:#6f8cac;stroke-width:1.5}.node-focus{fill:#17334c;stroke:#8dddf6;stroke-width:2}.legend{display:flex;gap:24px;padding:0 24px 24px;flex-wrap:wrap;font:11px var(--mono);color:var(--muted)}.legend i{display:inline-block;width:18px;margin-right:7px;vertical-align:middle;border-top:2px solid var(--mint)}.legend .blocked{border-top:2px dashed #bb806f}.legend .allowed{border-color:#647998}.controls{padding:25px;border-left:1px solid var(--line)}.controls h3{font-size:19px;line-height:1.2;margin:0 0 9px;letter-spacing:-.3px}.controls p{font-size:13px;color:var(--muted);margin:0 0 19px}.button{width:100%;display:flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #425372;border-radius:8px;background:#172335;color:var(--ink);font-size:13px;font-weight:560;padding:9px 12px;margin-top:9px;transition:background .18s,transform .18s}.button:hover{background:#253953}.button:active{transform:translateY(1px)}.button.primary{background:var(--blue);color:#091823;border-color:var(--blue)}.button.primary:hover{background:#b2e9ff}.button.danger{color:var(--red);border-color:#5e4242;background:#241b22}.field{border-top:1px solid var(--line);margin-top:24px;padding-top:22px}.field label{font-size:13px}.range-title{display:flex;justify-content:space-between;gap:12px}.range-title output{font:13px var(--mono);color:var(--blue)}input[type=range]{width:100%;accent-color:var(--blue);margin:18px 0 9px;height:24px}input[type=checkbox]{width:18px;height:18px;margin:0 9px 0 0;accent-color:var(--blue)}.check{display:flex;align-items:center;min-height:44px}.micro{font:11px/1.55 var(--mono);color:var(--muted)}.result{padding:24px;min-height:154px;background:#0b121c;border-top:1px solid var(--line)}.result-top{display:flex;align-items:center;justify-content:space-between;gap:16px}.status{font:12px var(--mono);letter-spacing:1.1px;color:var(--mint)}.status.bad{color:var(--red)}#cost{font-size:26px;color:var(--ink);line-height:1.3}#cost small{font:11px var(--mono);color:var(--muted)}#route{margin:13px 0 4px;font-size:15px}#explanation{margin:0;font-size:13px;color:var(--muted)}.underlab{display:flex;justify-content:space-between;gap:20px;padding:16px 0 46px}.underlab p{font-size:12px;color:var(--muted);margin:0;max-width:760px}.plain{color:var(--blue);background:none;border:0;padding:0;min-height:44px;font-size:12px;text-decoration:underline;text-underline-offset:4px;white-space:nowrap}.manifesto{padding:38px 0 50px;display:grid;grid-template-columns:1fr 1fr;gap:70px;border-top:1px solid var(--line)}.manifesto h2{font-size:35px;max-width:440px}.manifesto p{color:var(--muted);margin:0 0 20px;font-size:15px}.manifesto strong{color:var(--ink)}details{border-top:1px solid var(--line);padding:17px 0}summary{cursor:pointer;font-size:14px}details p{padding:16px 0 0;margin:0;font-size:14px;color:var(--muted)}footer{padding:24px 0 36px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;font:11px var(--mono);color:var(--muted)}noscript{display:block;padding:18px;border:1px solid #bb806f;margin:12px;color:var(--red)}
+@media(max-width:900px){.wrap{padding:0 24px}.hero{gap:10px;padding-top:50px}.hero h1{font-size:64px}.hero p{font-size:17px}.lab{grid-template-columns:1fr 254px}.controls{padding:20px}.manifesto{gap:35px}.navlinks{gap:15px}.section-title p{max-width:300px}}
+@media(max-width:700px){.wrap{padding:0 18px}nav{min-height:74px}.brand{font-size:27px}.navlinks a:first-child{display:none}.hero{grid-template-columns:1fr;padding:44px 0 28px;gap:5px}.hero h1{font-size:64px;letter-spacing:-3.5px}.hero p{max-width:90%;margin-top:22px;font-size:16px}.orbit{max-width:300px;justify-self:end;margin-top:-5px}.hero-note{position:static;grid-column:1;text-align:right;font-size:10px;margin-top:-10px}.section-title{display:block;margin-top:30px}.section-title h2{font-size:30px;margin-bottom:14px}.section-title p{max-width:100%;font-size:14px}.lab{display:block}.controls{border-left:0;border-top:1px solid var(--line);padding:22px}.controls h3{font-size:21px}.controls p{font-size:14px}.button{font-size:14px;min-height:46px}.field label{font-size:14px}.stagehead{padding:17px 15px;font-size:10px}.legend{padding:0 15px 20px;gap:15px}.result{padding:20px 16px;min-height:169px}#route{font-size:14px}.underlab{display:block;padding-bottom:32px}.underlab p{font-size:12px}.underlab .plain{margin-top:10px}.manifesto{grid-template-columns:1fr;gap:22px;padding:32px 0}.manifesto h2{font-size:31px}.manifesto p{font-size:15px}footer{flex-wrap:wrap}.node-label{font-size:13px}.edge-cost{font-size:11px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav aria-label="Main navigation"><a class="brand" href="#">blueshoes<span>_</span></a><div class="navlinks"><a href="#play">Play with the idea</a><a href="https://github.com/timelabs-npo/Blueshoes">Source ↗</a></div></nav>
+<header class="hero">
+<div><h1>The internet<br>is free.<br><em>Again!</em></h1><p><strong>Stop renting the way out.</strong><br>A love letter to the open internet.<br>A breakup letter to the reconnect button.</p></div>
+<svg class="orbit" viewBox="0 0 420 370" role="img" aria-labelledby="artTitle artDesc"><title id="artTitle">Take a different route</title><desc id="artDesc">A luminous blue ribbon steps through an open chrome ring and becomes a network path.</desc><defs><linearGradient id="metal" x2="1" y2="1"><stop stop-color="#f1f4e8"/><stop offset=".2" stop-color="#5d7d9b"/><stop offset=".4" stop-color="#dbf7ff"/><stop offset=".6" stop-color="#28405b"/><stop offset=".83" stop-color="#a9d8ef"/><stop offset="1" stop-color="#2f465e"/></linearGradient><linearGradient id="blue" x2="1" y2="1"><stop stop-color="#b0efff"/><stop offset=".3" stop-color="#568dff"/><stop offset=".7" stop-color="#2153c2"/><stop offset="1" stop-color="#abedff"/></linearGradient><radialGradient id="haze"><stop stop-color="#214378" stop-opacity=".5"/><stop offset="1" stop-color="#214378" stop-opacity="0"/></radialGradient></defs><ellipse cx="230" cy="185" rx="190" ry="172" fill="url(#haze)"/><g class="floating"><path d="M220 66C65 27 81 285 212 306C319 324 354 223 331 173" fill="none" stroke="url(#metal)" stroke-width="22"/><path d="M245 75L276 47 299 81" fill="none" stroke="url(#metal)" stroke-width="22"/><path d="M70 246C109 300 342 266 295 187C280 158 151 200 156 146C160 109 309 133 362 83" fill="none" stroke="#06101c" stroke-width="41"/><path d="M67 237C109 290 342 256 295 177C280 148 151 190 156 136C160 99 309 123 362 73" fill="none" stroke="url(#blue)" stroke-width="33" stroke-linecap="round"/><path d="M71 224C105 250 167 259 230 241" stroke="#bef6ff" stroke-width="1.5" fill="none"/><path d="M138 225C157 360 388 345 388 204S344 76 406 39" fill="none" stroke="#abf3d8" stroke-width="2"/><circle cx="406" cy="39" r="5" fill="#b9f6da"/><circle cx="138" cy="225" r="4" fill="#b9f6da"/></g><path d="M57 96v18m-9-9h18M351 301v14m-7-7h14" stroke="#94d1eb"/><text x="412" y="361" text-anchor="end" fill="#9cacc4" font-size="10" font-family="monospace">TAKE A DIFFERENT ROUTE.</text></svg>
+<div class="hero-note">MANIFESTO ≠ RELEASE NOTE</div>
+</header>
+<hr class="rule">
+<section id="play" aria-labelledby="play-title"><div class="section-title"><h2 id="play-title">Go on. Break the internet.<br><span style="color:var(--blue)">This little one, anyway.</span></h2><p>A synthetic network you can push around.<br>Click a link to disable it. Change the rules.<br>No packets leave this page.</p></div>
+<noscript>The interactive model needs JavaScript. This is a synthetic graph, not a real network. No route has been computed. The source README contains the non-interactive explanation.</noscript>
+<div class="lab"><div class="stage"><div class="stagehead"><span><span class="dot"></span>TOY TOPOLOGY / NOT LIVE TELEMETRY</span><span id="mode">LOCAL SIMULATION</span></div>
+<svg id="network" viewBox="0 0 820 410" role="group" aria-label="Synthetic route graph. Tab to each link and press Enter or Space to disable or restore it."><g id="edges"></g><g id="nodes"></g></svg>
+<div class="legend" aria-label="Legend"><span><i></i>Selected</span><span><i class="allowed"></i>Available</span><span><i class="blocked"></i>Blocked</span></div>
+<div class="result" role="status" aria-live="polite" aria-atomic="true"><div class="result-top"><span id="status" class="status">MODEL NOT STARTED</span><span id="cost">—</span></div><p id="route">Waiting for the local model.</p><p id="explanation">All nodes and costs are fictional. This is not the Blueshoes runtime.</p></div></div>
+<aside class="controls" aria-label="Simulation controls"><h3>The network is yours.</h3><p>So are the failure modes.</p><button id="break" class="button primary" type="button" aria-pressed="false">Break direct path</button><button id="isolate" class="button danger" type="button">Block every path</button><button id="reset" class="button" type="button">Restore the little internet</button><div class="field"><div class="range-title"><label for="budget">Maximum path cost</label><output id="budgetValue" for="budget">60 units</output></div><input type="range" id="budget" min="15" max="70" value="60" step="1"><p class="micro">Abstract cost units. Not milliseconds, throughput, or a benchmark.</p><label class="check"><input type="checkbox" id="tunnel">Allow operator tunnel</label><p class="micro">Optional policy edge. Not an actual tunnel or VPN connection.</p></div><div class="field"><button id="pause" class="button" type="button" aria-pressed="false">Pause motion</button><button id="export" class="button" type="button">Save simulation receipt ↓</button></div></aside></div>
+<div class="underlab"><p><strong>What you are seeing:</strong> weighted shortest-path selection on invented data. A blocked or over-budget network produces an explicit failure. This page cannot configure a router, test censorship, verify privacy, or exercise rollback.</p><button id="copy" class="plain" type="button">Copy this scenario as JSON</button></div></section>
+<section class="manifesto" aria-labelledby="manifesto-title"><h2 id="manifesto-title">Not a nicer tunnel.<br>A different relationship<br>with the network.</h2><div><p>The ambition: make the paid-tunnel workaround unnecessary for ordinary access. <strong>Keep encryption. Lose dependence.</strong> The current repository is an experimental Rust edge-agent reference implementation, not a released replacement for your VPN.</p><details><summary>Why does the model sometimes refuse to connect?</summary><p>Because not every graph has a permitted path. The model excludes blocked links, excludes the tunnel unless you allow it, and rejects the cheapest remaining path if it exceeds your budget. A good interface should report that—not invent connectivity.</p></details><details><summary>What does “rollback is sacred” mean?</summary><p>The project is designed around bounded changes and an explicit way back. This page only recomputes a toy graph; it does not demonstrate the runtime's transaction safety, watchdog operation, or recovery under fault injection.</p></details><details><summary>Is this free internet, anonymity, or a working VPN?</summary><p>No. “The internet is free. Again!” expresses the project's ambition of open access and operator control. ISP service and infrastructure still cost money. This simulation supplies neither connectivity nor anonymity. Keep your working security setup.</p></details></div></section>
+<footer><span>BLUESHOES / MADE IN THE OPEN / LACE UP.</span><span>Offline toy model · zero runtime dependencies · no analytics</span></footer>
+</div>
+<script>
+'use strict';
+(() => {
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const names = {you:'You',a:'Edge A',b:'Edge B',x:'Transit A',y:'Transit B',web:'Open web'};
+  const links = [
+    {id:'direct',a:'you',b:'web',cost:18,label:'Direct path'},
+    {id:'ua',a:'you',b:'a',cost:9,label:'You to Edge A'},
+    {id:'ax',a:'a',b:'x',cost:12,label:'Edge A to Transit A'},
+    {id:'xw',a:'x',b:'web',cost:13,label:'Transit A to Open web'},
+    {id:'ub',a:'you',b:'b',cost:14,label:'You to Edge B'},
+    {id:'by',a:'b',b:'y',cost:11,label:'Edge B to Transit B'},
+    {id:'yw',a:'y',b:'web',cost:17,label:'Transit B to Open web'},
+    {id:'tunnel',a:'you',b:'web',cost:28,label:'Operator tunnel',tunnel:true}
+  ];
+  const state = {blocked:new Set(),budget:60,tunnel:false,paused:false};
+  const media = window.matchMedia('(max-width:700px)');
+  const reduced = window.matchMedia('(prefers-reduced-motion:reduce)');
+  let result = null;
+  function svg(tag, attrs, text) { const e=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs||{}))e.setAttribute(k,String(v)); if(text!==undefined)e.textContent=text; return e; }
+  function solve() {
+    const dist = new Map(Object.keys(names).map(n=>[n,Infinity]));
+    const previous = new Map(), visited = new Set();dist.set('you',0);
+    while(visited.size<dist.size){
+      const next=[...dist].filter(([n])=>!visited.has(n)).sort((a,b)=>a[1]-b[1]||a[0].localeCompare(b[0]))[0];
+      if(!next||!Number.isFinite(next[1]))break;
+      const [u,d]=next;visited.add(u);if(u==='web')break;
+      for(const edge of links){
+        if(state.blocked.has(edge.id)||(edge.tunnel&&!state.tunnel))continue;
+        const v=edge.a===u?edge.b:edge.b===u?edge.a:null;if(!v||visited.has(v))continue;
+        if(d+edge.cost<dist.get(v)){dist.set(v,d+edge.cost);previous.set(v,{node:u,edge:edge.id});}
+      }
+    }
+    const cost=dist.get('web');
+    if(!Number.isFinite(cost))return {ok:false,reason:'disconnected',cost:null,nodes:[],edges:[]};
+    if(cost>state.budget)return {ok:false,reason:'over_budget',cost,nodes:[],edges:[]};
+    const nodes=['web'],edges=[];let n='web';
+    while(n!=='you'){const step=previous.get(n);if(!step)throw new Error('Broken predecessor chain');edges.unshift(step.edge);n=step.node;nodes.unshift(n);}
+    return {ok:true,reason:'route_selected',cost,nodes,edges};
+  }
+  function geometry(){
+    return media.matches?{width:400,height:455,p:{you:[40,216],a:[120,80],x:[280,80],b:[120,349],y:[280,349],web:[360,216]}}:{width:820,height:410,p:{you:[72,193],a:[282,86],x:[526,86],b:[282,294],y:[526,294],web:[748,193]}};
+  }
+  function toggle(id){state.blocked.has(id)?state.blocked.delete(id):state.blocked.add(id);render();document.querySelector('[data-edge="'+id+'"]')?.focus();}
+  function render(){
+    result=solve();const {width,height,p}=geometry();$('network').setAttribute('viewBox',`0 0 ${width} ${height}`);$('edges').replaceChildren();$('nodes').replaceChildren();
+    for(const edge of links){
+      const [x1,y1]=p[edge.a],[x2,y2]=p[edge.b];const disabled=state.blocked.has(edge.id);const denied=Boolean(edge.tunnel&&!state.tunnel);const selected=result.edges.includes(edge.id);const dy=media.matches?238:230;
+      const d=edge.tunnel?`M${x1} ${y1} C${x1} ${y1+dy},${x2} ${y2+dy},${x2} ${y2}`:`M${x1} ${y1} L${x2} ${y2}`;
+      const g=svg('g',{'data-edge':edge.id,tabindex:0,role:'button','aria-pressed':disabled,'aria-label':`${edge.label}, cost ${edge.cost} units, ${disabled?'blocked':denied?'excluded by tunnel policy':'available'}. Press to ${disabled?'restore':'block'}.`});
+      g.append(svg('title',{},`${edge.label} · ${edge.cost} units`));
+      g.append(svg('path',{d,class:'edge-hit'}));
+      g.append(svg('path',{d,class:'edge-line'+(disabled?' edge-blocked':denied?' edge-policy':selected?' edge-selected':'')}));
+      if(selected)g.append(svg('path',{d,class:'packet','aria-hidden':'true'}));
+      let lx=(x1+x2)/2,ly=(y1+y2)/2-12;
+      if(edge.id==='direct')ly=y1-14;if(edge.tunnel)ly=y1+dy*.75-10;
+      g.append(svg('text',{x:lx,y:ly,'text-anchor':'middle',class:'edge-cost'},edge.tunnel?`TUNNEL / ${edge.cost}`:`${disabled?'× ':''}${edge.cost}`));
+      g.addEventListener('click',()=>toggle(edge.id));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(edge.id);}});$('edges').append(g);
+    }
+    for(const [id,[x,y]] of Object.entries(p)){
+      const focus=id==='you'||id==='web';const g=svg('g');g.append(svg('circle',{cx:x,cy:y,r:focus?20:13,class:focus?'node-ring node-focus':'node-ring'}));g.append(svg('circle',{cx:x,cy:y,r:focus?4:3,fill:result.nodes.includes(id)?'#b6f5d2':'#a6b3c9'}));let ly=y+(focus?41:id==='a'||id==='x'?-24:32);g.append(svg('text',{x,y:ly,'text-anchor':'middle',class:'node-label'},names[id]));$('nodes').append(g);
+    }
+    $('status').textContent=result.ok?'PERMITTED ROUTE SELECTED':'NO PERMITTED ROUTE';$('status').classList.toggle('bad',!result.ok);
+    $('cost').replaceChildren(document.createTextNode(result.ok?String(result.cost):'—'));const unit=document.createElement('small');unit.textContent=result.ok?' toy units':' no route';$('cost').append(unit);
+    $('route').textContent=result.ok?result.nodes.map(n=>names[n]).join(' → '):result.reason==='disconnected'?'All eligible paths are blocked.':`Cheapest available path costs ${result.cost}; your limit is ${state.budget}.`;
+    $('explanation').textContent=result.ok?(result.edges.includes('tunnel')?'You explicitly permitted the synthetic tunnel edge. No real tunnel is opened.':'Selected by a local weighted graph model. No real traffic is sent.'):'No connection is claimed. Restore a link, relax the cost budget, or permit a usable tunnel edge.';
+    $('break').textContent=state.blocked.has('direct')?'Restore direct path':'Break direct path';$('break').setAttribute('aria-pressed',String(state.blocked.has('direct')));$('budgetValue').value=`${state.budget} units`;
+  }
+  function receipt(){return {kind:'BLUESHOES_SYNTHETIC_DEMO_ONLY',model:'weighted-undirected-graph-v1',created_at:new Date().toISOString(),units:'abstract synthetic cost; not measured',is_runtime_evidence:false,policy:{max_cost:state.budget,operator_tunnel_allowed:state.tunnel},blocked_edges:[...state.blocked].sort(),edges:links,result};}
+  function download(){const url=URL.createObjectURL(new Blob([JSON.stringify(receipt(),null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='blueshoes-simulation-not-runtime-evidence.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  $('break').addEventListener('click',()=>{state.blocked.has('direct')?state.blocked.delete('direct'):state.blocked.add('direct');render();});
+  $('isolate').addEventListener('click',()=>{state.blocked=new Set(links.map(e=>e.id));render();});
+  $('reset').addEventListener('click',()=>{state.blocked.clear();state.budget=60;state.tunnel=false;$('budget').value='60';$('tunnel').checked=false;render();});
+  $('budget').addEventListener('input',e=>{state.budget=Number(e.target.value);render();});
+  $('tunnel').addEventListener('change',e=>{state.tunnel=e.target.checked;render();});
+  $('pause').addEventListener('click',()=>{state.paused=!state.paused;document.body.classList.toggle('paused',state.paused);$('pause').textContent=state.paused?'Resume motion':'Pause motion';$('pause').setAttribute('aria-pressed',String(state.paused));});
+  $('export').addEventListener('click',download);
+  $('copy').addEventListener('click',async()=>{try{if(!navigator.clipboard)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(JSON.stringify(receipt(),null,2));$('copy').textContent='Copied — synthetic scenario only';}catch{$('copy').textContent='Clipboard unavailable — use Save receipt';}setTimeout(()=>$('copy').textContent='Copy this scenario as JSON',3500);});
+  function motionPreference(){if(reduced.matches){$('pause').disabled=true;$('pause').textContent='Reduced motion respected';}else{$('pause').disabled=false;$('pause').textContent=state.paused?'Resume motion':'Pause motion';}}
+  media.addEventListener('change',render);reduced.addEventListener('change',motionPreference);motionPreference();render();
+})();
+</script>
+</body>
+</html>
