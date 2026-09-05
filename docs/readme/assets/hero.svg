@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="660" viewBox="0 0 1280 660" role="img" aria-labelledby="title desc">
+<title id="title">Blueshoes. The internet is free. Again!</title>
+<desc id="desc">Electric-blue shoes float through a broken chrome ring. Their laces become paths around an obstacle. Concept illustration for a post-OpenWrt, post-VPN, post-DPI, post-quantum OpenBSD-first RAM-only target router OS where AI proposals pass a local truth gate. Not evidence of deployed capability.</desc>
+<defs>
+  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101625"/><stop offset="1" stop-color="#050810"/></linearGradient>
+  <radialGradient id="aura"><stop stop-color="#144dbf" stop-opacity=".34"/><stop offset="1" stop-color="#144dbf" stop-opacity="0"/></radialGradient>
+  <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7f4e8"/><stop offset=".16" stop-color="#718096"/><stop offset=".33" stop-color="#f4fbff"/><stop offset=".47" stop-color="#344251"/><stop offset=".64" stop-color="#d5f2ff"/><stop offset=".83" stop-color="#253548"/><stop offset="1" stop-color="#8beaf5"/></linearGradient>
+  <linearGradient id="shoe" x2=".3" y2="1"><stop stop-color="#98c6ff"/><stop offset=".23" stop-color="#4d8cff"/><stop offset=".66" stop-color="#245bea"/><stop offset="1" stop-color="#0b246e"/></linearGradient>
+  <linearGradient id="sole" x2="0" y2="1"><stop stop-color="#f4f2e8"/><stop offset=".4" stop-color="#b9d4e9"/><stop offset="1" stop-color="#456092"/></linearGradient>
+  <linearGradient id="ribbon"><stop stop-color="#3f71ff"/><stop offset=".55" stop-color="#8defff"/><stop offset="1" stop-color="#d6ffb5"/></linearGradient>
+  <filter id="glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="7"/></filter>
+  <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#7f9aca" stroke-opacity=".055"/></pattern>
+  <g id="sneaker">
+    <path d="M2 65C16 65 24 53 27 17L49 8 79 40 130 55C155 59 168 72 165 85L145 98 38 89 7 80Z" fill="url(#shoe)" stroke="#8aafff" stroke-width="1.5"/>
+    <path d="M3 72C37 82 66 75 95 85S142 93 165 79L168 92C158 111 115 113 90 104L9 93Z" fill="url(#sole)" stroke="#a2c4ec"/>
+    <path d="M29 22L52 39 76 41 63 53 45 49Z" fill="#102557"/>
+    <path d="M37 26L56 45M46 23L67 46M58 32L74 51M68 43L90 58M80 49L100 64" fill="none" stroke="#d2f5ff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M19 59Q33 46 48 59L92 77Q120 84 143 77" fill="none" stroke="#a6d0ff" stroke-width="2" opacity=".6"/>
+    <path d="M22 84L24 95M39 86L41 98M58 89L60 102M82 94L84 107M109 98L111 110M136 97L138 107" stroke="#48678f" stroke-width="2"/>
+    <path d="M47 56Q65 72 91 73Q73 79 54 72Z" fill="#a2fcf3"/>
+    <path d="M104 66L126 71M110 72L132 77" stroke="#9bbcff" stroke-width="1.2"/>
+  </g>
+</defs>
+<style>
+  .float{animation:float 7s ease-in-out infinite}.float2{animation:float 7s -3.5s ease-in-out infinite}
+  .flow{stroke-dasharray:12 340;animation:flow 8s linear infinite}.spark{animation:spark 5s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-12px)}}@keyframes flow{to{stroke-dashoffset:-704}}@keyframes spark{50%{opacity:.35}}
+  @media(prefers-reduced-motion:reduce){.float,.float2,.flow,.spark{animation:none}}
+</style>
+<rect width="1280" height="660" rx="26" fill="url(#bg)"/>
+<rect width="1280" height="660" rx="26" fill="url(#grid)"/>
+<ellipse cx="977" cy="342" rx="358" ry="300" fill="url(#aura)"/>
+<path d="M48 83H1232" stroke="#324052" stroke-width="1"/>
+<g font-family="Arial,Helvetica,sans-serif">
+  <text x="48" y="56" fill="#f1efe6" font-size="29" font-weight="700" letter-spacing="-1.3">blueshoes<tspan fill="#90e9ff">_</tspan></text>
+  <text x="1232" y="52" text-anchor="end" fill="#a8b7ce" font-size="11" letter-spacing="1.3">POST-OPENWRT · POST-VPN · POST-DPI · POST-QUANTUM</text>
+  <text x="48" y="195" fill="#f3f0e6" font-size="64" font-weight="700" letter-spacing="-3.2">The internet</text>
+  <text x="48" y="269" fill="#f3f0e6" font-size="64" font-weight="700" letter-spacing="-3.2">is free.</text>
+  <text x="41" y="400" fill="#91ddff" font-family="Georgia,serif" font-size="136" font-style="italic" letter-spacing="-8">Again!</text>
+  <text x="50" y="455" fill="#cad3e1" font-size="21">Stop renting the way out.</text>
+  <text x="50" y="485" fill="#8fa0b9" font-size="17">AI proposes. Rheknel decides. Reboot forgets.</text>
+</g>
+<!-- A broken ring, not a promise of universal circumvention. -->
+<g transform="translate(961 319) rotate(-25)">
+  <ellipse cx="0" cy="20" rx="132" ry="172" fill="none" stroke="#010409" stroke-width="30" opacity=".8"/>
+  <path d="M-56-160C-186-116-168 154-33 172C76 188 157 76 134-39" fill="none" stroke="url(#chrome)" stroke-width="24" stroke-linecap="butt"/>
+  <path d="M-56-160C-184-114-165 151-33 172C77 188 154 74 134-39" fill="none" stroke="#d5eeff" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M43-161L89-191 111-158" fill="none" stroke="url(#chrome)" stroke-width="23"/>
+</g>
+<g fill="none" stroke-linecap="round">
+  <path d="M706 341C818 474 1128 555 1194 384S1114 126 1244 121" stroke="#3767ba" stroke-width="16" opacity=".2"/>
+  <path d="M706 341C818 474 1128 555 1194 384S1114 126 1244 121" stroke="url(#ribbon)" stroke-width="4"/>
+  <path class="flow" d="M706 341C818 474 1128 555 1194 384S1114 126 1244 121" stroke="#eefff8" stroke-width="5"/>
+  <path d="M768 286C842 227 884 177 1036 195S1160 90 1220 101" stroke="url(#ribbon)" stroke-width="2" opacity=".7"/>
+  <path d="M724 322L1154 322" stroke="#fd957f" stroke-dasharray="3 9" opacity=".45"/>
+</g>
+<g class="float2"><g transform="translate(879 217) rotate(-28) scale(1.16)"><use href="#sneaker"/></g></g>
+<g class="float"><g transform="translate(742 289) rotate(15) scale(1.75)"><use href="#sneaker"/></g></g>
+<g transform="translate(1137 281) rotate(12)">
+  <rect x="0" y="0" width="53" height="83" rx="4" fill="#e8e3d5"/>
+  <path d="M9 13H44M9 21H32M9 45H44M9 52H44M9 59H35" stroke="#727577" stroke-width="2"/>
+  <path d="M5 68L48 33" stroke="#174acd" stroke-width="3"/>
+  <circle cx="26" cy="6" r="2" fill="#283349"/>
+</g>
+<g fill="#a7f3ee" class="spark"><circle cx="704" cy="342" r="5"/><circle cx="1244" cy="121" r="5"/><circle cx="1220" cy="101" r="3"/></g>
+<g stroke="#96d4ef" opacity=".7"><path d="M696 156v18m-9-9h18M1211 454v18m-9-9h18M1024 115v12m-6-6h12"/></g>
+<path d="M48 560H1232" stroke="#324052"/>
+<g font-family="Arial,Helvetica,sans-serif" font-size="12" letter-spacing="1.25">
+  <text x="48" y="602" fill="#9eb0c8">OPENBSD-FIRST</text>
+  <text x="205" y="602" fill="#9eb0c8">RAM-ONLY</text>
+  <text x="327" y="602" fill="#9eb0c8">PQ/T CRYPTO-AGILE</text>
+  <text x="520" y="602" fill="#9eb0c8">RHEKNEL / LOCAL TRUTH</text>
+  <text x="1232" y="602" fill="#91ddff" text-anchor="end">AI PROPOSES. THE MACHINE PROVES.</text>
+</g>
+</svg>

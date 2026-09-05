@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+<title id="title">Different routes. One non-negotiable: a way back.</title>
+<desc id="desc">Conceptual routing illustration. A straight path meets a blocked link; an alternate route curves around it. Intended authority sequence: observe, propose, pass a local truth gate, validate, retain or roll back. Not live telemetry or a benchmark.</desc>
+<defs><linearGradient id="line"><stop stop-color="#5594ff"/><stop offset="1" stop-color="#b7f6d3"/></linearGradient></defs>
+<style>.flow{stroke-dasharray:20 170;animation:run 7s linear infinite}@keyframes run{to{stroke-dashoffset:-760}}@media(prefers-reduced-motion:reduce){.flow{animation:none}}</style>
+<rect width="1200" height="360" rx="20" fill="#0b101b"/>
+<g font-family="Arial,Helvetica,sans-serif">
+<text x="38" y="47" font-size="24" font-weight="700" fill="#f0f0e7">A dead end is a topology problem.</text>
+<text x="1162" y="45" text-anchor="end" font-size="12" letter-spacing="1.4" fill="#9aa9c0">CONCEPT ANIMATION · NOT A NETWORK TEST</text>
+<path d="M126 196H1068" fill="none" stroke="#3c4658" stroke-width="3" stroke-dasharray="6 8"/>
+<path d="M126 196C250 196 270 97 390 97H802C926 97 947 196 1068 196" fill="none" stroke="#263b53" stroke-width="8"/>
+<path d="M126 196C250 196 270 97 390 97H802C926 97 947 196 1068 196" fill="none" stroke="url(#line)" stroke-width="3"/>
+<path class="flow" d="M126 196C250 196 270 97 390 97H802C926 97 947 196 1068 196" fill="none" stroke="#bdf8ff" stroke-width="5"/>
+<g fill="#172338" stroke="#7aa6ec" stroke-width="2"><circle cx="126" cy="196" r="23"/><circle cx="390" cy="97" r="12"/><circle cx="802" cy="97" r="12"/><circle cx="1068" cy="196" r="23"/></g>
+<g fill="#d3e6ff"><circle cx="126" cy="196" r="6"/><circle cx="1068" cy="196" r="6"/></g>
+<rect x="529" y="171" width="142" height="48" rx="24" fill="#342325" stroke="#b57b72"/>
+<text x="600" y="200" fill="#ffc4b7" text-anchor="middle" font-size="14">LINK BLOCKED</text>
+<text x="126" y="243" fill="#dce4ef" text-anchor="middle" font-size="16">Your edge</text>
+<text x="600" y="139" fill="#a3dcfb" text-anchor="middle" font-size="15">Propose another path. Gate it locally. Keep a way back.</text>
+<text x="1068" y="243" fill="#dce4ef" text-anchor="middle" font-size="16">The open web</text>
+<path d="M38 278H1162" stroke="#283447"/>
+<text x="38" y="321" fill="#adc0d8" font-size="14" letter-spacing="1">OBSERVE → PROPOSE → LOCAL GATE → VALIDATE → KEEP / ROLL BACK</text>
+<text x="1162" y="321" text-anchor="end" fill="#b8f2dd" font-size="14">No permitted route? Say so. Never fake success.</text>
+</g></svg>
