@@ -1,0 +1,96 @@
+{
+  "schema_version": "NativeFlowSampleV1",
+  "platform": "win32",
+  "collector_scope": "fixture-host-boot-1",
+  "snapshot_id": "sample-1",
+  "observed_at": "2026-09-06T00:00:00Z",
+  "freshness": "fresh",
+  "records": [
+    {
+      "record_id": "socket-1",
+      "process": {
+        "pid": 4242,
+        "kind": "win32_creation_100ns",
+        "birth_before": 123456789,
+        "birth_after": 123456789
+      },
+      "source": {
+        "address_state": "known",
+        "address": "192.0.2.10",
+        "port": 50000,
+        "domain": null
+      },
+      "destination": {
+        "address_state": "known",
+        "address": "198.51.100.20",
+        "port": 443,
+        "domain": "example.test"
+      },
+      "protocol": "TCP",
+      "counters": {
+        "bytes_up": 0,
+        "bytes_down": 2048,
+        "rate_up_bps": 0,
+        "rate_down_bps": null
+      },
+      "policy": {
+        "match_state": "unknown",
+        "rule_ref": null,
+        "decision": null
+      },
+      "route": {
+        "state": "unknown",
+        "interface_ref": null,
+        "egress_ref": null,
+        "tunnel_ref": null
+      },
+      "display_location": {
+        "mode": "masked",
+        "label": "Presentation region"
+      }
+    },
+    {
+      "record_id": "socket-1",
+      "process": {
+        "pid": 4242,
+        "kind": "win32_creation_100ns",
+        "birth_before": 123456789,
+        "birth_after": 123456789
+      },
+      "source": {
+        "address_state": "known",
+        "address": "192.0.2.10",
+        "port": 50000,
+        "domain": null
+      },
+      "destination": {
+        "address_state": "known",
+        "address": "198.51.100.20",
+        "port": 443,
+        "domain": "example.test"
+      },
+      "protocol": "TCP",
+      "counters": {
+        "bytes_up": 0,
+        "bytes_down": 2048,
+        "rate_up_bps": 0,
+        "rate_down_bps": null
+      },
+      "policy": {
+        "match_state": "unknown",
+        "rule_ref": null,
+        "decision": null
+      },
+      "route": {
+        "state": "unknown",
+        "interface_ref": null,
+        "egress_ref": null,
+        "tunnel_ref": null
+      },
+      "display_location": {
+        "mode": "masked",
+        "label": "Presentation region"
+      }
+    }
+  ]
+}

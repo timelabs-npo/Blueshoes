@@ -1,0 +1,48 @@
+{
+  "schema_version": "FlowObservationV1",
+  "flow_id": "independent-observation-1",
+  "platform": "win32",
+  "observed_at": "2026-09-06T00:00:00Z",
+  "freshness": "fresh",
+  "process_ref": null,
+  "source": {
+    "address_state": "known",
+    "address": "192.0.2.10",
+    "port": 50000,
+    "domain": null
+  },
+  "destination": {
+    "address_state": "known",
+    "address": "198.51.100.20",
+    "port": 443,
+    "domain": "example.test"
+  },
+  "protocol": "tcp",
+  "counters": {
+    "bytes_up": -1,
+    "bytes_down": 2048,
+    "rate_up_bps": 0,
+    "rate_down_bps": null
+  },
+  "policy": {
+    "match_state": "unknown",
+    "rule_ref": null,
+    "decision": null
+  },
+  "route": {
+    "state": "unknown",
+    "interface_ref": null,
+    "egress_ref": null,
+    "tunnel_ref": null
+  },
+  "display_location": {
+    "mode": "masked",
+    "label": "Presentation region"
+  },
+  "provenance": {
+    "adapter": "independent.semantic.fixture",
+    "adapter_version": "1",
+    "source_kind": "fixture"
+  },
+  "authority": "observation_only"
+}

@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://timelabs-npo.github.io/omnia-playbook/schemas/native-flow-sample.schema.json",
+  "title": "NativeFlowSampleV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "platform",
+    "collector_scope",
+    "snapshot_id",
+    "observed_at",
+    "freshness",
+    "records"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "NativeFlowSampleV1"
+    },
+    "platform": {
+      "enum": [
+        "darwin",
+        "win32",
+        "linux",
+        "openbsd"
+      ]
+    },
+    "collector_scope": {
+      "$ref": "#/$defs/token"
+    },
+    "snapshot_id": {
+      "$ref": "#/$defs/token"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "freshness": {
+      "enum": [
+        "fresh",
+        "stale",
+        "unknown"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/record"
+      }
+    }
+  },
+  "$defs": {
+    "token": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "source",
+        "destination",
+        "protocol",
+        "counters",
+        "policy",
+        "route"
+      ],
+      "properties": {
+        "record_id": {
+          "$ref": "#/$defs/token"
+        },
+        "process": {
+          "$ref": "#/$defs/process"
+        },
+        "source": {
+          "$ref": "flow-observation.schema.json#/$defs/endpoint"
+        },
+        "destination": {
+          "$ref": "flow-observation.schema.json#/$defs/endpoint"
+        },
+        "protocol": {
+          "type": "string",
+          "minLength": 1
+        },
+        "counters": {
+          "$ref": "flow-observation.schema.json#/properties/counters"
+        },
+        "policy": {
+          "$ref": "flow-observation.schema.json#/properties/policy"
+        },
+        "route": {
+          "$ref": "flow-observation.schema.json#/properties/route"
+        },
+        "display_location": {
+          "$ref": "flow-observation.schema.json#/properties/display_location"
+        }
+      }
+    },
+    "process": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "pid",
+        "kind",
+        "birth_before",
+        "birth_after"
+      ],
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "kind": {
+          "enum": [
+            "darwin_start_us",
+            "win32_creation_100ns",
+            "linux_start_ticks",
+            "openbsd_start_us"
+          ]
+        },
+        "birth_before": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 18446744073709552000
+        },
+        "birth_after": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 18446744073709552000
+        }
+      }
+    }
+  }
+}
