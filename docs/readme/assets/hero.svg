@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="660" viewBox="0 0 1280 660" role="img" aria-labelledby="title desc">
 <title id="title">Blueshoes. The internet is free. Again!</title>
-<desc id="desc">Electric-blue shoes float through a broken chrome ring. Their laces become paths around an obstacle. Concept illustration for an OpenBSD-first, RAM-only target router OS where AI proposals pass a local truth gate. Not evidence of deployed capability.</desc>
+<desc id="desc">Electric-blue shoes float through a broken chrome ring. Their laces become paths around an obstacle. Concept illustration for a post-OpenWrt, post-VPN, post-DPI, post-quantum OpenBSD-first RAM-only target router OS where AI proposals pass a local truth gate. Not evidence of deployed capability.</desc>
 <defs>
   <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101625"/><stop offset="1" stop-color="#050810"/></linearGradient>
   <radialGradient id="aura"><stop stop-color="#144dbf" stop-opacity=".34"/><stop offset="1" stop-color="#144dbf" stop-opacity="0"/></radialGradient>
@@ -33,7 +33,7 @@
 <path d="M48 83H1232" stroke="#324052" stroke-width="1"/>
 <g font-family="Arial,Helvetica,sans-serif">
   <text x="48" y="56" fill="#f1efe6" font-size="29" font-weight="700" letter-spacing="-1.3">blueshoes<tspan fill="#90e9ff">_</tspan></text>
-  <text x="1232" y="52" text-anchor="end" fill="#a8b7ce" font-size="13" letter-spacing="2">OPENBSD FIRST · RAM ONLY · LOCAL TRUTH</text>
+  <text x="1232" y="52" text-anchor="end" fill="#a8b7ce" font-size="11" letter-spacing="1.3">POST-OPENWRT · POST-VPN · POST-DPI · POST-QUANTUM</text>
   <text x="48" y="195" fill="#f3f0e6" font-size="64" font-weight="700" letter-spacing="-3.2">The internet</text>
   <text x="48" y="269" fill="#f3f0e6" font-size="64" font-weight="700" letter-spacing="-3.2">is free.</text>
   <text x="41" y="400" fill="#91ddff" font-family="Georgia,serif" font-size="136" font-style="italic" letter-spacing="-8">Again!</text>
@@ -65,9 +65,11 @@
 <g fill="#a7f3ee" class="spark"><circle cx="704" cy="342" r="5"/><circle cx="1244" cy="121" r="5"/><circle cx="1220" cy="101" r="3"/></g>
 <g stroke="#96d4ef" opacity=".7"><path d="M696 156v18m-9-9h18M1211 454v18m-9-9h18M1024 115v12m-6-6h12"/></g>
 <path d="M48 560H1232" stroke="#324052"/>
-<g font-family="Arial,Helvetica,sans-serif" font-size="13" letter-spacing="1.6">
-  <text x="48" y="602" fill="#9eb0c8">OPENBSD FIRST</text><text x="227" y="602" fill="#9eb0c8">RAM ONLY</text>
-  <text x="431" y="602" fill="#9eb0c8">RHEKNEL / LOCAL TRUTH</text>
+<g font-family="Arial,Helvetica,sans-serif" font-size="12" letter-spacing="1.25">
+  <text x="48" y="602" fill="#9eb0c8">OPENBSD-FIRST</text>
+  <text x="205" y="602" fill="#9eb0c8">RAM-ONLY</text>
+  <text x="327" y="602" fill="#9eb0c8">PQ/T CRYPTO-AGILE</text>
+  <text x="520" y="602" fill="#9eb0c8">RHEKNEL / LOCAL TRUTH</text>
   <text x="1232" y="602" fill="#91ddff" text-anchor="end">AI PROPOSES. THE MACHINE PROVES.</text>
 </g>
 </svg>
