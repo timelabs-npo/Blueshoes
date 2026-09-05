@@ -4,13 +4,21 @@
 
 > The domain may explain the network. It must not become the network's sovereign.
 
-## Observed external state
+## Production state — 2026-09-05
 
-Checked 2026-09-05: `https://blueshoes.space` returned Cloudflare **error 1033**, which Cloudflare documents as a Tunnel error where no healthy `cloudflared` connector is available for the configured hostname. Treat this as an operational observation, not a permanent fact.
+The durable apex is now served by the Cloudflare Worker **`blueshoes-spaceport`** using static assets from `docs/`.
 
-The repository already carries `docs/CNAME` with `blueshoes.space`, but a CNAME file alone does not activate GitHub Pages or reconfigure external DNS.
+- `https://blueshoes.space/` → `blueshoes-spaceport` Worker → static Spaceport assets.
+- `demo.blueshoes.space` → optional Cloudflare Tunnel → physical lab/router demo when intentionally online.
+- The obsolete apex Tunnel DNS record that previously produced Cloudflare error `1033` has been removed.
+- The apex is no longer coupled to Tunnel health.
+- The Tunnel is deliberately isolated to `demo.` so it may disappear without taking the public Spaceport with it.
 
-## Recommended surface topology
+This preserves the architectural rule:
+
+> **THE WORMHOLE MAY DIE. THE FLOW DOES NOT.**
+
+## Surface topology
 
 ```text
                         blueshoes.space
@@ -36,6 +44,13 @@ The repository already carries `docs/CNAME` with `blueshoes.space`, but a CNAME 
                               ▼
                       BLUESHOES ROUTER
                     local truth = Rheknel
+
+              demo.blueshoes.space
+                        │
+                 ephemeral Tunnel
+                        │
+                        ▼
+                 physical lab/router
 ```
 
 ### `/`
@@ -71,47 +86,45 @@ These are presentation names, not required protocol names:
 
 Do **not** use `control.blueshoes.space`, `authority.blueshoes.space`, or any other hostname that implies remote sovereignty over the router.
 
-## Hosting modes
+## Hosting doctrine
 
-### A — GitHub Pages as canonical static spaceport
+### Canonical apex — Cloudflare Worker + static assets
 
-Best for the manifesto, docs, SVG art, and static/synthetic lab. Publish `/docs` from `main`, configure `blueshoes.space` as the Pages custom domain, and point DNS to the Pages site. Simple, auditable, cheap.
+`blueshoes-spaceport` is the durable presentation origin for the apex. The repository remains the source of truth; the Worker is delivery infrastructure only.
 
-### B — Cloudflare as presentation edge
+The production Wrangler contract lives in `wrangler.spaceport.jsonc` and points to `./docs` as the static asset directory.
 
-Keep Cloudflare only as the public delivery edge / redirector while the canonical source remains Git. Useful for path routing, redirects, caching, headers, and temporary demo surfaces. Do not make Cloudflare a Blueshoes runtime dependency.
+### Ephemeral demo — Cloudflare Tunnel
 
-### C — Hybrid: static apex + ephemeral tunnel
+`demo.blueshoes.space` is the only intended Tunnel-facing public hostname. It may expose a physical router/lab experiment when deliberately enabled.
 
-Recommended fun mode:
+If `demo.` disappears, the router should continue functioning and the main site should remain up.
 
-- `blueshoes.space` → static Pages spaceport;
-- `lab.` / `map.` → static or serverless visualization;
-- `demo.` → an **ephemeral** Cloudflare Tunnel when a physical router demo is intentionally online.
+### Optional future surfaces
 
-If `demo.` disappears, the router should continue functioning and the main site should remain up. This is the architectural joke made real: **the wormhole may die; the Flow does not.**
+`lab.`, `map.`, `receipts.`, and `rfc.` may remain paths under the apex or become dedicated subdomains later. Their hosting choice must not expand the router's trust boundary.
 
-## Current Cloudflare 1033 is useful information
+## Deployment hygiene
 
-The present `1033` state suggests the apex is configured through a Cloudflare Tunnel with no healthy connector. That is a poor default for the canonical landing page because the homepage dies whenever the tunnel dies.
+The earlier bootstrap mechanisms have served their purpose and should not be treated as production paths:
 
-Better split the responsibilities:
+- tokenless temporary Worker preview/claim workflow — retired after permanent Worker deployment;
+- temporary `wrangler.preview.jsonc` — retired;
+- GitHub Pages fallback workflow — retired after the Cloudflare Worker became the canonical origin.
 
-```text
-STATIC, BORING, ALWAYS THERE       EPHEMERAL, FUN, ALLOWED TO VANISH
-blueshoes.space                    demo.blueshoes.space
-GitHub Pages / static origin       Cloudflare Tunnel → lab/router demo
-```
+Keep the production deployment path small: `docs/` + `wrangler.spaceport.jsonc` + the permanent Cloudflare deployment workflow/configuration.
 
-## DNS / Pages activation checklist
+## Verification contract
 
-1. Enable GitHub Pages for this repository using `main` + `/docs` or a Pages Actions workflow.
-2. Configure the Pages custom domain as `blueshoes.space` in repository settings / Pages API.
-3. Replace the current apex Tunnel route with Pages-compatible DNS records (temporarily DNS-only while certificates validate is the least surprising path).
-4. Keep any Cloudflare Tunnel on a dedicated ephemeral hostname such as `demo.blueshoes.space`.
-5. Add `www.blueshoes.space` as an optional redirect to the apex.
-6. Verify HTTPS after DNS propagation and Pages certificate issuance.
-7. Only then remove the **PRE-LAUNCH** label from the README/site.
+A production deployment is considered externally healthy when all of the following hold:
+
+1. `https://blueshoes.space/` returns HTTP `200`.
+2. TLS is valid.
+3. The response contains the Flow Surgery Spaceport content.
+4. referenced static assets load successfully.
+5. the apex is not routed through a Cloudflare Tunnel.
+6. `demo.blueshoes.space` remains isolated as the optional Tunnel surface.
+7. loss of `demo.` cannot take down the apex.
 
 ## Constitution
 
