@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="860" viewBox="0 0 1440 860" role="img" aria-labelledby="title desc">
+<title id="title">Blueshoes Flows and Flow Surgery toolkit</title>
+<desc id="desc">Bright scientific-art diagram of a time-varying directed multigraph. A feasible flow is rerouted around a failed cut while preserving its source and sink boundary. Operations are labeled CUT, BYPASS, SPLICE, BRAID, GRAFT, SEAL and ROLLBACK. F1 and X are explicitly fake sponsor parody text labels. blueshoes.space is shown as a planned spaceport.</desc>
+<defs>
+  <linearGradient id="paper" x2="1" y2="1"><stop stop-color="#fffdf1"/><stop offset=".45" stop-color="#f0fff9"/><stop offset="1" stop-color="#e9f4ff"/></linearGradient>
+  <linearGradient id="cyan" x2="1"><stop stop-color="#16d7ff"/><stop offset="1" stop-color="#006dff"/></linearGradient>
+  <linearGradient id="pink" x2="1"><stop stop-color="#ff4fb2"/><stop offset="1" stop-color="#ff6d4a"/></linearGradient>
+  <linearGradient id="lime" x2="1"><stop stop-color="#d7ff31"/><stop offset="1" stop-color="#63ff9d"/></linearGradient>
+  <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+  <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="#09214f" stroke-opacity=".055"/></pattern>
+  <marker id="arrowC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10Z" fill="#0876ff"/></marker>
+  <marker id="arrowP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10Z" fill="#ff4f9a"/></marker>
+</defs>
+<style>
+  text{font-family:Arial,Helvetica,sans-serif}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .flow{stroke-dasharray:14 18;animation:dash 8s linear infinite}.pulse{animation:pulse 3.2s ease-in-out infinite}.float{animation:float 6s ease-in-out infinite}.twist{animation:twist 9s ease-in-out infinite;transform-origin:963px 416px}
+  @keyframes dash{to{stroke-dashoffset:-320}}@keyframes pulse{50%{opacity:.28}}@keyframes float{50%{transform:translateY(-8px)}}@keyframes twist{50%{transform:rotate(.8deg)}}
+  @media(prefers-reduced-motion:reduce){.flow,.pulse,.float,.twist{animation:none}}
+</style>
+<rect width="1440" height="860" rx="34" fill="url(#paper)"/>
+<rect width="1440" height="860" rx="34" fill="url(#grid)"/>
+<circle cx="1100" cy="230" r="210" fill="#72efff" opacity=".18" filter="url(#soft)"/>
+<circle cx="356" cy="620" r="220" fill="#ff65bd" opacity=".12" filter="url(#soft)"/>
+<circle cx="836" cy="610" r="190" fill="#d7ff31" opacity=".14" filter="url(#soft)"/>
+
+<!-- top rail -->
+<text x="58" y="72" fill="#071735" font-size="34" font-weight="800" letter-spacing="-1.5">BLUESHOES / FLOW LAB</text>
+<text x="58" y="108" fill="#0876ff" font-size="18" font-weight="800" letter-spacing="2.2">FLOWS → FLOW SURGERY TOOLKIT</text>
+<g transform="translate(953 42)">
+  <rect width="154" height="44" rx="22" fill="#071735"/><text x="77" y="28" text-anchor="middle" fill="#fffdf1" font-size="13" font-weight="800" letter-spacing="1.2">FAKE SPONSOR // F1*</text>
+  <rect x="166" width="142" height="44" rx="22" fill="#ff4f9a"/><text x="237" y="28" text-anchor="middle" fill="#071735" font-size="13" font-weight="800" letter-spacing="1.2">FAKE SPONSOR // X*</text>
+  <rect x="320" width="165" height="44" rx="22" fill="#d7ff31"/><text x="402" y="28" text-anchor="middle" fill="#071735" font-size="13" font-weight="900" letter-spacing="1.1">blueshoes.space ↗</text>
+</g>
+<text x="1430" y="112" text-anchor="end" fill="#53617c" font-size="10">* parody text only · no affiliation or endorsement</text>
+<path d="M58 132H1382" stroke="#071735" stroke-opacity=".18"/>
+
+<!-- math panel -->
+<g transform="translate(58 172)">
+  <rect width="405" height="252" rx="28" fill="#071735"/>
+  <text x="28" y="42" fill="#d7ff31" font-size="14" font-weight="800" letter-spacing="2">WHAT A FLOW MEANS HERE</text>
+  <text x="28" y="82" fill="#ffffff" font-size="23" font-weight="800">Gₜ = (V, Eₜ)</text>
+  <text x="28" y="116" fill="#83ecff" class="mono" font-size="18">f : Eₜ → ℝ≥0</text>
+  <text x="28" y="150" fill="#ffffff" class="mono" font-size="18">Bf = b</text>
+  <text x="28" y="184" fill="#ffffff" class="mono" font-size="18">0 ≤ fₑ ≤ cₑ(t)</text>
+  <text x="28" y="220" fill="#aebbd0" font-size="14">Conservation at transit vertices.</text>
+  <text x="28" y="240" fill="#aebbd0" font-size="14">Capacity + policy constrain admissible support.</text>
+</g>
+
+<!-- graph theatre -->
+<g class="twist">
+  <text x="516" y="184" fill="#071735" font-size="14" font-weight="900" letter-spacing="2">SURGERY THEATRE / TIME t</text>
+  <!-- faint substrate -->
+  <g stroke="#0b265e" stroke-opacity=".16" stroke-width="4" fill="none">
+    <path d="M555 316L723 235L900 284L1074 216L1272 316"/>
+    <path d="M555 316L715 420L900 284L1078 423L1272 316"/>
+    <path d="M715 420L890 522L1078 423"/>
+    <path d="M723 235L884 165L1074 216"/>
+  </g>
+  <!-- active cyan flow -->
+  <path d="M555 316C624 270 661 239 723 235S828 266 900 284" fill="none" stroke="#0876ff" stroke-width="18" opacity=".17"/>
+  <path d="M555 316C624 270 661 239 723 235S828 266 900 284" fill="none" stroke="url(#cyan)" stroke-width="6" marker-end="url(#arrowC)"/>
+  <path class="flow" d="M555 316C624 270 661 239 723 235S828 266 900 284" fill="none" stroke="#efffff" stroke-width="2.6"/>
+  <!-- broken old route -->
+  <path d="M900 284C964 251 1001 222 1074 216S1204 272 1272 316" fill="none" stroke="#ff5f72" stroke-width="6" stroke-dasharray="10 10" opacity=".55"/>
+  <!-- bypass/braid -->
+  <path d="M900 284C952 325 986 392 1078 423S1202 360 1272 316" fill="none" stroke="#ff4f9a" stroke-width="14" opacity=".14"/>
+  <path d="M900 284C952 325 986 392 1078 423S1202 360 1272 316" fill="none" stroke="url(#pink)" stroke-width="5.5" marker-end="url(#arrowP)"/>
+  <path class="flow" d="M900 284C952 325 986 392 1078 423S1202 360 1272 316" fill="none" stroke="#fff" stroke-width="2"/>
+  <path d="M715 420C773 465 816 509 890 522S1017 485 1078 423" fill="none" stroke="url(#lime)" stroke-width="5" opacity=".88"/>
+  <!-- nodes -->
+  <g fill="#fffdf1" stroke="#071735" stroke-width="4">
+    <circle cx="555" cy="316" r="20"/><circle cx="723" cy="235" r="15"/><circle cx="715" cy="420" r="15"/><circle cx="900" cy="284" r="20"/><circle cx="890" cy="522" r="15"/><circle cx="1074" cy="216" r="15"/><circle cx="1078" cy="423" r="20"/><circle cx="1272" cy="316" r="20"/>
+  </g>
+  <circle cx="1074" cy="216" r="31" fill="none" stroke="#ff5f72" stroke-width="6" class="pulse"/>
+  <path d="M1049 191L1099 241M1099 191L1049 241" stroke="#ff355f" stroke-width="8" stroke-linecap="round"/>
+  <text x="545" y="322" text-anchor="end" fill="#071735" font-size="13" font-weight="800">SOURCE</text>
+  <text x="1298" y="322" fill="#071735" font-size="13" font-weight="800">SINK</text>
+  <text x="1042" y="168" fill="#d6244f" font-size="12" font-weight="900" letter-spacing="1.4">CUT SET / FAILED EDGE</text>
+</g>
+
+<!-- boundary preservation -->
+<g transform="translate(500 574)">
+  <rect width="882" height="126" rx="28" fill="#ffffff" fill-opacity=".82" stroke="#071735" stroke-opacity=".12"/>
+  <text x="26" y="34" fill="#071735" font-size="13" font-weight="900" letter-spacing="2">THE GEOMETRY, WITHOUT THE THEATRE</text>
+  <text x="26" y="68" fill="#071735" class="mono" font-size="19">f' = f + Δf     and     BΔf = 0</text>
+  <text x="26" y="98" fill="#53617c" font-size="15">A boundary-preserving reroute changes internal support while preserving source/sink demand.</text>
+  <text x="605" y="68" fill="#0876ff" font-size="16" font-weight="900">cycle-space intuition ≠ “the Internet is a manifold”</text>
+  <text x="605" y="96" fill="#53617c" font-size="13">Graph topology here means connectivity structure. No decorative differential geometry required.</text>
+</g>
+
+<!-- toolkit -->
+<g transform="translate(58 470)">
+  <text x="0" y="0" fill="#071735" font-size="15" font-weight="900" letter-spacing="2">FLOW SURGERY TOOLKIT</text>
+  <g transform="translate(0 26)">
+    <g><rect width="124" height="62" rx="18" fill="#ff4f9a"/><text x="62" y="28" text-anchor="middle" fill="#071735" font-size="17" font-weight="900">CUT</text><text x="62" y="47" text-anchor="middle" fill="#071735" font-size="10">remove inadmissible edge</text></g>
+    <g transform="translate(136)"><rect width="124" height="62" rx="18" fill="#16d7ff"/><text x="62" y="28" text-anchor="middle" fill="#071735" font-size="17" font-weight="900">BYPASS</text><text x="62" y="47" text-anchor="middle" fill="#071735" font-size="10">find residual support</text></g>
+    <g transform="translate(272)"><rect width="124" height="62" rx="18" fill="#d7ff31"/><text x="62" y="28" text-anchor="middle" fill="#071735" font-size="17" font-weight="900">SPLICE</text><text x="62" y="47" text-anchor="middle" fill="#071735" font-size="10">join admissible segments</text></g>
+  </g>
+  <g transform="translate(0 100)">
+    <g><rect width="124" height="62" rx="18" fill="#835dff"/><text x="62" y="28" text-anchor="middle" fill="#fff" font-size="17" font-weight="900">BRAID</text><text x="62" y="47" text-anchor="middle" fill="#fff" font-size="10">split / multipath demand</text></g>
+    <g transform="translate(136)"><rect width="124" height="62" rx="18" fill="#ffb62d"/><text x="62" y="28" text-anchor="middle" fill="#071735" font-size="17" font-weight="900">GRAFT</text><text x="62" y="47" text-anchor="middle" fill="#071735" font-size="10">add real capability edge</text></g>
+    <g transform="translate(272)"><rect width="124" height="62" rx="18" fill="#071735"/><text x="62" y="28" text-anchor="middle" fill="#fff" font-size="17" font-weight="900">SEAL</text><text x="62" y="47" text-anchor="middle" fill="#fff" font-size="10">close + validate + receipt</text></g>
+  </g>
+  <rect y="200" width="396" height="70" rx="22" fill="#fff" stroke="#071735" stroke-width="2"/>
+  <text x="198" y="230" text-anchor="middle" fill="#ff355f" font-size="20" font-weight="900">↶ ROLLBACK</text>
+  <text x="198" y="252" text-anchor="middle" fill="#53617c" font-size="11">if conservation, policy, reachability or receipt fails</text>
+</g>
+
+<!-- flow label badges -->
+<g transform="translate(508 737)">
+  <rect width="874" height="76" rx="26" fill="#071735"/>
+  <text x="24" y="31" fill="#d7ff31" font-size="13" font-weight="900" letter-spacing="2">FLOW ≠ PATH</text>
+  <text x="24" y="55" fill="#fff" font-size="14">A path is one support choice. A Flow is the conserved traffic relation constrained by capacity, policy, cryptographic requirements and endpoint intent.</text>
+</g>
+<text x="1382" y="842" text-anchor="end" fill="#071735" font-size="11" font-weight="800" letter-spacing="1.5">BLUESHOES.SPACE / SPACEPORT PRE-LAUNCH</text>
+</svg>
