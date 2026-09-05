@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="430" viewBox="0 0 1280 430" role="img" aria-labelledby="title desc">
+<title id="title">Blueshoes: post-OpenWrt, post-VPN, post-DPI, post-quantum</title>
+<desc id="desc">Four animated transitions show the Blueshoes target architecture: OpenWrt-era configuration becomes an OpenBSD-first RAM-only routing brick; VPN dependency becomes a capability-driven route fabric; static DPI assumptions become adaptive standards-based transport selection; classical-only public-key exchange becomes post-quantum/traditional hybrid protection. This is architecture artwork, not a runtime benchmark.</desc>
+<defs>
+  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0d121e"/><stop offset="1" stop-color="#060910"/></linearGradient>
+  <linearGradient id="blue" x2="1"><stop stop-color="#5594ff"/><stop offset=".55" stop-color="#8defff"/><stop offset="1" stop-color="#b9f6da"/></linearGradient>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<style>
+ .dash{stroke-dasharray:16 190;animation:move 6s linear infinite}.blink{animation:blink 4s ease-in-out infinite}@keyframes move{to{stroke-dashoffset:-420}}@keyframes blink{50%{opacity:.32}}@media(prefers-reduced-motion:reduce){.dash,.blink{animation:none}}
+</style>
+<rect width="1280" height="430" rx="22" fill="url(#bg)"/>
+<g font-family="Arial,Helvetica,sans-serif">
+<text x="42" y="54" fill="#f1efe6" font-size="27" font-weight="700">One brick. Four funerals.</text>
+<text x="1238" y="52" text-anchor="end" fill="#91a4bf" font-size="11" letter-spacing="1.6">TARGET ARCHITECTURE · NOT A DEPLOYMENT CLAIM</text>
+<g transform="translate(42 91)">
+  <g transform="translate(0 0)"><rect width="280" height="270" rx="16" fill="#111a28" stroke="#27364b"/><text x="22" y="42" fill="#8fa0b8" font-size="12" letter-spacing="1.4">POST-OPENWRT</text><text x="22" y="84" fill="#f1efe6" font-size="25" font-weight="700">Config appliance</text><text x="22" y="116" fill="#62748d" font-size="17">↓</text><text x="22" y="151" fill="#8defff" font-size="24" font-weight="700">OpenBSD-first</text><text x="22" y="181" fill="#8defff" font-size="24" font-weight="700">RAM-only brick</text><text x="22" y="226" fill="#9aaac0" font-size="14">boot → observe → decide → forget</text></g>
+  <g transform="translate(304 0)"><rect width="280" height="270" rx="16" fill="#111a28" stroke="#27364b"/><text x="22" y="42" fill="#8fa0b8" font-size="12" letter-spacing="1.4">POST-VPN</text><text x="22" y="84" fill="#f1efe6" font-size="25" font-weight="700">One rented tunnel</text><text x="22" y="116" fill="#62748d" font-size="17">↓</text><text x="22" y="151" fill="#8defff" font-size="24" font-weight="700">Capability-driven</text><text x="22" y="181" fill="#8defff" font-size="24" font-weight="700">route fabric</text><text x="22" y="226" fill="#9aaac0" font-size="14">tunnels become optional primitives</text></g>
+  <g transform="translate(608 0)"><rect width="280" height="270" rx="16" fill="#111a28" stroke="#27364b"/><text x="22" y="42" fill="#8fa0b8" font-size="12" letter-spacing="1.4">POST-DPI</text><text x="22" y="84" fill="#f1efe6" font-size="25" font-weight="700">Static signature war</text><text x="22" y="116" fill="#62748d" font-size="17">↓</text><text x="22" y="151" fill="#8defff" font-size="24" font-weight="700">Adaptive standards</text><text x="22" y="181" fill="#8defff" font-size="24" font-weight="700">+ route diversity</text><text x="22" y="226" fill="#9aaac0" font-size="14">assume filtering is an active adversary</text></g>
+  <g transform="translate(912 0)"><rect width="280" height="270" rx="16" fill="#111a28" stroke="#27364b"/><text x="22" y="42" fill="#8fa0b8" font-size="12" letter-spacing="1.4">POST-QUANTUM</text><text x="22" y="84" fill="#f1efe6" font-size="25" font-weight="700">Classical-only PKI</text><text x="22" y="116" fill="#62748d" font-size="17">↓</text><text x="22" y="151" fill="#8defff" font-size="24" font-weight="700">PQ / traditional</text><text x="22" y="181" fill="#8defff" font-size="24" font-weight="700">hybrid protection</text><text x="22" y="226" fill="#9aaac0" font-size="14">ML-KEM target · crypto-agile boundary</text></g>
+</g>
+<path d="M52 393H1228" stroke="#26344a" stroke-width="4"/><path class="dash" d="M52 393H1228" stroke="url(#blue)" stroke-width="4"/>
+<g class="blink" fill="#b8f5df"><circle cx="52" cy="393" r="5"/><circle cx="1228" cy="393" r="5"/></g>
+</g></svg>
