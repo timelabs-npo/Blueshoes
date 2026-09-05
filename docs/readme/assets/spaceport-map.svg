@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+<title id="t">blueshoes.space — lighthouse, not root</title>
+<desc id="d">Bright topology poster showing blueshoes.space as a public presentation lighthouse with repo, lab, map, receipts, RFC and an ephemeral demo wormhole, separated from the local Rheknel authority inside the router.</desc>
+<defs>
+  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#fffdf1"/><stop offset=".45" stop-color="#dff9ff"/><stop offset="1" stop-color="#ffd9ed"/></linearGradient>
+  <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#0876ff"/><stop offset=".35" stop-color="#16d7ff"/><stop offset=".7" stop-color="#d7ff31"/><stop offset="1" stop-color="#ff4fb2"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<style>
+  .pulse{animation:p 3.4s ease-in-out infinite}.dash{stroke-dasharray:14 13;animation:d 8s linear infinite}.float{animation:f 6s ease-in-out infinite}
+  @keyframes p{50%{opacity:.25}}@keyframes d{to{stroke-dashoffset:-108}}@keyframes f{50%{transform:translateY(-7px)}}
+  @media(prefers-reduced-motion:reduce){.pulse,.dash,.float{animation:none}}
+</style>
+<rect width="1280" height="720" rx="32" fill="url(#bg)"/>
+<circle cx="1060" cy="125" r="170" fill="#16d7ff" opacity=".12"/>
+<circle cx="180" cy="610" r="180" fill="#ff4fb2" opacity=".11"/>
+<g font-family="Arial,Helvetica,sans-serif" fill="#071735">
+  <text x="48" y="62" font-size="31" font-weight="900">blueshoes.space_</text>
+  <text x="1232" y="60" text-anchor="end" font-size="14" font-weight="800" letter-spacing="2">LIGHTHOUSE, NOT ROOT</text>
+  <text x="48" y="137" font-size="62" font-weight="900" letter-spacing="-3">THE PUBLIC SURFACE</text>
+  <text x="48" y="182" font-size="22">art · experiments · topology · receipts · zero runtime sovereignty</text>
+</g>
+<g transform="translate(640 328)" class="float">
+  <circle r="92" fill="#fff" stroke="#071735" stroke-width="4"/>
+  <circle r="75" fill="#16d7ff" opacity=".17"/>
+  <circle r="56" fill="#0876ff" opacity=".14"/>
+  <g font-family="Arial,Helvetica,sans-serif" text-anchor="middle" fill="#071735">
+    <text y="-8" font-size="25" font-weight="950">SPACEPORT</text>
+    <text y="22" font-size="14" font-weight="800">blueshoes.space</text>
+    <text y="45" font-size="11">public lighthouse</text>
+  </g>
+</g>
+<g fill="none" stroke="url(#flow)" stroke-width="5" stroke-linecap="round">
+  <path d="M550 316C432 272 345 259 240 270"/>
+  <path d="M558 350C455 388 369 413 256 414"/>
+  <path d="M624 418C589 497 545 543 462 581"/>
+  <path d="M704 409C756 485 821 520 924 559"/>
+  <path d="M726 344C826 369 923 377 1044 365"/>
+  <path class="dash" d="M711 285C808 228 911 217 1041 245" stroke="#ff4fb2"/>
+</g>
+<g font-family="Arial,Helvetica,sans-serif" fill="#071735" font-weight="900">
+  <g transform="translate(126 228)"><rect width="225" height="82" rx="22" fill="#fff" stroke="#071735" stroke-width="3"/><text x="22" y="34" font-size="22">/repo</text><text x="22" y="58" font-size="12" font-weight="700">GitHub source of record</text></g>
+  <g transform="translate(138 373)"><rect width="225" height="82" rx="22" fill="#fff" stroke="#071735" stroke-width="3"/><text x="22" y="34" font-size="22">/lab</text><text x="22" y="58" font-size="12" font-weight="700">Flow Surgery playground</text></g>
+  <g transform="translate(339 560)"><rect width="225" height="82" rx="22" fill="#fff" stroke="#071735" stroke-width="3"/><text x="22" y="34" font-size="22">/map</text><text x="22" y="58" font-size="12" font-weight="700">topology theatre</text></g>
+  <g transform="translate(874 540)"><rect width="235" height="82" rx="22" fill="#fff" stroke="#071735" stroke-width="3"/><text x="22" y="34" font-size="22">/receipts</text><text x="22" y="58" font-size="12" font-weight="700">proofs beat promises</text></g>
+  <g transform="translate(1004 324)"><rect width="210" height="82" rx="22" fill="#fff" stroke="#071735" stroke-width="3"/><text x="22" y="34" font-size="22">/rfc</text><text x="22" y="58" font-size="12" font-weight="700">versioned architecture</text></g>
+  <g transform="translate(1004 204)"><rect width="210" height="82" rx="22" fill="#fff0f7" stroke="#ff277f" stroke-width="3"/><text x="22" y="34" font-size="22">demo.</text><text x="22" y="58" font-size="12" font-weight="700">ephemeral wormhole</text></g>
+</g>
+<g transform="translate(640 612)">
+  <path d="M0-92V-38" stroke="#071735" stroke-width="3" stroke-dasharray="4 7"/>
+  <rect x="-205" y="-18" width="410" height="66" rx="20" fill="#071735"/>
+  <text x="0" y="9" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="900">TRUST BOUNDARY — THE DOMAIN STOPS HERE</text>
+  <text x="0" y="31" text-anchor="middle" fill="#aeefff" font-family="Arial,Helvetica,sans-serif" font-size="12">local truth remains inside the router</text>
+</g>
+<g transform="translate(640 687)">
+  <rect x="-135" y="-32" width="270" height="50" rx="17" fill="#0876ff"/>
+  <text x="0" y="0" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="950">RHEKNEL / LOCAL AUTHORITY</text>
+</g>
+<g font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900">
+  <rect x="48" y="665" width="136" height="28" rx="14" fill="#ff4fb2"/><text x="116" y="684" text-anchor="middle" fill="#071735">FAKE SPONSOR // F1*</text>
+  <rect x="194" y="665" width="132" height="28" rx="14" fill="#d7ff31"/><text x="260" y="684" text-anchor="middle" fill="#071735">FAKE SPONSOR // X*</text>
+  <text x="1232" y="685" text-anchor="end" fill="#071735">THE WORMHOLE MAY DIE. THE FLOW DOES NOT.</text>
+</g>
+</svg>
