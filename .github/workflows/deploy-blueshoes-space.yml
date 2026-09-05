@@ -1,0 +1,50 @@
+name: Deploy blueshoes.space
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'wrangler.spaceport.jsonc'
+      - '.github/workflows/deploy-blueshoes-space.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blueshoes-space-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Cloudflare Worker static spaceport
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy static assets to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4'
+          command: deploy --config wrangler.spaceport.jsonc
+
+      - name: Verify public apex
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in {1..12}; do
+            code="$(curl -L -sS -o /tmp/spaceport.html -w '%{http_code}' --max-time 15 https://blueshoes.space/ || true)"
+            if [[ "$code" == "200" ]] && grep -qi 'FLOW SURGERY' /tmp/spaceport.html; then
+              echo "blueshoes.space is live and serving the Flow Surgery spaceport"
+              exit 0
+            fi
+            echo "attempt $i: HTTP $code; waiting for Cloudflare edge propagation"
+            sleep 10
+          done
+          echo 'Apex did not verify as the new spaceport.' >&2
+          if [[ -f /tmp/spaceport.html ]]; then head -c 500 /tmp/spaceport.html || true; fi
+          exit 1
