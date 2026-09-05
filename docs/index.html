@@ -4,15 +4,16 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>blueshoes.space — Flow Surgery Spaceport</title>
-<meta name="description" content="Blueshoes Flow Surgery Spaceport: post-OpenWrt, post-VPN, post-DPI, post-quantum routing research." />
+<meta name="description" content="Blueshoes.space: public lighthouse for Flow Surgery, topology experiments and receipts. Post-OpenWrt, post-VPN, post-DPI, post-quantum routing research." />
 <style>
-:root{--ink:#071735;--paper:#fffdf1;--cyan:#16d7ff;--pink:#ff4fb2;--lime:#d7ff31;--orange:#ffb62d;--violet:#835dff}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 75% 20%,#baf7ff 0 12%,transparent 34%),radial-gradient(circle at 15% 80%,#ffd0e9 0 10%,transparent 34%),linear-gradient(135deg,var(--paper),#eaf6ff);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+:root{--ink:#071735;--paper:#fffdf1;--cyan:#16d7ff;--blue:#0876ff;--pink:#ff4fb2;--lime:#d7ff31;--orange:#ffb62d;--violet:#835dff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 78% 12%,#baf7ff 0 12%,transparent 34%),radial-gradient(circle at 12% 82%,#ffd0e9 0 10%,transparent 34%),linear-gradient(135deg,var(--paper),#eaf6ff);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
 main{width:min(1180px,calc(100% - 32px));margin:auto;padding:32px 0 72px}.rail{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:18px}.brand{font-weight:950;font-size:clamp(28px,5vw,56px);letter-spacing:-.06em}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:9px 13px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.08em;background:var(--ink);color:#fff}.chip.f1{background:var(--pink);color:var(--ink)}.chip.x{background:var(--lime);color:var(--ink)}
-.hero{padding:70px 0 32px;display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:center}.hero h1{font-size:clamp(54px,10vw,138px);line-height:.8;letter-spacing:-.08em;margin:0}.hero h1 em{font-family:Georgia,serif;font-weight:400;color:#0876ff}.hero p{font-size:clamp(18px,2.1vw,27px);line-height:1.25;max-width:720px}.hero img{width:100%;filter:drop-shadow(0 24px 40px rgba(7,23,53,.12));border-radius:24px}
+.hero{padding:64px 0 28px;display:grid;grid-template-columns:1.03fr .97fr;gap:34px;align-items:center}.hero h1{font-size:clamp(54px,10vw,132px);line-height:.8;letter-spacing:-.08em;margin:0}.hero h1 em{font-family:Georgia,serif;font-weight:400;color:var(--blue)}.hero p{font-size:clamp(18px,2.1vw,27px);line-height:1.25;max-width:720px}.hero img,.map img{width:100%;filter:drop-shadow(0 24px 40px rgba(7,23,53,.12));border-radius:24px}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.btn{display:inline-block;padding:14px 18px;border:2px solid var(--ink);border-radius:16px;text-decoration:none;color:var(--ink);font-weight:900;background:#fff}.btn.primary{background:var(--ink);color:#fff}.btn:hover{transform:translateY(-2px)}
-.band{margin-top:36px;padding:18px 22px;border:2px solid var(--ink);border-radius:24px;background:#fff;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;font-weight:800}.flow{color:#0876ff}.surgery{color:#ff277f}.fine{margin-top:28px;font-size:12px;opacity:.68}.status{display:inline-block;background:var(--orange);padding:5px 9px;border-radius:8px;font-weight:950}
-@media(max-width:820px){.hero{grid-template-columns:1fr}.hero img{order:-1}.rail{align-items:flex-start}}
+.band{margin-top:34px;padding:18px 22px;border:2px solid var(--ink);border-radius:24px;background:#fff;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;font-weight:800}.flow{color:var(--blue)}.surgery{color:#ff277f}.status{display:inline-block;background:var(--orange);padding:5px 9px;border-radius:8px;font-weight:950}
+.map{margin-top:52px}.map h2,.surfaces h2{font-size:clamp(34px,6vw,76px);letter-spacing:-.055em;line-height:.9;margin:0 0 18px}.map p,.surfaces p{font-size:18px;line-height:1.5;max-width:850px}.surfaces{margin-top:52px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#fff;border:2px solid var(--ink);border-radius:22px;padding:20px;min-height:145px}.card b{font-size:23px}.card small{display:block;margin-top:10px;line-height:1.45}.worm{background:#fff0f7;border-color:#ff277f}.rule{margin-top:36px;padding:24px;border-radius:24px;background:var(--ink);color:#fff;font-size:clamp(20px,3vw,34px);font-weight:950}.fine{margin-top:28px;font-size:12px;opacity:.72}
+@media(max-width:820px){.hero{grid-template-columns:1fr}.hero img{order:-1}.rail{align-items:flex-start}.grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:no-preference){.hero img{animation:float 6s ease-in-out infinite}@keyframes float{50%{transform:translateY(-10px) rotate(.2deg)}}}
 </style>
 </head>
@@ -20,8 +21,9 @@ main{width:min(1180px,calc(100% - 32px));margin:auto;padding:32px 0 72px}.rail{d
 <main>
   <div class="rail">
     <div class="brand">blueshoes.space_</div>
-    <div class="chips"><span class="chip f1">FAKE SPONSOR // F1*</span><span class="chip x">FAKE SPONSOR // X*</span><span class="chip">POST-OPENWRT</span><span class="chip">POST-DPI</span></div>
+    <div class="chips"><span class="chip f1">FAKE SPONSOR // F1*</span><span class="chip x">FAKE SPONSOR // X*</span><span class="chip">POST-OPENWRT</span><span class="chip">POST-DPI</span><span class="chip">POST-QUANTUM</span></div>
   </div>
+
   <section class="hero">
     <div>
       <h1>FLOW<br/><em>SURGERY</em></h1>
@@ -29,12 +31,34 @@ main{width:min(1180px,calc(100% - 32px));margin:auto;padding:32px 0 72px}.rail{d
       <div class="actions">
         <a class="btn primary" href="https://github.com/timelabs-npo/Blueshoes">ENTER THE REPO ↗</a>
         <a class="btn" href="readme/playground.html">BREAK THE LITTLE INTERNET</a>
+        <a class="btn" href="DOMAIN_PLAYBOOK.md">DOMAIN PLAYBOOK</a>
       </div>
     </div>
     <img src="readme/assets/flow-surgery.svg" alt="Bright Blueshoes Flow Surgery topology plate" />
   </section>
+
   <div class="band"><span><span class="flow">FLOW</span> = conserved relation, not one sacred path.</span><span><span class="surgery">SURGERY</span> = CUT · BYPASS · SPLICE · BRAID · GRAFT · SEAL · ROLLBACK.</span><span class="status">SPACEPORT / PRE-LAUNCH</span></div>
-  <p class="fine">* “F1” and “X” are parody text labels only. No affiliation, sponsorship, endorsement or copied logos. GitHub Pages + DNS must be activated separately before this custom domain is actually serving this page.</p>
+
+  <section class="map">
+    <h2>LIGHTHOUSE,<br/>NOT ROOT.</h2>
+    <p><strong>blueshoes.space</strong> is the public surface for art, experiments, topology and receipts. It is intentionally outside the router's trust boundary. The domain may disappear; local truth must not.</p>
+    <img src="readme/assets/spaceport-map.svg" alt="Map of blueshoes.space public surfaces and the local Rheknel trust boundary" />
+  </section>
+
+  <section class="surfaces">
+    <h2>ONE DOMAIN.<br/>SEVERAL PORTALS.</h2>
+    <div class="grid">
+      <div class="card"><b>lab.</b><small>Flow Surgery playground. Synthetic graph surgery; no live router authority.</small></div>
+      <div class="card"><b>map.</b><small>Topology theatre: synthetic, replayed or explicitly opted-in privacy-preserving observations.</small></div>
+      <div class="card"><b>receipts.</b><small>Proofs over prose: builds, hardware runs, PQ/T negotiation evidence and fault-injection artifacts.</small></div>
+      <div class="card"><b>rfc.</b><small>Architecture drafts and exact-commit references.</small></div>
+      <div class="card"><b>repo.</b><small>Permanent jump back to the GitHub source of record.</small></div>
+      <div class="card worm"><b>demo.</b><small>Ephemeral wormhole via a physical lab/router tunnel. Allowed to vanish. Never the canonical homepage.</small></div>
+    </div>
+    <div class="rule">THE WORMHOLE MAY DIE. THE FLOW DOES NOT.</div>
+  </section>
+
+  <p class="fine">* “F1” and “X” are parody text labels only. No affiliation, sponsorship, endorsement or copied logos. External observation on 2026-09-05: the apex returned Cloudflare error 1033, consistent with a configured Tunnel that has no healthy connector. GitHub Pages/custom-domain and DNS activation remain external configuration steps.</p>
 </main>
 </body>
 </html>
