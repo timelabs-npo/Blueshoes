@@ -1,12 +1,13 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "blueshoes-spaceport",
+  "account_id": "47ab4756beb54733fa5134286ac543ba",
   "compatibility_date": "2026-09-05",
   "workers_dev": true,
   "routes": [
     {
-      "pattern": "blueshoes.space/*",
-      "zone_name": "blueshoes.space"
+      "pattern": "blueshoes.space",
+      "custom_domain": true
     }
   ],
   "assets": {
