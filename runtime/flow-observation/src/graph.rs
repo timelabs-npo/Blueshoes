@@ -13,6 +13,8 @@ pub enum Node {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct FlowEdge {
+    pub relation: EdgeRelation,
+    pub traffic_direction: TrafficDirection,
     pub id: String,
     pub source_node: String,
     pub destination_node: String,
@@ -30,6 +32,17 @@ pub struct FlowGraph {
     pub projected_at: String,
     pub nodes: Vec<Node>,
     pub flows: Vec<FlowEdge>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+pub enum EdgeRelation {
+    #[serde(rename = "endpoint_association")]
+    EndpointAssociation,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+pub enum TrafficDirection {
+    #[serde(rename = "unknown")]
+    Unknown,
 }
 
 fn key(value: impl Serialize) -> FlowResult<String> {
@@ -110,6 +123,8 @@ pub fn project(evidence: &[Evidence], evaluation: &Evaluation) -> FlowResult<Flo
             None => None,
         };
         flows.push(FlowEdge {
+            relation: EdgeRelation::EndpointAssociation,
+            traffic_direction: TrafficDirection::Unknown,
             id,
             source_node,
             destination_node,

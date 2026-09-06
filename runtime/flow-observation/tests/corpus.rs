@@ -21,12 +21,12 @@ fn native(name: &str) -> adapters::ObservationBatch {
 }
 
 #[test]
-fn pinned_corpus_and_all_45_independent_expectations() {
+fn pinned_corpus_and_all_49_independent_expectations() {
     let lock: Value = serde_json::from_str(
         &std::fs::read_to_string(root().parent().unwrap().join("omnia-lock.json")).unwrap(),
     )
     .unwrap();
-    assert_eq!(lock["commit"], "722caa0fdff9bb6881b9b6810df49942df5c47a8");
+    assert_eq!(lock["commit"], "30002c67533258691203391b4f0c30a3125d8e23");
     let files = lock["files"].as_object().unwrap();
     assert_eq!(std::fs::read_dir(root()).unwrap().count(), files.len());
     for (name, hash) in files {
@@ -46,7 +46,7 @@ fn pinned_corpus_and_all_45_independent_expectations() {
     )
     .unwrap();
     let cases = manifest["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 45);
+    assert_eq!(cases.len(), 49);
     let schema = std::fs::read(root().join("flow-observation.schema.json")).unwrap();
     assert_eq!(
         format!("{:x}", Sha256::digest(schema)),

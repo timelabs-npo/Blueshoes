@@ -26,7 +26,7 @@ consumes one V1 observation. Both report native execution as NOT_EXECUTED.
 ## Flow Graph projection
 
 `graph::project(evidence, evaluation)` is pure and stateless. It emits endpoint and
-process nodes plus directed flow edges that retain complete supporting observations,
+process nodes plus endpoint-association edges that retain complete supporting observations,
 origin, declared freshness, prior freshness and freshness at projection time.
 Every graph and observation has typed `observation_only` authority.
 Display location never participates in IDs, endpoint evidence or route inference.
@@ -39,6 +39,27 @@ IDs reject. BTree ordering gives deterministic output independent of input order
 
 Reprojection evaluates freshness again and never upgrades stale/unknown evidence.
 This projection is suitable for a connections/topology UI, with no execution API.
+
+## Reproducible boundary checks
+
+After `cargo build --manifest-path runtime/flow-observation/Cargo.toml --release --locked`:
+
+```text
+python runtime/flow-observation/tools/verify_boundary.py
+python -m pip install jsonschema==4.26.0 rfc3339-validator==0.1.4
+python runtime/flow-observation/tools/verify_snapshot.py
+```
+
+The boundary suite checks the Cargo production dependency closure, the reviewed
+production-source fingerprint set, tracked corpus completeness, every corpus case
+through the actual CLI and the compiled PE import directory on Windows. The source
+lock is a review tripwire: changes require a new source review and an updated lock.
+These checks establish bounded evidence for the reviewed crate/build. They do not
+prove arbitrary future edits or a compromised toolchain safe. Rust/CRT retain file,
+console and loader primitives; their absence is not claimed. Only the reviewed
+application call sites use them. The native schema check prints aggregate results.
+PE checks are NOT_EXECUTED on non-Windows CI; portable fixture tests never qualify
+Darwin/Linux/OpenBSD native collectors.
 
 ## Platform interfaces
 
@@ -71,6 +92,10 @@ samples. Process references include platform, collection scope, PID and exact bi
 This is bracketed observation evidence, not atomic socket lifetime proof.
 
 Listener remote addresses/ports have no peer meaning and normalize to unknown.
+Windows source/destination mean local/remote endpoint orientation. The owner-PID
+tables do not establish which peer initiated a connection or packet direction.
+Graph edges explicitly use endpoint_association and traffic_direction unknown;
+inbound connections must not be rendered as proven outgoing traffic.
 Scoped IPv6 addresses retain their scope suffix. Wildcard addresses remain partial.
 UDP, counters/rates, policy, route and atomic socket identity are NOT_EXECUTED.
 Unavailable bytes/rates are null; measured fixture zero values stay zero.
@@ -87,12 +112,15 @@ null. Its SHA-256 is `857de52ca0b7bb6ba6edbabccf753cbca59b5b1e884b819a2d57bbc4a7
 Old integer-only consumers reject new null-bearing documents; revised readers
 accept old valid documents. Unsigned integers above u64 are outside this crate's
 application profile, though JSON Schema permits arbitrary-sized nonnegative integers.
+The profile requires integer JSON tokens for counters, ports, PIDs and birth values;
+schema-valid floating-point tokens such as `0.0` and `0e0` are rejected by Rust u64/u32/u16.
 All required properties, enum values, nested unknown properties and duplicate keys
 are checked by direct strict deserialization. Ingestion is capped at 8 MiB.
 
 Freshness uses an explicit evaluation clock and age bound (30 seconds for native
 collection). Old/future observations downgrade; stale/unknown never upgrade to
-fresh. Native timestamps cover collection before/after identity checks. Wire imports
+fresh. The native interval covers the authoritative socket sample and subsequent
+identity checks; discovery and pre-sample birth queries precede this interval. Wire imports
 retain their supplied provenance as an `imported_assertion`; a forged native source
 string cannot obtain `native_local_query` trust. Fixtures always have fixture origin.
 

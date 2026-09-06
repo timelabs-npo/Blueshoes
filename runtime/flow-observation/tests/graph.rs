@@ -31,6 +31,14 @@ fn complete_evidence_and_typed_authority_survive_projection() {
     let input = fixture("equivalent-win32.json");
     let graph = project(&input, &initial()).unwrap();
     assert_eq!(graph.authority, Authority::ObservationOnly);
+    assert_eq!(
+        graph.flows[0].relation,
+        bs_flow_observation::graph::EdgeRelation::EndpointAssociation
+    );
+    assert_eq!(
+        graph.flows[0].traffic_direction,
+        bs_flow_observation::graph::TrafficDirection::Unknown
+    );
     assert_eq!(graph.flows[0].observation, *input[0].observation());
     assert_eq!(graph.flows[0].origin, Origin::Fixture);
     assert_eq!(graph.nodes.len(), 3);
