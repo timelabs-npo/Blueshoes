@@ -11,12 +11,34 @@ From the repository root:
 cargo test --manifest-path runtime/flow-observation/Cargo.toml --locked
 cargo run --manifest-path runtime/flow-observation/Cargo.toml --locked -- smoke
 cargo run --manifest-path runtime/flow-observation/Cargo.toml --locked -- snapshot
+cargo run --manifest-path runtime/flow-observation/Cargo.toml --locked -- fixture runtime/flow-observation/fixtures/omnia/equivalent-win32.json 2026-09-06T00:00:10Z
 ```
 
 `smoke` prints aggregate query evidence without addresses, PIDs, paths or topology.
 `snapshot` explicitly prints local observations and their provenance to stdout;
 its output contains private topology and is not published as CI evidence. Neither
 command installs helpers, probes endpoints, starts a server or writes network state.
+
+`fixture FILE RFC3339_NOW` and `observation FILE RFC3339_NOW` project bounded input
+without native collection. The former consumes a native DTO fixture; the latter
+consumes one V1 observation. Both report native execution as NOT_EXECUTED.
+
+## Flow Graph projection
+
+`graph::project(evidence, evaluation)` is pure and stateless. It emits endpoint and
+process nodes plus directed flow edges that retain complete supporting observations,
+origin, declared freshness, prior freshness and freshness at projection time.
+Every graph and observation has typed `observation_only` authority.
+Display location never participates in IDs, endpoint evidence or route inference.
+Unknown processes have no association node. Imported process references are opaque
+assertions scoped to their observation, so a supplied `pid:42` cannot merge owners.
+Native/fixture references share a process node only within their birth/collector scope.
+Endpoint nodes are scoped to supporting observations; later UI grouping must preserve
+that evidence boundary. Duplicate identical observations are idempotent; conflicting
+IDs reject. BTree ordering gives deterministic output independent of input order.
+
+Reprojection evaluates freshness again and never upgrades stale/unknown evidence.
+This projection is suitable for a connections/topology UI, with no execution API.
 
 ## Platform interfaces
 
