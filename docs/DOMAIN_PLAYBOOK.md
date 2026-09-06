@@ -4,7 +4,7 @@
 
 > The domain may explain the network. It must not become the network's sovereign.
 
-## Production state — 2026-09-05
+## Production state — 2026-09-06
 
 The durable apex is now served by the Cloudflare Worker **`blueshoes-spaceport`** using static assets from `docs/`.
 
@@ -43,7 +43,7 @@ This preserves the architectural rule:
                               │
                               ▼
                       BLUESHOES ROUTER
-                    local truth = Rheknel
+                    local admission research
 
               demo.blueshoes.space
                         │
@@ -60,10 +60,10 @@ High-art manifesto + project map. Static by default. It should still work with J
 The **Flow Surgery toolkit** playground: synthetic graph, CUT / BYPASS / SPLICE / BRAID / GRAFT / SEAL / ROLLBACK. Clearly labeled simulation; never imply live router mutation.
 
 ### `/map`
-A visual topology theatre. Initially synthetic or replayed data. Later it may display privacy-preserving, explicitly opted-in measurements. Do not expose browsing histories, stable device identities, raw packet payloads, or secrets.
+Redirects to `/rhea/`: the public family map, six core projects and nine client/library/learning/distribution/organization entrances. The map describes responsibilities and current source status. It is not live network telemetry.
 
 ### `/receipts`
-Machine-readable evidence: build hashes, target-hardware test receipts, negotiated PQ/T session examples, fault-injection reports, reproducibility records. This is the strongest long-term connection between the public site and Rheknel's epistemic philosophy.
+Redirects to the checked-in `artifacts/devship/` directory. Inspect each artifact for what it actually records. Target-hardware, negotiated PQ/T and fault-injection evidence remain desired future categories unless a particular qualifying receipt exists; this path does not assert their completion.
 
 ### `/rfc`
 Architecture and experimental drafts with immutable links to exact Git commits.
@@ -130,4 +130,4 @@ A production deployment is considered externally healthy when all of the followi
 
 **blueshoes.space is a lighthouse, not a root.**
 
-It can host art, explanations, experiments, public topology, and receipts. Blueshoes must remain capable of routing when the entire domain, GitHub, Cloudflare, and every public dashboard are gone.
+It can host art, explanations, experiments, public topology, and receipts. The target Blueshoes runtime must not require this domain, GitHub, Cloudflare or a public dashboard to route. This is a design requirement; the public site does not establish a qualified routing runtime.
