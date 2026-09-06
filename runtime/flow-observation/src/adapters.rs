@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
-enum NativeVersion {
+pub(crate) enum NativeVersion {
     NativeFlowSampleV1,
 }
 
@@ -47,7 +47,7 @@ pub struct NativeRecord {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NativeSample {
-    schema_version: NativeVersion,
+    pub(crate) schema_version: NativeVersion,
     pub platform: Platform,
     pub collector_scope: String,
     pub snapshot_id: String,
@@ -70,12 +70,19 @@ pub struct ObservationBatch {
     pub native_gate: Gate,
     pub gaps: Vec<String>,
     pub observations: Vec<Evidence>,
+    pub collection_interval: Option<CollectionInterval>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct CollectionInterval {
+    pub started_at: String,
+    pub finished_at: String,
 }
 
 /// Host adapters expose observation only: no executor/capability/callback parameter.
 pub trait FlowAdapter {
     fn platform(&self) -> Platform;
-    fn collect(&self, evaluation: &Evaluation) -> FlowResult<ObservationBatch>;
+    fn collect(&self) -> FlowResult<ObservationBatch>;
     fn fixture(&self, json: &str, evaluation: &Evaluation) -> FlowResult<ObservationBatch> {
         let sample: NativeSample = decode(json)?;
         if sample.platform != self.platform() {
@@ -87,6 +94,7 @@ pub trait FlowAdapter {
             native_gate: Gate::NotExecuted,
             gaps: vec!["Fixture execution does not qualify a native collector".into()],
             observations,
+            collection_interval: None,
         })
     }
 }
@@ -98,16 +106,32 @@ macro_rules! stub {
             fn platform(&self) -> Platform {
                 Platform::$platform
             }
-            fn collect(&self, _: &Evaluation) -> FlowResult<ObservationBatch> {
+            fn collect(&self) -> FlowResult<ObservationBatch> {
                 Ok(not_executed(self.platform()))
             }
         }
     };
 }
 stub!(DarwinAdapter, Darwin);
-stub!(Win32Adapter, Win32);
 stub!(LinuxAdapter, Linux);
 stub!(OpenBsdAdapter, OpenBsd);
+
+pub struct Win32Adapter;
+impl FlowAdapter for Win32Adapter {
+    fn platform(&self) -> Platform {
+        Platform::Win32
+    }
+    fn collect(&self) -> FlowResult<ObservationBatch> {
+        #[cfg(windows)]
+        {
+            crate::win32::collect()
+        }
+        #[cfg(not(windows))]
+        {
+            Ok(not_executed(Platform::Win32))
+        }
+    }
+}
 
 pub fn fixture(json: &str, evaluation: &Evaluation) -> FlowResult<ObservationBatch> {
     let sample: NativeSample = decode(json)?;
@@ -118,6 +142,7 @@ pub fn fixture(json: &str, evaluation: &Evaluation) -> FlowResult<ObservationBat
         native_gate: Gate::NotExecuted,
         gaps: vec!["Fixture execution does not qualify a native collector".into()],
         observations,
+        collection_interval: None,
     })
 }
 
@@ -127,6 +152,7 @@ fn not_executed(platform: Platform) -> ObservationBatch {
         native_gate: Gate::NotExecuted,
         gaps: vec![format!("{} native collector NOT_EXECUTED", platform.name())],
         observations: vec![],
+        collection_interval: None,
     }
 }
 

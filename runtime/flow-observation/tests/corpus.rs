@@ -147,7 +147,7 @@ fn concrete_adapters_reject_wrong_platform_and_keep_native_stubs_explicit() {
         &adapters::LinuxAdapter,
         &adapters::OpenBsdAdapter,
     ] {
-        let batch = adapter.collect(&eval()).unwrap();
+        let batch = adapter.collect().unwrap();
         assert_eq!(batch.native_gate, adapters::Gate::NotExecuted);
         assert!(batch.observations.is_empty());
         assert!(!batch.gaps.is_empty());
