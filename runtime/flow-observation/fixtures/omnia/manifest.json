@@ -1,0 +1,513 @@
+{
+  "corpus_version": "FlowObservationCorpusV1",
+  "schema_revision": "2026-09-06-null-counters",
+  "schema_sha256": "857de52ca0b7bb6ba6edbabccf753cbca59b5b1e884b819a2d57bbc4a7e81c2c",
+  "now": "2026-09-06T00:00:10Z",
+  "max_age_ms": 30000,
+  "native_gates": {
+    "darwin": "NOT_EXECUTED",
+    "win32": "NOT_EXECUTED",
+    "linux": "NOT_EXECUTED",
+    "openbsd": "NOT_EXECUTED"
+  },
+  "cases": [
+    {
+      "id": "equivalent-darwin",
+      "kind": "native",
+      "path": "equivalent-darwin.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "fresh",
+        "process_bound": true,
+        "bytes_up": 0,
+        "bytes_down": 2048
+      },
+      "sha256": "f8e2df46e417479c3a734c0c8ced32823c3c7ab165304fa85c186301d03d1cba"
+    },
+    {
+      "id": "equivalent-win32",
+      "kind": "native",
+      "path": "equivalent-win32.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "fresh",
+        "process_bound": true,
+        "bytes_up": 0,
+        "bytes_down": 2048
+      },
+      "sha256": "aad5b3b723db8ecf9c59945f8f05b3399c63ec4dfcfa364d746f9f60ae18145b"
+    },
+    {
+      "id": "equivalent-linux",
+      "kind": "native",
+      "path": "equivalent-linux.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "fresh",
+        "process_bound": true,
+        "bytes_up": 0,
+        "bytes_down": 2048
+      },
+      "sha256": "17dac6e0f536cb940574da03d629d505c0cd792d034b1acb265210e49b3bd14c"
+    },
+    {
+      "id": "equivalent-openbsd",
+      "kind": "native",
+      "path": "equivalent-openbsd.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "fresh",
+        "process_bound": true,
+        "bytes_up": 0,
+        "bytes_down": 2048
+      },
+      "sha256": "0a96089ec7527a3b487fdddd02f609b1f53126d8f5ead6d68aab696eca58d4dd"
+    },
+    {
+      "id": "pid-rebound",
+      "kind": "native",
+      "path": "pid-rebound.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": false
+      },
+      "sha256": "30cb913e9e77d6976e222c56596efa96ad279e1b50b5857ff93b2d792178aa2c"
+    },
+    {
+      "id": "pid-reused-new-birth",
+      "kind": "native",
+      "path": "pid-reused-new-birth.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": true
+      },
+      "sha256": "cd944b3ab3b6d79869070ceafa7aa5572b70cde4c93fad1b310895e62b7cc5e9"
+    },
+    {
+      "id": "missing-process",
+      "kind": "native",
+      "path": "missing-process.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": false
+      },
+      "sha256": "13df2196cc6a820ae59a9454d75f93a3e48ab85376936b9e619d18d91d818f00"
+    },
+    {
+      "id": "missing-birth",
+      "kind": "native",
+      "path": "missing-birth.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": false
+      },
+      "sha256": "67624ad7516eca2cc44f0bfa518674ffa52cc5e1683e14f8766bc6dfe61c9c00"
+    },
+    {
+      "id": "zero-pid",
+      "kind": "native",
+      "path": "zero-pid.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": false
+      },
+      "sha256": "897fb01b6f08b034c4c0fba13f405a9e743a2d2ec16f231e9b2425c3a0b576f1"
+    },
+    {
+      "id": "max-birth",
+      "kind": "native",
+      "path": "max-birth.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": true
+      },
+      "sha256": "1142f111b65467645e53e0e811e4e867d385b348f1ec16f70db379b3c04b4fdd"
+    },
+    {
+      "id": "zero-counters",
+      "kind": "native",
+      "path": "zero-counters.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "bytes_up": 0,
+        "bytes_down": 0
+      },
+      "sha256": "9cc166b49fa52b3aa7549e1ac7de9fcfd52bbcd849850b9e351481c9ca733e8b"
+    },
+    {
+      "id": "unknown-counters",
+      "kind": "native",
+      "path": "unknown-counters.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "bytes_up": null,
+        "bytes_down": null
+      },
+      "sha256": "55a4edd4f5fd12adf6e8887b910ce12a84a7d62d355f3ac6164aef9eef90b010"
+    },
+    {
+      "id": "stale-age",
+      "kind": "native",
+      "path": "stale-age.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "stale"
+      },
+      "sha256": "935be03a9c091c04c3e15d94e39105ebd0b66f5f41fd8c72b83afe394aebdb56"
+    },
+    {
+      "id": "declared-stale",
+      "kind": "native",
+      "path": "declared-stale.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "stale"
+      },
+      "sha256": "2423401da10c4edc370c4cf49d4656df144fbdbf5f037d40f4dc669f0225b1ed"
+    },
+    {
+      "id": "declared-unknown",
+      "kind": "native",
+      "path": "declared-unknown.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "unknown"
+      },
+      "sha256": "b08e600dafcb046aba2ae80ad8ae85840057e68b982e06a0d09af440dde90a03"
+    },
+    {
+      "id": "future-telemetry",
+      "kind": "native",
+      "path": "future-telemetry.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "freshness": "unknown"
+      },
+      "sha256": "c314839e103dc1f4bd84e549ae6cf4670242786aaa3aaa4687805635160c93b6"
+    },
+    {
+      "id": "masked-display",
+      "kind": "native",
+      "path": "masked-display.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "destination_address": "198.51.100.20",
+        "display_mode": "masked"
+      },
+      "sha256": "3e14194672492b0623f88ce2464da5c0bb08b406120d001500954dd378d1d2b1"
+    },
+    {
+      "id": "inert-action-text",
+      "kind": "native",
+      "path": "inert-action-text.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "destination_address": "198.51.100.20"
+      },
+      "sha256": "76cd04a5f6cf900272fe26088c64def88fa57f654a7e5c781efbe5a3558eff97"
+    },
+    {
+      "id": "unknown-listener-peer",
+      "kind": "native",
+      "path": "unknown-listener-peer.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "destination_address": null
+      },
+      "sha256": "d207fc65249b6caf8dec17d6ab24260458b34d0739b5678758b009ebb0f2d8f3"
+    },
+    {
+      "id": "ipv6-scoped",
+      "kind": "native",
+      "path": "ipv6-scoped.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "destination_address": "fe80::2%4"
+      },
+      "sha256": "c0985181b66ed9a71b38d38d60d10231e1413643c3ecd2e0225ba5e9ad39362f"
+    },
+    {
+      "id": "tuple-reuse",
+      "kind": "native",
+      "path": "tuple-reuse.json",
+      "accepted": true,
+      "schema_valid": null,
+      "expected": {
+        "process_bound": true
+      },
+      "sha256": "c98843e0acd934d86ae4b4b71e6f3fccc3cafd732e3580218f0478426271954f"
+    },
+    {
+      "id": "reject-native-action",
+      "kind": "native",
+      "path": "reject-native-action.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "6748ee9d710fbe6626c29d03f7b66df8cb03c6ab5031f718040a740e15f77160"
+    },
+    {
+      "id": "reject-record-command",
+      "kind": "native",
+      "path": "reject-record-command.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "226b4375f9003c675ebd718aa30f2589af01ad7d3a14017c6de42f75b9725110"
+    },
+    {
+      "id": "reject-policy-action",
+      "kind": "native",
+      "path": "reject-policy-action.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "7710d5dcfde7fb762454e64587a1a0df4051de88a1a7ecf315109e9305e066f8"
+    },
+    {
+      "id": "reject-route-helper",
+      "kind": "native",
+      "path": "reject-route-helper.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "451b3c0cc3cd66aa03c95be5b34e89326444a3a44a34b00a3822728950a29383"
+    },
+    {
+      "id": "reject-identity-kind",
+      "kind": "native",
+      "path": "reject-identity-kind.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "95efe5d9fda505bc613d8419aabe77bb17899136836025306134673db2d215a4"
+    },
+    {
+      "id": "reject-negative-counter",
+      "kind": "native",
+      "path": "reject-negative-counter.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "1abb280c0ce3a0d138eb8a8c1e03bfdf5491b22d48d444ed447bbc47eec4a0db"
+    },
+    {
+      "id": "reject-integral-float-profile",
+      "kind": "native",
+      "path": "reject-integral-float-profile.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "277014e6a61a305820d158d881cb616c67700920ce66c5c9cb79bdf43595a14d"
+    },
+    {
+      "id": "reject-overflow-birth",
+      "kind": "native",
+      "path": "reject-overflow-birth.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "cb91f89074f70953599de727e45ae448a622aaef38cf133a7de81748c73d218b"
+    },
+    {
+      "id": "reject-overflow-counter",
+      "kind": "native",
+      "path": "reject-overflow-counter.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "6eefdaef0dea2ceb5bbaba9615e552b472cd0c85a0b8175a395a5f10c17ded84"
+    },
+    {
+      "id": "reject-missing-byte-counter",
+      "kind": "native",
+      "path": "reject-missing-byte-counter.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "983ba2960a03a57b68ef7723331d6fb620c9f0d0a467948973432698a7373c75"
+    },
+    {
+      "id": "reject-invalid-time",
+      "kind": "native",
+      "path": "reject-invalid-time.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "0c69bbca252b8d162240b99147c40d013b2ff912816f81f6eab39a8379ff1d89"
+    },
+    {
+      "id": "reject-port-overflow",
+      "kind": "native",
+      "path": "reject-port-overflow.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "7e022740cde8a56c25e134387a27e90f5ff68149303a5918bbea9c10f4287447"
+    },
+    {
+      "id": "reject-duplicate-record-id",
+      "kind": "native",
+      "path": "reject-duplicate-record-id.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "199365d8c7c9d908c97fbbbc154e12d6450ca1e385bb2278d3d74719e6d9d56b"
+    },
+    {
+      "id": "wire-valid",
+      "kind": "observation",
+      "path": "wire-valid.json",
+      "accepted": true,
+      "schema_valid": true,
+      "expected": {},
+      "sha256": "24c33b86b2383c8143bbfd8d5894ccf28f8000e0811a0ed3dc9c72550393412c"
+    },
+    {
+      "id": "wire-netbsd",
+      "kind": "observation",
+      "path": "wire-netbsd.json",
+      "accepted": true,
+      "schema_valid": true,
+      "expected": {},
+      "sha256": "6a12e83e873d8d78ddbf1b3120b3849a6d9be97904b4bddfe5932b8a684d819a"
+    },
+    {
+      "id": "wire-null-counters",
+      "kind": "observation",
+      "path": "wire-null-counters.json",
+      "accepted": true,
+      "schema_valid": true,
+      "expected": {},
+      "sha256": "86f2424c00ba966eb0281ecc4a657b7d408224cbd105c5ac6a307e9812ce723e"
+    },
+    {
+      "id": "reject-wire-authority",
+      "kind": "observation",
+      "path": "reject-wire-authority.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "7cbf35a67a680da5dfc9401fe9fe583230a86c2638c60dd79e0b816e79661dd6"
+    },
+    {
+      "id": "reject-wire-action",
+      "kind": "observation",
+      "path": "reject-wire-action.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "b9ee3ee46e6a23fea6911bc7cf3fede9b90ca2069dc174c67e9a334209fb0ce9"
+    },
+    {
+      "id": "reject-wire-provenance-command",
+      "kind": "observation",
+      "path": "reject-wire-provenance-command.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "b907f05e2b7626ffe8163c4b491d1e66f12f7b60ea6a6ef7ca130287efa42234"
+    },
+    {
+      "id": "reject-wire-policy-action",
+      "kind": "observation",
+      "path": "reject-wire-policy-action.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "a72921ac9ed32d0eceacee82e0e0ca271af71eaf23abf0a2d95401aab39ceba9"
+    },
+    {
+      "id": "reject-wire-display-action",
+      "kind": "observation",
+      "path": "reject-wire-display-action.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "384b5b63f34a6a70a35003bcf6c1eec65ab5a95a0aa99daecb4f4f797c08b9f2"
+    },
+    {
+      "id": "reject-wire-endpoint-action",
+      "kind": "observation",
+      "path": "reject-wire-endpoint-action.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "0c7e1f566fa3735222d317b6b6c38e679324f374601b871a15b5f9f22e9419d7"
+    },
+    {
+      "id": "reject-wire-negative-counter",
+      "kind": "observation",
+      "path": "reject-wire-negative-counter.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "516cbb24871bd0958d50e3ba6024c7766f04177cb4db35319974da2a4e15ff13"
+    },
+    {
+      "id": "reject-wire-integral-float-profile",
+      "kind": "observation",
+      "path": "reject-wire-integral-float-profile.json",
+      "accepted": false,
+      "schema_valid": true,
+      "expected": {},
+      "sha256": "8c5b3e830503c501a4b0c4f27acfb6b57949ced7470d6f074c07dcd60a754ddc"
+    },
+    {
+      "id": "reject-wire-overflow-profile",
+      "kind": "observation",
+      "path": "reject-wire-overflow-profile.json",
+      "accepted": false,
+      "schema_valid": true,
+      "expected": {},
+      "sha256": "d2eae508bca0373d5a7dffc4b9474cb214d55b2eec2d1de4f9edf9b80bde16d3"
+    },
+    {
+      "id": "reject-wire-missing-counter",
+      "kind": "observation",
+      "path": "reject-wire-missing-counter.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "2c64011dbfafce835a74c6966032aaa0eb0870ac9988604e645f4aa582fe0a36"
+    },
+    {
+      "id": "reject-wire-invalid-time",
+      "kind": "observation",
+      "path": "reject-wire-invalid-time.json",
+      "accepted": false,
+      "schema_valid": false,
+      "expected": {},
+      "sha256": "e377cfbd7fcf59fdaddbdaa631574f793baa41dca4161195f270cbb8068fcea4"
+    },
+    {
+      "id": "reject-duplicate-key",
+      "kind": "observation",
+      "path": "reject-duplicate-key.json",
+      "accepted": false,
+      "schema_valid": null,
+      "expected": {},
+      "sha256": "4fe7f2c4f082f2ec5775b755fef5fcfd7ae29ec4f146813de275c65d95605e8a"
+    }
+  ]
+}

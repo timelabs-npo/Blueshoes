@@ -1,0 +1,13 @@
+{
+  "scope": "Reviewed observation production sources and dependency lock; no universal future-code or compromised-toolchain guarantee",
+  "files": {
+    "Cargo.lock": "eb282c338127899deabefc924198378b9deb8177cdfa0319d4214aa67c9c5bf9",
+    "Cargo.toml": "d65a600589ce30ce445a93be36af971be1544f94d6b21e5213ba73bf0b5070c9",
+    "src/adapters.rs": "71250413da5a82fe9cf3d951b2cbc05c34d411dd5b9e4784b66c2016738d65b6",
+    "src/graph.rs": "b8972735e2f0031e845756c85bf13012561f6fd99ce348f27faad22fb098f12e",
+    "src/lib.rs": "388315fb7eb4631d25d0bc0b0e57f5fd49852a934f03a77138724358b5379435",
+    "src/main.rs": "793632bcdb71db0dd7cdc4c2ca327d4d94efe20cff6c26c46c089eb7652d098c",
+    "src/model.rs": "7d4801c3709506b6cd0d95f21f437738c8e0764b5ad37692f502f54c18cb2527",
+    "src/win32.rs": "1df91561d7344d873531eb22d2c7c5ddeda3c5251f64ee8cfde495b6b965eeb3"
+  }
+}

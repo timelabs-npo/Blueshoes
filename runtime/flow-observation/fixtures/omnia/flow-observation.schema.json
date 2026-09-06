@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://timelabs-npo.github.io/omnia-playbook/schemas/flow-observation.schema.json",
+  "title": "FlowObservationV1",
+  "$comment": "Paired unreleased contract revision 2026-09-06: null byte counters mean unavailable; old integer-only V1 consumers reject those documents. All previously valid V1 documents remain valid.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "flow_id",
+    "platform",
+    "observed_at",
+    "freshness",
+    "source",
+    "destination",
+    "protocol",
+    "counters",
+    "policy",
+    "route",
+    "provenance",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": { "const": "FlowObservationV1" },
+    "flow_id": { "type": "string", "minLength": 1 },
+    "platform": { "enum": ["darwin", "win32", "linux", "openbsd", "netbsd"] },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "freshness": { "enum": ["fresh", "stale", "unknown"] },
+    "process_ref": { "type": ["string", "null"] },
+    "source": { "$ref": "#/$defs/endpoint" },
+    "destination": { "$ref": "#/$defs/endpoint" },
+    "protocol": { "type": "string", "minLength": 1 },
+    "counters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes_up", "bytes_down"],
+      "properties": {
+        "bytes_up": { "type": ["integer", "null"], "minimum": 0 },
+        "bytes_down": { "type": ["integer", "null"], "minimum": 0 },
+        "rate_up_bps": { "type": ["integer", "null"], "minimum": 0 },
+        "rate_down_bps": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match_state"],
+      "properties": {
+        "match_state": { "enum": ["matched", "unmatched", "unknown"] },
+        "rule_ref": { "type": ["string", "null"] },
+        "decision": { "type": ["string", "null"] }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": { "enum": ["observed", "partial", "unknown"] },
+        "interface_ref": { "type": ["string", "null"] },
+        "egress_ref": { "type": ["string", "null"] },
+        "tunnel_ref": { "type": ["string", "null"] }
+      }
+    },
+    "display_location": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["real", "derived", "masked", "unknown"] },
+        "label": { "type": ["string", "null"] }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter", "adapter_version", "source_kind"],
+      "properties": {
+        "adapter": { "type": "string", "minLength": 1 },
+        "adapter_version": { "type": "string", "minLength": 1 },
+        "source_kind": { "type": "string", "minLength": 1 }
+      }
+    },
+    "authority": { "const": "observation_only" }
+  },
+  "$defs": {
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address_state"],
+      "properties": {
+        "address_state": { "enum": ["known", "partial", "unknown"] },
+        "address": { "type": ["string", "null"] },
+        "port": { "type": ["integer", "null"], "minimum": 0, "maximum": 65535 },
+        "domain": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

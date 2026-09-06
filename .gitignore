@@ -9,4 +9,5 @@ artifacts/*
 agent-gcp-key.json
 *.pem
 *-key.json
+!runtime/flow-observation/fixtures/omnia/reject-duplicate-key.json
 proof.txt
