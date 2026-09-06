@@ -18,3 +18,13 @@ No playbook document, UI event, model output, or helper process can authorize ne
 ## Initial shared objective
 
 Establish a portable, observation-only flow object across darwin/win32/linux/openbsd before adding any mutation capability.
+
+## Implemented read-only slice
+
+The standalone `runtime/flow-observation` crate consumes only pinned JSON data and
+schemas from omnia-playbook commit `30002c67533258691203391b4f0c30a3125d8e23`.
+It imports no validator/oracle implementation. The corpus has 49 cases, including
+four equivalent platform samples and independent adversarial/profile cases.
+Windows TCP IPv4/IPv6 has actual query evidence; Darwin/Linux/OpenBSD native
+collection remains NOT_EXECUTED. See [evidence](FLOW_OBSERVATION_EVIDENCE.md) for
+the read-only gates, schema revision compatibility and remaining gaps.

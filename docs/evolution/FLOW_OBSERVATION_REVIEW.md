@@ -44,3 +44,21 @@ Stop conditions: any mutation/executor/helper path; fabricated counters or proce
 identity; stale data promoted to fresh; display data replacing evidence; unbounded
 native reads; private topology in published evidence; unsupported native PASS;
 ClashMac implementation import; edits outside the authorized branches.
+
+## Post-implementation independent review
+
+The three isolated reviewers inspected the production implementation and tests.
+Security found no blocking parser/native/graph issue, then independently reproduced
+the five dependency/source/corpus/CLI/PE gates and native wire/graph validation.
+Architecture and Governance found issues before release: a rounded native birth
+maximum, missing integer-token profile cases, an ignored duplicate-key fixture,
+ambiguous direction wording and inaccurate collection interval wording. All were
+corrected and independently rechecked. Final verdicts: Security ACCEPT;
+Governance ACCEPT; Architecture APPROVE for this bounded read-only scope.
+
+Reviewed implementation: `32307237d4c5c305b6cbb2509503a8cea9d5758e`;
+independent corpus: `30002c67533258691203391b4f0c30a3125d8e23`.
+The production fingerprints in `runtime/flow-observation/reviewed-source-lock.json`
+bind the inspected source set. See [verification evidence](FLOW_OBSERVATION_EVIDENCE.md).
+These are independent advisory/code-review and test receipts, not a universal
+runtime safety claim, mutation qualification or authority grant.
